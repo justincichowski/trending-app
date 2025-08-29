@@ -67,6 +67,9 @@ export async function getRssFeed(options: {
 	}
 
 	const feed = await parser.parseURL(feedUrl);
+	console.log('--- RAW RSS FEED ---');
+	console.log(JSON.stringify(feed, null, 2));
+	console.log('--------------------');
 
 	// Normalize items and filter out any that are invalid
 	const normalizedItems = feed.items

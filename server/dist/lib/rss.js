@@ -62,6 +62,9 @@ async function getRssFeed(options) {
         throw new Error('Either a URL or a query must be provided to fetch an RSS feed.');
     }
     const feed = await parser.parseURL(feedUrl);
+    console.log('--- RAW RSS FEED ---');
+    console.log(JSON.stringify(feed, null, 2));
+    console.log('--------------------');
     // Normalize items and filter out any that are invalid
     const normalizedItems = feed.items
         .map(item => normalizeItem(item, source))

@@ -92,7 +92,8 @@ export async function getYouTubeVideos(options: {
 	const apiKey = process.env.YOUTUBE_API_KEY;
 
 	if (!apiKey) {
-		throw new Error('YouTube API key is missing.');
+		console.warn('YouTube API key is missing. YouTube category will be empty.');
+		return [];
 	}
 
 	let response;

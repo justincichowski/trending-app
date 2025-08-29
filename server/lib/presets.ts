@@ -100,7 +100,7 @@ export const presets: Preset[] = [
 		name: 'Cooking',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.COOKING_PLAYLIST_ID,
+			playlistId: process.env.COOKING_PLAYLIST_ID || 'PLUoqX-s3I6kJ_M2i_zK713A3M3sW_M4b9', // Bon Appétit
 			query: 'cooking recipes',
 		},
 	},
@@ -109,7 +109,7 @@ export const presets: Preset[] = [
 		name: 'Travel',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.TRAVEL_PLAYLIST_ID,
+			playlistId: process.env.TRAVEL_PLAYLIST_ID || 'PLUoqX-s3I6kLgL08g_2HhS4p991g0s4sC', // Rick Steves' Europe
 			query: 'travel vlogs',
 		},
 	},
