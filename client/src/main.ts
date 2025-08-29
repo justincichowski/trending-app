@@ -53,9 +53,7 @@ if (settingsPanelContainer) {
 
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
-		history.pushState({}, '', '#settings');
-		// Manually dispatch a popstate event to trigger the router
-		window.dispatchEvent(new PopStateEvent('popstate'));
+		window.location.hash = 'settings';
 	});
 }
 
@@ -222,7 +220,7 @@ if (searchToggleButton && controls) {
 
 // Initial render and setup
 window.addEventListener('load', handleSettingsPanelVisibility);
-window.addEventListener('popstate', handleSettingsPanelVisibility);
+window.addEventListener('hashchange', handleSettingsPanelVisibility);
 
 stateManager.subscribe(state => {
 	renderItems();
