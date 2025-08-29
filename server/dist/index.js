@@ -96,6 +96,10 @@ const main = async () => {
                     items = await (0, youtube_1.getYouTubeVideos)(preset.params);
                     break;
             }
+            // --- DEBUG LOG: Uncomment to see the final items sent to the client ---
+            console.log('--- FINAL NORMALIZED ITEMS ---');
+            console.log(JSON.stringify(items, null, 2));
+            console.log('------------------------------');
             return items;
         }
         catch (error) {
