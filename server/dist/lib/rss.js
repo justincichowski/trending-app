@@ -5,29 +5,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRssFeed = getRssFeed;
 const rss_parser_1 = __importDefault(require("rss-parser"));
+const axios_1 = __importDefault(require("axios"));
 // Create a new RSS parser instance
 const parser = new rss_parser_1.default();
+/**
+ * Fetches the HTML of a page and extracts the Open Graph image URL.
+ *
+ * @param {string} url - The URL of the page to fetch.
+ * @returns {Promise<string | null>} The image URL, or null if not found.
+ */
+async function getOpenGraphImage(url) {
+    try {
+        const { data: html } = await axios_1.default.get(url, { timeout: 2000 });
+        const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/);
+        return match ? match[1] : null;
+    }
+    catch (error) {
+        // Ignore errors (e.g., timeouts, 404s)
+        return null;
+    }
+}
 /**
  * Normalizes a raw RSS item into the common `NormalizedItem` shape.
  * Returns null if the item is missing essential fields.
  *
  * @param {Parser.Item} item - The raw item from the RSS feed.
  * @param {string} source - The source label for the feed.
- * @returns {NormalizedItem | null} The normalized item, or null if invalid.
+ * @returns {Promise<NormalizedItem | null>} The normalized item, or null if invalid.
  */
-function normalizeItem(item, source) {
-    // Ensure essential fields are present
+async function normalizeItem(item, source) {
     if (!item.title || !item.link) {
-        // --- DEBUG LOG: Uncomment to see rejected RSS items ---
-        // console.log('--- REJECTED RSS ITEM ---');
-        // console.log('Reason: Missing title or link');
-        // console.log(JSON.stringify(item, null, 2));
-        // console.log('-------------------------');
         return null;
     }
-    // Attempt to find an image URL in the media:content tag
-    const media = item['media:content'];
-    const imageUrl = media?.$?.url;
+    const imageUrl = await getOpenGraphImage(item.link);
     return {
         id: item.guid || item.link,
         title: item.title,
@@ -35,7 +45,7 @@ function normalizeItem(item, source) {
         source: source,
         description: item.contentSnippet,
         publishedAt: item.isoDate,
-        image: imageUrl,
+        image: imageUrl || undefined,
     };
 }
 /**
@@ -71,13 +81,9 @@ async function getRssFeed(options) {
         throw new Error('Either a URL or a query must be provided to fetch an RSS feed.');
     }
     const feed = await parser.parseURL(feedUrl);
-    // --- DEBUG LOG: Uncomment to see the raw RSS feed data ---
-    // console.log('--- RAW RSS FEED ---');
-    // console.log(JSON.stringify(feed, null, 2));
-    // console.log('--------------------');
-    // Normalize items and filter out any that are invalid
-    const normalizedItems = feed.items
-        .map(item => normalizeItem(item, source))
-        .filter((item) => item !== null);
-    return normalizedItems.slice(0, limit);
+    const limitedItems = feed.items.slice(0, limit);
+    // Normalize items in parallel and filter out any that are invalid
+    const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
+    const normalizedItems = (await Promise.all(normalizationPromises)).filter((item) => item !== null);
+    return normalizedItems;
 }

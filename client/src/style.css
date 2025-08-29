@@ -88,6 +88,10 @@ body {
 	cursor: pointer;
 }
 
+.item-card {
+	max-width: 550px;
+}
+
 .item-image {
 	width: 100%;
 	height: auto;
