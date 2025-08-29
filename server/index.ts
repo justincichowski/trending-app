@@ -16,9 +16,9 @@ const server = fastify({
  */
 const main = async () => {
 	// Register the CORS plugin to handle cross-origin requests
-	await server.register(cors, {
-		origin: 'http://localhost:5173', // Allow requests from the Vite client
-	});
+	// await server.register(cors, {
+	// 	origin: 'http://localhost:5173', // Allow requests from the Vite client
+	// });
 
 	/**
 	 * A simple route that returns a "Hello, World!" message.
