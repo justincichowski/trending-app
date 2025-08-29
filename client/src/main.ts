@@ -47,15 +47,14 @@ if (notificationContainer) {
 	notification = new Notification(notificationContainer);
 }
 
+let settingsPanel: SettingsPanel | null = null;
 if (settingsPanelContainer) {
-	new SettingsPanel(settingsPanelContainer);
+	settingsPanel = new SettingsPanel(settingsPanelContainer);
 }
 
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
-		if (settingsPanelContainer) {
-			settingsPanelContainer.hidden = !settingsPanelContainer.hidden;
-		}
+		settingsPanel?.show();
 	});
 }
 

@@ -10,7 +10,7 @@
 import { stateManager } from '../state';
 
 /**
- * A component that displays the settings panel.
+ * A component that displays the settings panel as a modal dialog.
  */
 export class SettingsPanel {
 	private element: HTMLElement;
@@ -18,6 +18,7 @@ export class SettingsPanel {
 	constructor(container: HTMLElement) {
 		this.element = document.createElement('div');
 		this.element.className = 'settings-panel';
+		this.element.hidden = true;
 		container.appendChild(this.element);
 
 		this.render();
@@ -26,47 +27,61 @@ export class SettingsPanel {
 	}
 
 	/**
+	 * Shows the settings panel.
+	 */
+	show() {
+		this.element.hidden = false;
+	}
+
+	/**
+	 * Hides the settings panel.
+	 */
+	hide() {
+		this.element.hidden = true;
+	}
+
+	/**
 	 * Renders the settings panel content.
 	 */
 	private render() {
 		this.element.innerHTML = `
-			<h2>Settings</h2>
-			<div class="setting">
-				<label for="theme-toggle">Theme:</label>
-				<button id="theme-toggle">Toggle Theme</button>
+			<div class="settings-panel-content">
+				<h2>Settings</h2>
+				<button class="close-button">&times;</button>
+				<div class="setting">
+					<label for="theme-toggle">Theme:</label>
+					<button id="theme-toggle">Toggle Theme</button>
+				</div>
+				<div class="setting">
+					<label for="reduced-motion-toggle">Reduced Motion:</label>
+					<input type="checkbox" id="reduced-motion-toggle" />
+				</div>
+				<div class="setting">
+					<label for="auto-scroll-toggle">Auto-Scroll:</label>
+					<input type="checkbox" id="auto-scroll-toggle" />
+					<input type="number" id="auto-scroll-interval" value="5000" />
+				</div>
+				<div class="setting">
+					<label for="cooking-playlist-id">Cooking Playlist ID:</label>
+					<input type="text" id="cooking-playlist-id" />
+				</div>
+				<div class="setting">
+					<label for="travel-playlist-id">Travel Playlist ID:</label>
+					<input type="text" id="travel-playlist-id" />
+				</div>
 			</div>
-			<div class="setting">
-				<label for="reduced-motion-toggle">Reduced Motion:</label>
-				<input type="checkbox" id="reduced-motion-toggle" />
-			</div>
-			<div class="setting">
-				<label for="auto-scroll-toggle">Auto-Scroll:</label>
-				<input type="checkbox" id="auto-scroll-toggle" />
-				<input type="number" id="auto-scroll-interval" value="5000" />
-			</div>
-			<div class="setting">
-				<label for="cooking-playlist-id">Cooking Playlist ID:</label>
-				<input type="text" id="cooking-playlist-id" />
-			</div>
-			<div class="setting">
-				<label for="travel-playlist-id">Travel Playlist ID:</label>
-				<input type="text" id="travel-playlist-id" />
-			</div>
-			<button id="close-settings-button">Close</button>
 		`;
-
-		const closeButton = this.element.querySelector('#close-settings-button');
-		if (closeButton) {
-			closeButton.addEventListener('click', () => {
-				this.element.hidden = true;
-			});
-		}
 	}
 
 	/**
 		* Adds event listeners to the settings controls.
 		*/
 	private addEventListeners() {
+		const closeButton = this.element.querySelector('.close-button');
+		if (closeButton) {
+			closeButton.addEventListener('click', () => this.hide());
+		}
+
 		const themeToggle = this.element.querySelector('#theme-toggle');
 		if (themeToggle) {
 			themeToggle.addEventListener('click', () => {
