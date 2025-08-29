@@ -30,14 +30,14 @@ export class SettingsPanel {
 	 * Shows the settings panel.
 	 */
 	show() {
-		this.element.hidden = false;
+		this.element.classList.add('active');
 	}
 
 	/**
 	 * Hides the settings panel.
 	 */
 	hide() {
-		this.element.hidden = true;
+		this.element.classList.remove('active');
 	}
 
 	/**
