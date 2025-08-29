@@ -92,8 +92,8 @@ body {
 .logo[data-tooltip]::after {
 	content: attr(data-tooltip);
 	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
+	left: 5px;
+	transform: translateX(0);
 	top: 125%;
 	padding: 0.5rem;
 	border-radius: 4px;
