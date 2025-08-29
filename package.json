@@ -7,7 +7,7 @@
     "start": "npm run dev",
     "dev": "concurrently \"npm:dev:*\"",
     "dev:server": "cd server && tsc && node dist/index.js",
-    "dev:client": "npm --prefix client dev",
+    "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client build",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
