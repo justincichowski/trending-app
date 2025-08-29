@@ -113,8 +113,12 @@ body {
 	gap: 1rem;
 }
 
+.search-toggle-button {
+	display: none;
+}
+
 @media (max-width: 768px) {
-	.controls {
+	.controls > *:not(.search-toggle-button) {
 		display: none;
 	}
 
@@ -132,5 +136,11 @@ body {
 		background-color: var(--background-color);
 		padding: 1rem;
 		border-bottom: 1px solid var(--border-color);
+	}
+
+	.controls.active > * {
+		display: block;
+		width: 100%;
+		margin-bottom: 0.5rem;
 	}
 }
