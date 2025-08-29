@@ -82,7 +82,8 @@ export class SettingsPanel {
 			closeButton.addEventListener('click', () => {
 				// Use pushState to remove the hash without a page reload
 				history.pushState('', document.title, window.location.pathname + window.location.search);
-				this.hide();
+				// Manually dispatch a popstate event to trigger the router
+				window.dispatchEvent(new PopStateEvent('popstate'));
 			});
 		}
 
