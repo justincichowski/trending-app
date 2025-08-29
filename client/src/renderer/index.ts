@@ -22,7 +22,7 @@ export function renderItems() {
  if (!mainContent) return;
 
  if (!virtualList) {
- 	virtualList = new VirtualList(mainContent);
+ 	virtualList = new VirtualList();
  	virtualList.onLoadMore(loadMoreItems);
  }
 
@@ -53,11 +53,19 @@ export function renderItems() {
  }
 
  if (filteredItems.length === 0) {
- 	mainContent.innerHTML = '<p>No items to display.</p>';
+  if (currentCategory) {
+    mainContent.innerHTML = '<p>Loading...</p>';
+  } else {
+    mainContent.innerHTML = '<p>No items to display.</p>';
+  }
  	return;
  }
 
- virtualList.render(filteredItems);
+  // --- DEBUG LOG: Logs the number of items being rendered ---
+  console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
+  mainContent.innerHTML = ''; // Clear the container
+  virtualList.render(filteredItems);
+  mainContent.appendChild(virtualList.getElement()); // Append the list
 
  // Restore the scroll position for the current category
  if (currentCategory && scrollPositions[currentCategory.id]) {

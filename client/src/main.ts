@@ -43,14 +43,13 @@ const mainContent = document.getElementById('main-content');
 const notificationContainer = document.getElementById('notification-container');
 const settingsPanelContainer = document.getElementById('settings-panel');
 let notification: Notification | null = null;
-let settingsPanel: SettingsPanel | null = null;
 
 if (notificationContainer) {
 	notification = new Notification(notificationContainer);
 }
 
 if (settingsPanelContainer) {
-	settingsPanel = new SettingsPanel(settingsPanelContainer);
+	new SettingsPanel(settingsPanelContainer);
 }
 
 if (settingsButton) {
@@ -83,9 +82,8 @@ async function categoryView(params: Record<string, string>) {
 
 	try {
 		const items = await getCategoryItems(id);
-		console.log('--- RECEIVED ITEMS ---');
-		console.log(JSON.stringify(items, null, 2));
-		console.log('--------------------');
+		// --- DEBUG LOG: Logs the number of items received from the API ---
+		console.log(`--- RECEIVED ${items.length} ITEMS ---`);
 		const newCurrentCategory = stateManager.getState().categories.find(c => c.id === id) || null;
 		stateManager.setState({ items, currentCategory: newCurrentCategory, lastUpdated: Date.now() });
 	} catch (error) {

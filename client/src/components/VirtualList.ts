@@ -20,16 +20,22 @@ export class VirtualList {
 	private observer: IntersectionObserver;
 	private loadMoreCallback: () => void = () => {};
 
-	constructor(container: HTMLElement) {
+	constructor() {
 		this.element = document.createElement('div');
 		this.element.className = 'virtual-list';
-		container.appendChild(this.element);
 
 		this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
 			root: null,
 			rootMargin: '200px', // Load more when the user is 200px away from the end
 			threshold: 0,
 		});
+	}
+
+	/**
+	 * Returns the root element of the component.
+	 */
+	getElement(): HTMLElement {
+		return this.element;
 	}
 
 	/**

@@ -15,10 +15,11 @@ const parser = new Parser();
 function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null {
 	// Ensure essential fields are present
 	if (!item.title || !item.link) {
-		console.log('--- REJECTED RSS ITEM ---');
-		console.log('Reason: Missing title or link');
-		console.log(JSON.stringify(item, null, 2));
-		console.log('-------------------------');
+		// --- DEBUG LOG: Uncomment to see rejected RSS items ---
+		// console.log('--- REJECTED RSS ITEM ---');
+		// console.log('Reason: Missing title or link');
+		// console.log(JSON.stringify(item, null, 2));
+		// console.log('-------------------------');
 		return null;
 	}
 
@@ -71,9 +72,10 @@ export async function getRssFeed(options: {
 	}
 
 	const feed = await parser.parseURL(feedUrl);
-	console.log('--- RAW RSS FEED ---');
-	console.log(JSON.stringify(feed, null, 2));
-	console.log('--------------------');
+	// --- DEBUG LOG: Uncomment to see the raw RSS feed data ---
+	// console.log('--- RAW RSS FEED ---');
+	// console.log(JSON.stringify(feed, null, 2));
+	// console.log('--------------------');
 
 	// Normalize items and filter out any that are invalid
 	const normalizedItems = feed.items
