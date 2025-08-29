@@ -1,10 +1,10 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
-import { getHackerNewsStories } from '../api/lib/hackernews';
-import { getRssFeed } from '../api/lib/rss';
-import { getYouTubeVideos } from '../api/lib/youtube';
-import { presets } from '../api/lib/presets';
-import type { NormalizedItem } from '../api/lib/types';
+import { getHackerNewsStories } from './lib/hackernews';
+import { getRssFeed } from './lib/rss';
+import { getYouTubeVideos } from './lib/youtube';
+import { presets } from './lib/presets';
+import type { NormalizedItem } from './lib/types';
 
 // Create a new Fastify server instance
 const server = fastify({
