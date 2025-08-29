@@ -22,7 +22,6 @@ export class SettingsPanel {
 
 		this.render();
 		this.addEventListeners();
-		this.updateUIFromState();
 	}
 
 	/**
@@ -79,7 +78,12 @@ export class SettingsPanel {
 	private addEventListeners() {
 		const closeButton = this.element.querySelector('.close-button');
 		if (closeButton) {
-			closeButton.addEventListener('click', () => this.hide());
+			closeButton.addEventListener('click', () => {
+				// Use pushState to remove the hash without a page reload
+				history.pushState('', document.title, window.location.pathname + window.location.search);
+				// Manually dispatch a hashchange event to trigger the router
+				window.dispatchEvent(new Event('hashchange'));
+			});
 		}
 
 		const themeToggle = this.element.querySelector('#theme-toggle');
@@ -140,7 +144,7 @@ export class SettingsPanel {
 	/**
 		* Updates the UI controls based on the current state.
 		*/
-	private updateUIFromState() {
+	updateUIFromState() {
 		const { theme, autoScroll, youtubePlaylists } = stateManager.getState();
 		document.documentElement.className = `${theme}-theme`;
 
