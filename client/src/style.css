@@ -85,7 +85,23 @@ body {
 }
 
 .logo {
+	position: relative;
 	cursor: pointer;
+}
+
+.logo[data-tooltip]:hover::after,
+.logo[data-tooltip]:active::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 125%;
+	padding: 0.5rem;
+	border-radius: 4px;
+	background-color: var(--card-background-color);
+	color: var(--text-color);
+	white-space: nowrap;
+	z-index: 10;
 }
 
 .item-card {

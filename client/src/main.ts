@@ -26,9 +26,6 @@ const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const searchToggleButton = document.getElementById('search-toggle-button');
 const controls = document.querySelector('.controls');
-const lastUpdatedContainer = document.createElement('div');
-lastUpdatedContainer.className = 'last-updated';
-document.querySelector('.app-header .controls')?.prepend(lastUpdatedContainer);
 
 
 if (categoryNavContainer) {
@@ -177,8 +174,8 @@ router.addRoute('/', () => {
 
 function updateLastUpdated() {
 	const { lastUpdated } = stateManager.getState();
-	if (lastUpdated) {
-		lastUpdatedContainer.textContent = `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`;
+	if (lastUpdated && logo) {
+		logo.setAttribute('data-tooltip', `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
 	}
 }
 
