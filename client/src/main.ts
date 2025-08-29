@@ -53,7 +53,8 @@ if (settingsPanelContainer) {
 
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
-		window.location.hash = 'settings';
+		history.pushState({}, '', '#settings');
+		window.dispatchEvent(new Event('hashchange'));
 	});
 }
 
