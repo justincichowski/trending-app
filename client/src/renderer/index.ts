@@ -26,7 +26,7 @@ export function renderItems() {
  	virtualList.onLoadMore(loadMoreItems);
  }
 
- const { items, currentCategory, scrollPositions } = stateManager.getState();
+ const { items, currentCategory, scrollPositions, isLoading } = stateManager.getState();
  const searchInput = document.getElementById('search-input') as HTMLInputElement;
  const sortSelect = document.getElementById('sort-select') as HTMLSelectElement;
 
@@ -52,12 +52,18 @@ export function renderItems() {
  	}
  }
 
+ if (isLoading) {
+ 	mainContent.innerHTML = '<p>Loading...</p>';
+ 	return;
+ }
+
  if (filteredItems.length === 0) {
-  if (currentCategory) {
-    mainContent.innerHTML = '<p>Loading...</p>';
-  } else {
-    mainContent.innerHTML = '<p>No items to display.</p>';
-  }
+ 	if (searchInput && searchInput.value) {
+ 		mainContent.innerHTML = '<p>No items match your search.</p>';
+ 	} else {
+ 		mainContent.innerHTML =
+ 			'<p>No items found for this category. The data source may be unavailable or the API key may be missing.</p>';
+ 	}
  	return;
  }
 

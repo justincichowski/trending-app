@@ -58,38 +58,66 @@ async function getYouTubeVideos(options) {
         console.warn('YouTube API key is missing. YouTube category will be empty.');
         return [];
     }
-    let response;
+    // 1. Attempt to fetch from playlist if ID is provided
     if (playlistId) {
-        // Fetch videos from a playlist
-        response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-            params: {
-                part: 'snippet',
-                playlistId,
-                maxResults: limit,
-                key: apiKey,
-            },
-            timeout: 5000, // 5 second timeout
-        });
+        try {
+            console.log(`Attempting to fetch YouTube playlist: ${playlistId}`);
+            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+                params: {
+                    part: 'snippet',
+                    playlistId,
+                    maxResults: limit,
+                    key: apiKey,
+                },
+                timeout: 5000, // 5 second timeout
+            });
+            const normalizedItems = response.data.items
+                .map(normalizeItem)
+                .filter((item) => item !== null);
+            // If we get items, return them. Otherwise, we'll fall through to search.
+            if (normalizedItems.length > 0) {
+                console.log(`Successfully fetched ${normalizedItems.length} items from playlist.`);
+                return normalizedItems;
+            }
+            console.log('Playlist was empty or invalid, falling back to search query.');
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            console.error(`Failed to fetch YouTube playlist ${playlistId}. Falling back to search query. Error: ${errorMessage}`);
+            // Don't re-throw, just log and fall through to the search query
+        }
     }
-    else if (query) {
-        // Fall back to a search query
-        response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
-            params: {
-                part: 'snippet',
-                q: query,
-                type: 'video',
-                maxResults: limit,
-                key: apiKey,
-            },
-            timeout: 5000, // 5 second timeout
-        });
+    // 2. Fallback to search query if playlist failed or wasn't provided
+    if (query) {
+        try {
+            console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
+            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
+                params: {
+                    part: 'snippet',
+                    q: query,
+                    type: 'video',
+                    maxResults: limit,
+                    key: apiKey,
+                },
+                timeout: 5000,
+            });
+            const normalizedItems = response.data.items
+                .map(normalizeItem)
+                .filter((item) => item !== null);
+            console.log(`Successfully fetched ${normalizedItems.length} items from search.`);
+            return normalizedItems;
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            console.error(`Failed to fetch YouTube videos with query "${query}". Error: ${errorMessage}`);
+            // If search also fails, return an empty array to prevent crashing the app
+            return [];
+        }
     }
-    else {
-        throw new Error('Either a playlistId or a query must be provided to fetch YouTube videos.');
+    // 3. If no query was provided and playlist failed, or if no params at all
+    if (!playlistId && !query) {
+        console.error('Neither playlistId nor query was provided for YouTube fetch.');
     }
-    // Normalize items and filter out any that are invalid
-    const normalizedItems = response.data.items
-        .map(normalizeItem)
-        .filter((item) => item !== null);
-    return normalizedItems;
+    // This case is reached if playlist fetch fails and there is no query to fall back on.
+    return [];
 }

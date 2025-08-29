@@ -24,25 +24,26 @@ class Router {
 		// Listen for back/forward navigation and hash changes
 		window.addEventListener('popstate', this.handleLocationChange.bind(this));
 		window.addEventListener('hashchange', this.handleLocationChange.bind(this));
+	}
 
-		// Handle initial page load
-		document.addEventListener('DOMContentLoaded', () => {
-			this.handleLocationChange();
+	/**
+	 * Initializes the router's event listeners for link interception.
+	 * Should be called after the DOM is loaded.
+	 */
+	initialize() {
+		/**
+		 * Intercepts clicks on all links that have the `data-link` attribute.
+		 * This allows the router to handle internal navigation without a full
+		 * page reload.
+		 */
+		document.body.addEventListener('click', (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+			const link = target.closest('a');
 
-			/**
-			 * Intercepts clicks on all links that have the `data-link` attribute.
-			 * This allows the router to handle internal navigation without a full
-			 * page reload.
-			 */
-			document.body.addEventListener('click', (e: MouseEvent) => {
-				const target = e.target as HTMLElement;
-				const link = target.closest('a');
-
-				if (link && link.hasAttribute('data-link')) {
-					e.preventDefault();
-					this.navigate(link.getAttribute('href') || '/');
-				}
-			});
+			if (link && link.hasAttribute('data-link')) {
+				e.preventDefault();
+				this.navigate(link.getAttribute('href') || '/');
+			}
 		});
 	}
 
@@ -69,7 +70,7 @@ class Router {
 	/**
 	 * Handles changes to the URL.
 	 */
-	private handleLocationChange() {
+	public handleLocationChange() {
 		this.currentPath = window.location.pathname;
 		this.matchRoute();
 	}

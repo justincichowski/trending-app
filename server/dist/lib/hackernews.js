@@ -43,6 +43,7 @@ function normalizeItem(item) {
         url: item.url,
         source: 'Hacker News',
         description: `${item.score} points by ${item.by} | ${item.descendants} comments`,
+        image: undefined,
     };
 }
 /**

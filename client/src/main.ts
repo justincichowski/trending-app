@@ -2,9 +2,9 @@ import './style.css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
-import { getCategoryItems } from './api';
+import { getCategoryItems, getCategories } from './api';
 import { renderItems } from './renderer';
-import type { NormalizedItem } from './types';
+import type { NormalizedItem, Preset } from './types';
 import { Notification } from './components/Notification';
 import { SettingsPanel } from './components/SettingsPanel';
 
@@ -26,10 +26,6 @@ const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const searchToggleButton = document.getElementById('search-toggle-button');
 const controls = document.querySelector('.controls');
-
-if (categoryNavContainer) {
-	new CategoryNav(categoryNavContainer);
-}
 
 if (favoritesButton) {
 	favoritesButton.addEventListener('click', () => {
@@ -77,21 +73,24 @@ async function categoryView(params: Record<string, string>) {
 		stateManager.setState({ scrollPositions });
 	}
 
-	if (mainContent) {
-		mainContent.innerHTML = '<p>Loading...</p>';
-	}
+	// Set loading state
+	stateManager.setState({ isLoading: true });
 
 	try {
 		const items = await getCategoryItems(id);
 		// --- DEBUG LOG: Logs the number of items received from the API ---
 		console.log(`--- RECEIVED ${items.length} ITEMS ---`);
 		const newCurrentCategory = stateManager.getState().categories.find(c => c.id === id) || null;
-		stateManager.setState({ items, currentCategory: newCurrentCategory, lastUpdated: Date.now() });
+		stateManager.setState({
+			items,
+			currentCategory: newCurrentCategory,
+			lastUpdated: Date.now(),
+			isLoading: false,
+		});
 	} catch (error) {
 		console.error(`Failed to fetch items for category ${id}:`, error);
-		if (mainContent) {
-			mainContent.innerHTML = '<p>Error loading items.</p>';
-		}
+		// Clear items and set loading to false on error
+		stateManager.setState({ items: [], isLoading: false });
 	}
 }
 
@@ -168,11 +167,6 @@ function hiddenItemsView() {
 router.addRoute('/:id', categoryView);
 router.addRoute('/favorites', favoritesView);
 router.addRoute('/hidden', hiddenItemsView);
-router.addRoute('/', () => {
-	if (mainContent) {
-		mainContent.innerHTML = '<p>Select a category to get started.</p>';
-	}
-});
 
 function updateLastUpdated() {
 	const { lastUpdated } = stateManager.getState();
@@ -217,3 +211,47 @@ stateManager.subscribe(state => {
 	updateLastUpdated();
 	document.documentElement.className = `${state.theme}-theme`;
 });
+
+/**
+ * Main application initialization function.
+ */
+async function initializeApp() {
+	try {
+		// 1. Fetch essential data (category presets)
+		const categories: Preset[] = await getCategories();
+		stateManager.setState({ categories });
+
+		// 2. Initialize the category navigation
+		if (categoryNavContainer) {
+			new CategoryNav(categoryNavContainer);
+		}
+
+		// 3. Set the default route AFTER presets are loaded
+		router.addRoute('/', () => {
+			if (categories.length > 0) {
+				// Navigate to the first category by default
+				router.navigate(`/${categories[0].id}`);
+			} else if (mainContent) {
+				mainContent.innerHTML = '<p>No categories found.</p>';
+			}
+		});
+
+		// 4. Initialize router link interception and handle initial route
+		router.initialize();
+		stateManager.setState({ isLoading: false }); // Done with initial load
+		router.handleLocationChange();
+
+		// 5. Special handling for #settings on initial load
+		if (window.location.hash === '#settings') {
+			settingsPanel?.show();
+		}
+	} catch (error) {
+		console.error('Failed to initialize the application:', error);
+		if (mainContent) {
+			mainContent.innerHTML = '<p>Application failed to load. Please try again later.</p>';
+		}
+	}
+}
+
+// Start the application once the DOM is ready
+document.addEventListener('DOMContentLoaded', initializeApp);

@@ -84,7 +84,7 @@ function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
 export async function getYouTubeVideos(options: {
-	playlistId?: string;
+	playlistId?: string; // Can be a single ID or comma-separated IDs
 	query?: string;
 	limit?: number;
 }): Promise<NormalizedItem[]> {
@@ -96,38 +96,76 @@ export async function getYouTubeVideos(options: {
 		return [];
 	}
 
-	let response;
+	let allItems: NormalizedItem[] = [];
+
+	// 1. Attempt to fetch from all provided playlists
 	if (playlistId) {
-		// Fetch videos from a playlist
-		response = await axios.get<{ items: YouTubePlaylistItem[] }>(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-			params: {
-				part: 'snippet',
-				playlistId,
-				maxResults: limit,
-				key: apiKey,
-			},
-			timeout: 5000, // 5 second timeout
+		const playlistIds = playlistId.split(',').map(id => id.trim());
+		console.log(`Attempting to fetch YouTube playlists: ${playlistIds.join(', ')}`);
+
+		const playlistPromises = playlistIds.map(id =>
+			axios.get<{ items: YouTubePlaylistItem[] }>(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+				params: { part: 'snippet', playlistId: id, maxResults: limit, key: apiKey },
+				timeout: 5000,
+			}),
+		);
+
+		const results = await Promise.allSettled(playlistPromises);
+
+		results.forEach((result, index) => {
+			if (result.status === 'fulfilled') {
+				const normalized = result.value.data.items
+					.map(normalizeItem)
+					.filter((item): item is NormalizedItem => item !== null);
+				allItems.push(...normalized);
+				console.log(
+					`Successfully fetched ${normalized.length} items from playlist ${playlistIds[index]}.`,
+				);
+			} else {
+				const errorMessage =
+					result.reason instanceof Error ? result.reason.message : 'An unknown error occurred';
+				console.error(
+					`Failed to fetch YouTube playlist ${playlistIds[index]}. Reason: ${errorMessage}`,
+				);
+			}
 		});
-	} else if (query) {
-		// Fall back to a search query
-		response = await axios.get<{ items: YouTubeVideo[] }>(`${YOUTUBE_API_BASE_URL}/search`, {
-			params: {
-				part: 'snippet',
-				q: query,
-				type: 'video',
-				maxResults: limit,
-				key: apiKey,
-			},
-			timeout: 5000, // 5 second timeout
-		});
-	} else {
-		throw new Error('Either a playlistId or a query must be provided to fetch YouTube videos.');
+
+		// If we got any items from playlists, shuffle and return them
+		if (allItems.length > 0) {
+			// Simple shuffle algorithm
+			for (let i = allItems.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[allItems[i], allItems[j]] = [allItems[j], allItems[i]];
+			}
+			return allItems.slice(0, limit); // Return the final limited number of items
+		}
+
+		console.log('All playlist fetches failed or returned empty. Falling back to search query.');
 	}
 
-	// Normalize items and filter out any that are invalid
-	const normalizedItems = response.data.items
-		.map(normalizeItem)
-		.filter((item): item is NormalizedItem => item !== null);
+	// 2. Fallback to search query if all playlists failed or none were provided
+	if (query) {
+		try {
+			console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
+			const response = await axios.get<{ items: YouTubeVideo[] }>(`${YOUTUBE_API_BASE_URL}/search`, {
+				params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
+				timeout: 5000,
+			});
+			const normalizedItems = response.data.items
+				.map(normalizeItem)
+				.filter((item): item is NormalizedItem => item !== null);
+			console.log(`Successfully fetched ${normalizedItems.length} items from search.`);
+			return normalizedItems;
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+			console.error(`Failed to fetch YouTube videos with query "${query}". Error: ${errorMessage}`);
+			return [];
+		}
+	}
 
-	return normalizedItems;
+	if (!playlistId && !query) {
+		console.error('Neither playlistId nor query was provided for YouTube fetch.');
+	}
+
+	return [];
 }

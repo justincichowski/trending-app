@@ -60,17 +60,23 @@ export interface AppState {
 		cooking: string;
 		travel: string;
 	};
+
+	/**
+		* Whether the application is currently fetching items.
+		*/
+	isLoading: boolean;
 }
 
 /**
- * The initial state of the application.
- */
+	* The initial state of the application.
+	*/
 const initialState: AppState = {
 	categories: [],
 	currentCategory: null,
 	lastUpdated: null,
 	scrollPositions: {},
 	items: [],
+	isLoading: true, // Start in a loading state
 	favorites: storage.get('favorites') || [],
 	hiddenItems: storage.get('hiddenItems') || [],
 	theme: storage.get('theme') || 'light',

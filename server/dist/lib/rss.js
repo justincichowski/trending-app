@@ -37,7 +37,20 @@ async function normalizeItem(item, source) {
     if (!item.title || !item.link) {
         return null;
     }
-    const imageUrl = await getOpenGraphImage(item.link);
+    let imageUrl = null;
+    // 1. Prioritize the RSS feed's enclosure image, if it exists and is not a generic Google image.
+    // The generic Google News image URL often contains 'lh3.googleusercontent.com'.
+    if (item.enclosure?.url && !item.enclosure.url.includes('lh3.googleusercontent.com')) {
+        imageUrl = item.enclosure.url;
+    }
+    // 2. If no valid image was found in the enclosure, fall back to scraping the Open Graph image.
+    if (!imageUrl) {
+        imageUrl = await getOpenGraphImage(item.link);
+    }
+    // 3. Again, check if the scraped image is the generic Google one.
+    if (imageUrl && imageUrl.includes('lh3.googleusercontent.com')) {
+        imageUrl = null; // Discard the generic image.
+    }
     return {
         id: item.guid || item.link,
         title: item.title,
@@ -45,6 +58,7 @@ async function normalizeItem(item, source) {
         source: source,
         description: item.contentSnippet,
         publishedAt: item.isoDate,
+        // Ensure the image is explicitly undefined if no valid URL was found.
         image: imageUrl || undefined,
     };
 }
