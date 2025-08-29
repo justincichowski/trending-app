@@ -24,21 +24,21 @@ const main = async () => {
 	 * A simple route that returns a "Hello, World!" message.
 	 * This mirrors the Vercel serverless function.
 	 */
-	server.get('/api', async (request, reply) => {
+	server.get('/', async (request, reply) => {
 		return { message: 'Hello, World!' };
 	});
 
 	/**
 	 * A health check endpoint that responds with an "ok" status.
 	 */
-	server.get('/api/health', async (request, reply) => {
+	server.get('/health', async (request, reply) => {
 		return { status: 'ok' };
 	});
 
 	/**
 	 * An endpoint that returns the top Hacker News stories.
 	 */
-	server.get('/api/hackernews', async (request, reply) => {
+	server.get('/hackernews', async (request, reply) => {
 		try {
 			const stories = await getHackerNewsStories({ limit: 30 });
 			return stories;
@@ -51,7 +51,7 @@ const main = async () => {
 	/**
 	 * An endpoint that fetches and normalizes an RSS feed.
 	 */
-	server.get('/api/rss', async (request, reply) => {
+	server.get('/rss', async (request, reply) => {
 		const { url, query, source, limit } = request.query as {
 			url?: string;
 			query?: string;
@@ -81,7 +81,7 @@ const main = async () => {
 	/**
 	 * An endpoint that returns a list of preset categories or the items for a specific category.
 	 */
-	server.get('/api/presets', async (request, reply) => {
+	server.get('/presets', async (request, reply) => {
 		const { id } = request.query as { id?: string };
 
 		if (!id) {

@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
+const cors_1 = __importDefault(require("@fastify/cors"));
 const hackernews_1 = require("../api/lib/hackernews");
 const rss_1 = require("../api/lib/rss");
 const youtube_1 = require("../api/lib/youtube");
@@ -17,9 +18,9 @@ const server = (0, fastify_1.default)({
  */
 const main = async () => {
     // Register the CORS plugin to handle cross-origin requests
-    // await server.register(cors, {
-    // 	origin: 'http://localhost:5173', // Allow requests from the Vite client
-    // });
+    await server.register(cors_1.default, {
+        origin: 'http://localhost:5173', // Allow requests from the Vite client
+    });
     /**
      * A simple route that returns a "Hello, World!" message.
      * This mirrors the Vercel serverless function.
