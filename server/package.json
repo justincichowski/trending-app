@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "trending_app": "file:.."
+  }
+}
