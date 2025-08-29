@@ -109,7 +109,7 @@ export const presets: Preset[] = [
 		name: 'Travel',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.TRAVEL_PLAYLIST_ID || 'PLUoqX-s3I6kLgL08g_2HhS4p991g0s4sC', // Rick Steves' Europe
+			playlistId: process.env.TRAVEL_PLAYLIST_ID || 'PLgJ4KxAso640j_a8M_2A043v4g0E1s3G-', // Kara and Nate
 			query: 'travel vlogs',
 		},
 	},
