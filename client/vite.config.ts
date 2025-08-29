@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+	appType: 'spa', // Enable SPA routing
 	server: {
 		port: 5173,
 		proxy: {

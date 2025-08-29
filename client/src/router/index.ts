@@ -14,15 +14,31 @@ export interface Route {
 }
 
 /**
- * A simple hash-based router.
+ * A simple path-based router using the History API.
  */
 class Router {
 	private routes: Route[] = [];
 	private currentPath: string = '';
 
 	constructor() {
-		window.addEventListener('hashchange', this.handleHashChange.bind(this));
-		this.handleHashChange();
+		// Listen for back/forward navigation
+		window.addEventListener('popstate', this.handleLocationChange.bind(this));
+
+		// Handle initial page load
+		document.addEventListener('DOMContentLoaded', () => {
+			this.handleLocationChange();
+
+			// Intercept clicks on all links
+			document.body.addEventListener('click', (e: MouseEvent) => {
+				const target = e.target as HTMLElement;
+				const link = target.closest('a');
+
+				if (link && link.matches('[data-link]')) {
+					e.preventDefault();
+					this.navigate(link.getAttribute('href') || '/');
+				}
+			});
+		});
 	}
 
 	/**
@@ -36,10 +52,20 @@ class Router {
 	}
 
 	/**
-	 * Handles changes to the URL hash.
+	 * Navigates to a new path and updates the history.
+	 *
+	 * @param {string} path - The path to navigate to.
 	 */
-	private handleHashChange() {
-		this.currentPath = window.location.hash.slice(1) || '/';
+	navigate(path: string) {
+		window.history.pushState({}, '', path);
+		this.handleLocationChange();
+	}
+
+	/**
+	 * Handles changes to the URL.
+	 */
+	private handleLocationChange() {
+		this.currentPath = window.location.pathname;
 		this.matchRoute();
 	}
 
@@ -50,10 +76,12 @@ class Router {
 		for (const route of this.routes) {
 			const paramNames: string[] = [];
 			const regexPath =
+				'^' +
 				route.path.replace(/:(\w+)/g, (_, paramName) => {
 					paramNames.push(paramName);
 					return '([^/]+)';
-				}) + '$';
+				}) +
+				'$';
 
 			const match = this.currentPath.match(new RegExp(regexPath));
 

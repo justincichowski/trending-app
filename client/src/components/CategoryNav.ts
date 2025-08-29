@@ -52,9 +52,10 @@ export class CategoryNav {
 		categories.forEach(category => {
 			const listItem = document.createElement('li');
 			const link = document.createElement('a');
-			link.href = `#/category/${category.id}`;
+			link.href = `/${category.id}`;
 			link.textContent = category.name;
 			link.className = 'category-link';
+			link.setAttribute('data-link', ''); // Mark as a client-side link
 			listItem.appendChild(link);
 			list.appendChild(listItem);
 		});

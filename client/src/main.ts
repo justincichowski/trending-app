@@ -35,7 +35,7 @@ if (categoryNavContainer) {
 
 if (favoritesButton) {
 	favoritesButton.addEventListener('click', () => {
-		window.location.hash = '/favorites';
+		router.navigate('/favorites');
 	});
 }
 
@@ -163,7 +163,7 @@ function hiddenItemsView() {
 }
 
 // Set up the application routes
-router.addRoute('/category/:id', categoryView);
+router.addRoute('/:id', categoryView);
 router.addRoute('/favorites', favoritesView);
 router.addRoute('/hidden', hiddenItemsView);
 router.addRoute('/', () => {
