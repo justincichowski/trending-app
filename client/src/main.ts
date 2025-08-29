@@ -83,6 +83,9 @@ async function categoryView(params: Record<string, string>) {
 
 	try {
 		const items = await getCategoryItems(id);
+		console.log('--- RECEIVED ITEMS ---');
+		console.log(JSON.stringify(items, null, 2));
+		console.log('--------------------');
 		const newCurrentCategory = stateManager.getState().categories.find(c => c.id === id) || null;
 		stateManager.setState({ items, currentCategory: newCurrentCategory, lastUpdated: Date.now() });
 	} catch (error) {

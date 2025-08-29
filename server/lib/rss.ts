@@ -15,6 +15,10 @@ const parser = new Parser();
 function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null {
 	// Ensure essential fields are present
 	if (!item.title || !item.link) {
+		console.log('--- REJECTED RSS ITEM ---');
+		console.log('Reason: Missing title or link');
+		console.log(JSON.stringify(item, null, 2));
+		console.log('-------------------------');
 		return null;
 	}
 
