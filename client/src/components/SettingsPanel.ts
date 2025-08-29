@@ -45,8 +45,10 @@ export class SettingsPanel {
 		// Create the content container inside the main element
 		this.element.innerHTML = `
 			<div class="settings-panel-content">
-				<h2>Settings</h2>
-				<button class="close-button">&times;</button>
+				<div class="settings-panel-header">
+					<div class="settings-title">Settings</div>
+					<button class="close-button">&times;</button>
+				</div>
 				<div class="setting">
 					<label for="theme-toggle">Theme:</label>
 					<button id="theme-toggle">Toggle Theme</button>

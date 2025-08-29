@@ -192,15 +192,25 @@ body {
 	padding: 2rem;
 	border-radius: 8px;
 	border: 1px solid var(--border-color);
-	position: relative;
+}
+
+.settings-panel-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+	margin-top: -20px;
+}
+
+.settings-title {
+	font-size: 1.5em;
+	font-weight: bold;
 }
 
 .close-button {
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
 	background: none;
 	border: none;
-	font-size: 1.5rem;
+	font-size: 2rem;
 	cursor: pointer;
+	line-height: 1;
 }
