@@ -54,20 +54,12 @@ if (settingsPanelContainer) {
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
 		history.pushState({}, '', '#settings');
-		window.dispatchEvent(new Event('hashchange'));
+		settingsPanel?.show();
+		// window.dispatchEvent(new Event('hashchange'));
 	});
 }
 
-/**
- * Handles the visibility of the settings panel based on the URL hash.
- */
-function handleSettingsPanelVisibility() {
-	if (window.location.hash === '#settings') {
-		settingsPanel?.show();
-	} else {
-		settingsPanel?.hide();
-	}
-}
+
 
 /**
  * Handles the view for a specific category.
@@ -219,9 +211,6 @@ if (searchToggleButton && controls) {
 	});
 }
 
-// Initial render and setup
-window.addEventListener('load', handleSettingsPanelVisibility);
-window.addEventListener('hashchange', handleSettingsPanelVisibility);
 
 stateManager.subscribe(state => {
 	renderItems();

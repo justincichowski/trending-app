@@ -82,7 +82,7 @@ export class SettingsPanel {
 				// Use pushState to remove the hash without a page reload
 				history.pushState('', document.title, window.location.pathname + window.location.search);
 				// Manually dispatch a hashchange event to trigger the router
-				window.dispatchEvent(new Event('hashchange'));
+				this.hide();
 			});
 		}
 
