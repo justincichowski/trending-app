@@ -35,6 +35,28 @@ async function getOpenGraphImage(url: string): Promise<string | null> {
 }
 
 /**
+ * Extracts the first image URL from an HTML string.
+ *
+ * @param {string} html - The HTML content to parse.
+ * @returns {string | null} The image URL, or null if not found.
+ */
+function extractImageFromContent(html: string): string | null {
+	if (!html) return null;
+	const match = html.match(/<img[^>]+src="([^"]+)"/);
+	return match ? match[1] : null;
+}
+
+/**
+ * A utility function to check if a URL is a generic Google News placeholder.
+ *
+ * @param {string | null | undefined} url - The URL to check.
+ * @returns {boolean} True if the URL is a generic placeholder.
+ */
+function isGenericGoogleImage(url: string | null | undefined): boolean {
+	return !!url && url.includes('googleusercontent.com');
+}
+
+/**
  * Normalizes a raw RSS item into the common `NormalizedItem` shape.
  * Returns null if the item is missing essential fields.
  *
@@ -49,16 +71,23 @@ async function normalizeItem(item: Parser.Item, source: string): Promise<Normali
 
 	let imageUrl: string | undefined = undefined;
 
-	// 1. Prioritize the RSS feed's enclosure image if it's a valid, non-generic URL.
-	if (item.enclosure?.url && !item.enclosure.url.includes('googleusercontent.com')) {
+	// Strategy 1: Use the 'enclosure' tag if it's valid and not a generic image.
+	if (item.enclosure?.url && !isGenericGoogleImage(item.enclosure.url)) {
 		imageUrl = item.enclosure.url;
 	}
 
-	// 2. If no valid image was found in the enclosure, fall back to scraping the Open Graph image.
+	// Strategy 2: If no image yet, try to extract it from the 'content' field.
+	if (!imageUrl) {
+		const contentImage = extractImageFromContent(item.content || '');
+		if (contentImage && !isGenericGoogleImage(contentImage)) {
+			imageUrl = contentImage;
+		}
+	}
+
+	// Strategy 3: As a last resort, scrape the page for an Open Graph image.
 	if (!imageUrl) {
 		const scrapedUrl = await getOpenGraphImage(item.link);
-		// 3. Ensure the scraped image is also not a generic Google one.
-		if (scrapedUrl && !scrapedUrl.includes('googleusercontent.com')) {
+		if (scrapedUrl && !isGenericGoogleImage(scrapedUrl)) {
 			imageUrl = scrapedUrl;
 		}
 	}
@@ -70,7 +99,7 @@ async function normalizeItem(item: Parser.Item, source: string): Promise<Normali
 		source: source,
 		description: item.contentSnippet,
 		publishedAt: item.isoDate,
-		image: imageUrl, // Will be undefined if no valid image was found
+		image: imageUrl,
 	};
 }
 

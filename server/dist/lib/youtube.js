@@ -39,7 +39,7 @@ function normalizeItem(item) {
         url: `https://www.youtube.com/watch?v=${videoId}`,
         source: 'YouTube',
         description: item.snippet.description,
-        image: item.snippet.thumbnails.high.url,
+        image: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
     };
 }
 /**

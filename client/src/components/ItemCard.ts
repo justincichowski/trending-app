@@ -24,11 +24,19 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	 * Creates an image element for the card. If the item has an image, it
 	 * is used; otherwise, a placeholder is used.
 	 */
-	const image = document.createElement('img');
-	image.src = item.image || '/placeholder.svg';
-	image.alt = item.title;
-	image.className = 'item-image';
-	card.appendChild(image);
+	if (item.image) {
+		const image = document.createElement('img');
+		image.src = item.image;
+		image.alt = item.title;
+		image.className = 'item-image';
+
+		// Add an error handler to fall back to the placeholder
+		image.onerror = () => {
+			image.src = '/placeholder.svg';
+		};
+
+		card.appendChild(image);
+	}
 
 	const title = document.createElement('h3');
 	const link = document.createElement('a');
