@@ -23,6 +23,10 @@ function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null
 		return null;
 	}
 
+	// Attempt to find an image URL in the media:content tag
+	const media = (item as any)['media:content'];
+	const imageUrl = media?.$?.url;
+
 	return {
 		id: item.guid || item.link,
 		title: item.title,
@@ -30,6 +34,7 @@ function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null
 		source: source,
 		description: item.contentSnippet,
 		publishedAt: item.isoDate,
+		image: imageUrl,
 	};
 }
 

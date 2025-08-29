@@ -25,6 +25,9 @@ function normalizeItem(item, source) {
         // console.log('-------------------------');
         return null;
     }
+    // Attempt to find an image URL in the media:content tag
+    const media = item['media:content'];
+    const imageUrl = media?.$?.url;
     return {
         id: item.guid || item.link,
         title: item.title,
@@ -32,6 +35,7 @@ function normalizeItem(item, source) {
         source: source,
         description: item.contentSnippet,
         publishedAt: item.isoDate,
+        image: imageUrl,
     };
 }
 /**
