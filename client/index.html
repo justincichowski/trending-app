@@ -10,7 +10,6 @@
 		<div id="app">
 			<header class="app-header">
 				<div class="logo">Trending</div>
-				<nav id="category-nav" class="category-nav"></nav>
 				<div class="controls">
 					<input type="search" id="search-input" placeholder="Search..." />
 					<select id="sort-select">
@@ -20,8 +19,10 @@
 					</select>
 					<button id="favorites-button">Favorites</button>
 					<button id="settings-button">Settings</button>
+					<button id="search-toggle-button" class="search-toggle-button" hidden>Search</button>
 				</div>
 			</header>
+			<nav id="category-nav" class="category-nav"></nav>
 			<main id="main-content" class="main-content"></main>
 			<div id="notification-container"></div>
 			<div id="settings-panel" class="settings-panel" hidden></div>

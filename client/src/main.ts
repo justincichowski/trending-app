@@ -24,6 +24,8 @@ const settingsButton = document.getElementById('settings-button');
 const logo = document.querySelector('.logo');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
+const searchToggleButton = document.getElementById('search-toggle-button');
+const controls = document.querySelector('.controls');
 const lastUpdatedContainer = document.createElement('div');
 lastUpdatedContainer.className = 'last-updated';
 document.querySelector('.app-header .controls')?.prepend(lastUpdatedContainer);
@@ -195,6 +197,12 @@ if (logo) {
 if (searchInput) {
 	searchInput.addEventListener('input', () => {
 		renderItems();
+	});
+}
+
+if (searchToggleButton && controls) {
+	searchToggleButton.addEventListener('click', () => {
+		controls.classList.toggle('active');
 	});
 }
 
