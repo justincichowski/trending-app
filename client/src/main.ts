@@ -21,7 +21,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 const categoryNavContainer = document.getElementById('category-nav');
 const favoritesButton = document.getElementById('favorites-button');
 const settingsButton = document.getElementById('settings-button');
-const refreshButton = document.getElementById('refresh-button');
+const logo = document.querySelector('.logo');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const lastUpdatedContainer = document.createElement('div');
@@ -180,8 +180,8 @@ function updateLastUpdated() {
 	}
 }
 
-if (refreshButton) {
-	refreshButton.addEventListener('click', () => {
+if (logo) {
+	logo.addEventListener('click', () => {
 		const { currentCategory } = stateManager.getState();
 		if (currentCategory) {
 			categoryView({ id: currentCategory.id });

@@ -83,3 +83,7 @@ body {
 	right: 0;
 	background: linear-gradient(to left, var(--background-color, white), transparent);
 }
+
+.logo {
+	cursor: pointer;
+}
