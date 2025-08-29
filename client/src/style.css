@@ -169,7 +169,7 @@ body {
 	}
 }
 
-.settings-panel {
+.settings-panel:not([hidden]) {
 	position: fixed;
 	top: 0;
 	left: 0;
