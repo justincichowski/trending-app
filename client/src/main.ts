@@ -27,7 +27,6 @@ const sortSelect = document.getElementById('sort-select');
 const searchToggleButton = document.getElementById('search-toggle-button');
 const controls = document.querySelector('.controls');
 
-
 if (categoryNavContainer) {
 	new CategoryNav(categoryNavContainer);
 }
@@ -42,20 +41,31 @@ const mainContent = document.getElementById('main-content');
 const notificationContainer = document.getElementById('notification-container');
 const settingsPanelContainer = document.getElementById('settings-panel');
 let notification: Notification | null = null;
+let settingsPanel: SettingsPanel | null = null;
 
 if (notificationContainer) {
 	notification = new Notification(notificationContainer);
 }
 
-let settingsPanel: SettingsPanel | null = null;
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
 }
 
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
-		settingsPanel?.show();
+		window.location.hash = 'settings';
 	});
+}
+
+/**
+ * Handles the visibility of the settings panel based on the URL hash.
+ */
+function handleSettingsPanelVisibility() {
+	if (window.location.hash === '#settings') {
+		settingsPanel?.show();
+	} else {
+		settingsPanel?.hide();
+	}
 }
 
 /**
@@ -196,19 +206,26 @@ if (searchInput) {
 	});
 }
 
-if (searchToggleButton && controls) {
-	searchToggleButton.addEventListener('click', () => {
-		controls.classList.toggle('active');
-	});
-}
-
 if (sortSelect) {
 	sortSelect.addEventListener('change', () => {
 		renderItems();
 	});
 }
 
-// Initial render
+if (searchToggleButton && controls) {
+	searchToggleButton.addEventListener('click', () => {
+		controls.classList.toggle('active');
+	});
+}
+
+// Initial render and setup
+window.addEventListener('load', () => {
+	handleSettingsPanelVisibility();
+});
+window.addEventListener('hashchange', () => {
+	handleSettingsPanelVisibility();
+});
+
 stateManager.subscribe(state => {
 	renderItems();
 	updateLastUpdated();
