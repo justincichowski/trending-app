@@ -180,6 +180,9 @@ function updateLastUpdated() {
 	}
 }
 
+/**
+ * Adds a click event listener to the logo to refresh the current category.
+ */
 if (logo) {
 	logo.addEventListener('click', () => {
 		const { currentCategory } = stateManager.getState();

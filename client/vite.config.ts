@@ -1,7 +1,12 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	appType: 'spa', // Enable SPA routing
+	/**
+	 * Set the app type to 'spa' to enable client-side routing.
+	 * This ensures that all 404s are redirected to the index.html
+	 * file, allowing the client-side router to handle the URL.
+	 */
+	appType: 'spa',
 	server: {
 		port: 5173,
 		proxy: {

@@ -28,12 +28,16 @@ class Router {
 		document.addEventListener('DOMContentLoaded', () => {
 			this.handleLocationChange();
 
-			// Intercept clicks on all links
+			/**
+			 * Intercepts clicks on all links that have the `data-link` attribute.
+			 * This allows the router to handle internal navigation without a full
+			 * page reload.
+			 */
 			document.body.addEventListener('click', (e: MouseEvent) => {
 				const target = e.target as HTMLElement;
 				const link = target.closest('a');
 
-				if (link && link.matches('[data-link]')) {
+				if (link && link.hasAttribute('data-link')) {
 					e.preventDefault();
 					this.navigate(link.getAttribute('href') || '/');
 				}

@@ -55,7 +55,12 @@ export class CategoryNav {
 			link.href = `/${category.id}`;
 			link.textContent = category.name;
 			link.className = 'category-link';
-			link.setAttribute('data-link', ''); // Mark as a client-side link
+			/**
+			 * Mark the link with the `data-link` attribute. This allows the
+			 * router to intercept the click and handle the navigation on the
+			 * client-side, preventing a full page reload.
+			 */
+			link.setAttribute('data-link', '');
 			listItem.appendChild(link);
 			list.appendChild(listItem);
 		});

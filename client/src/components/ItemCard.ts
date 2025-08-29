@@ -20,6 +20,18 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	const card = document.createElement('div');
 	card.className = 'item-card';
 
+	/**
+	 * If the item has an image, create an `img` element and prepend it
+	 * to the card.
+	 */
+	if (item.image) {
+		const image = document.createElement('img');
+		image.src = item.image;
+		image.alt = item.title;
+		image.className = 'item-image';
+		card.appendChild(image);
+	}
+
 	const title = document.createElement('h3');
 	const link = document.createElement('a');
 	link.href = item.url;
