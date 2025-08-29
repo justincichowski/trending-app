@@ -78,12 +78,7 @@ export class SettingsPanel {
 	private addEventListeners() {
 		const closeButton = this.element.querySelector('.close-button');
 		if (closeButton) {
-			closeButton.addEventListener('click', () => {
-				// Use pushState to remove the hash without a page reload
-				history.pushState('', document.title, window.location.pathname + window.location.search);
-				// Manually dispatch a hashchange event to trigger the router
-				window.dispatchEvent(new Event('hashchange'));
-			});
+			closeButton.addEventListener('click', () => this.hide());
 		}
 
 		const themeToggle = this.element.querySelector('#theme-toggle');

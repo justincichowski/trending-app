@@ -169,7 +169,12 @@ body {
 	}
 }
 
+.settings-panel {
+	display: none; /* Hidden by default */
+}
+
 .settings-panel:not([hidden]) {
+	display: flex; /* Show when not hidden */
 	position: fixed;
 	top: 0;
 	left: 0;
