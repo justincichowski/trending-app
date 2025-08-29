@@ -79,9 +79,7 @@ export class SettingsPanel {
 	private addEventListeners() {
 		const closeButton = this.element.querySelector('.close-button');
 		if (closeButton) {
-			closeButton.addEventListener('click', () => {
-				window.location.hash = '';
-			});
+			closeButton.addEventListener('click', () => this.hide());
 		}
 
 		const themeToggle = this.element.querySelector('#theme-toggle');

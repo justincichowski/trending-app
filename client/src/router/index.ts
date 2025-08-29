@@ -23,7 +23,6 @@ class Router {
 	constructor() {
 		// Listen for back/forward navigation and hash changes
 		window.addEventListener('popstate', this.handleLocationChange.bind(this));
-		window.addEventListener('hashchange', this.handleLocationChange.bind(this));
 
 		// Handle initial page load
 		document.addEventListener('DOMContentLoaded', () => {
