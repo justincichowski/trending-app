@@ -53,7 +53,8 @@ if (settingsPanelContainer) {
 
 if (settingsButton) {
 	settingsButton.addEventListener('click', () => {
-		window.location.hash = 'settings';
+		history.pushState({}, '', '#settings');
+		settingsPanel?.show();
 	});
 }
 
@@ -221,6 +222,7 @@ if (searchToggleButton && controls) {
 // Initial render and setup
 window.addEventListener('load', handleSettingsPanelVisibility);
 window.addEventListener('hashchange', handleSettingsPanelVisibility);
+window.addEventListener('popstate', handleSettingsPanelVisibility);
 
 stateManager.subscribe(state => {
 	renderItems();

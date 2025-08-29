@@ -80,8 +80,9 @@ export class SettingsPanel {
 		const closeButton = this.element.querySelector('.close-button');
 		if (closeButton) {
 			closeButton.addEventListener('click', () => {
-				// Clear the hash to close the panel
-				window.location.hash = '';
+				// Use pushState to remove the hash without a page reload
+				history.pushState('', document.title, window.location.pathname + window.location.search);
+				this.hide();
 			});
 		}
 
