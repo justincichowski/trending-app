@@ -16,12 +16,23 @@ const parser = new rss_parser_1.default();
  */
 async function getOpenGraphImage(url) {
     try {
-        const { data: html } = await axios_1.default.get(url, { timeout: 2000 });
-        const match = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/);
-        return match ? match[1] : null;
+        const { data: html } = await axios_1.default.get(url, {
+            timeout: 3000, // Increased timeout
+            headers: {
+                // Use a common user-agent to avoid being blocked
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            },
+        });
+        const match = html.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/);
+        if (match && match[1]) {
+            console.log(`Scraped og:image: ${match[1]}`);
+            return match[1];
+        }
+        return null;
     }
     catch (error) {
-        // Ignore errors (e.g., timeouts, 404s)
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        console.warn(`Could not scrape Open Graph image for ${url}. Reason: ${errorMessage}`);
         return null;
     }
 }
@@ -37,19 +48,18 @@ async function normalizeItem(item, source) {
     if (!item.title || !item.link) {
         return null;
     }
-    let imageUrl = null;
-    // 1. Prioritize the RSS feed's enclosure image, if it exists and is not a generic Google image.
-    // The generic Google News image URL often contains 'lh3.googleusercontent.com'.
-    if (item.enclosure?.url && !item.enclosure.url.includes('lh3.googleusercontent.com')) {
+    let imageUrl = undefined;
+    // 1. Prioritize the RSS feed's enclosure image if it's a valid, non-generic URL.
+    if (item.enclosure?.url && !item.enclosure.url.includes('googleusercontent.com')) {
         imageUrl = item.enclosure.url;
     }
     // 2. If no valid image was found in the enclosure, fall back to scraping the Open Graph image.
     if (!imageUrl) {
-        imageUrl = await getOpenGraphImage(item.link);
-    }
-    // 3. Again, check if the scraped image is the generic Google one.
-    if (imageUrl && imageUrl.includes('lh3.googleusercontent.com')) {
-        imageUrl = null; // Discard the generic image.
+        const scrapedUrl = await getOpenGraphImage(item.link);
+        // 3. Ensure the scraped image is also not a generic Google one.
+        if (scrapedUrl && !scrapedUrl.includes('googleusercontent.com')) {
+            imageUrl = scrapedUrl;
+        }
     }
     return {
         id: item.guid || item.link,
@@ -58,8 +68,7 @@ async function normalizeItem(item, source) {
         source: source,
         description: item.contentSnippet,
         publishedAt: item.isoDate,
-        // Ensure the image is explicitly undefined if no valid URL was found.
-        image: imageUrl || undefined,
+        image: imageUrl, // Will be undefined if no valid image was found
     };
 }
 /**

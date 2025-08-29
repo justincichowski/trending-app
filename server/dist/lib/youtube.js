@@ -58,47 +58,46 @@ async function getYouTubeVideos(options) {
         console.warn('YouTube API key is missing. YouTube category will be empty.');
         return [];
     }
-    // 1. Attempt to fetch from playlist if ID is provided
+    let allItems = [];
+    // 1. Attempt to fetch from all provided playlists
     if (playlistId) {
-        try {
-            console.log(`Attempting to fetch YouTube playlist: ${playlistId}`);
-            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-                params: {
-                    part: 'snippet',
-                    playlistId,
-                    maxResults: limit,
-                    key: apiKey,
-                },
-                timeout: 5000, // 5 second timeout
-            });
-            const normalizedItems = response.data.items
-                .map(normalizeItem)
-                .filter((item) => item !== null);
-            // If we get items, return them. Otherwise, we'll fall through to search.
-            if (normalizedItems.length > 0) {
-                console.log(`Successfully fetched ${normalizedItems.length} items from playlist.`);
-                return normalizedItems;
+        const playlistIds = playlistId.split(',').map(id => id.trim());
+        console.log(`Attempting to fetch YouTube playlists: ${playlistIds.join(', ')}`);
+        const playlistPromises = playlistIds.map(id => axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+            params: { part: 'snippet', playlistId: id, maxResults: limit, key: apiKey },
+            timeout: 5000,
+        }));
+        const results = await Promise.allSettled(playlistPromises);
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                const normalized = result.value.data.items
+                    .map(normalizeItem)
+                    .filter((item) => item !== null);
+                allItems.push(...normalized);
+                console.log(`Successfully fetched ${normalized.length} items from playlist ${playlistIds[index]}.`);
             }
-            console.log('Playlist was empty or invalid, falling back to search query.');
+            else {
+                const errorMessage = result.reason instanceof Error ? result.reason.message : 'An unknown error occurred';
+                console.error(`Failed to fetch YouTube playlist ${playlistIds[index]}. Reason: ${errorMessage}`);
+            }
+        });
+        // If we got any items from playlists, shuffle and return them
+        if (allItems.length > 0) {
+            // Simple shuffle algorithm
+            for (let i = allItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allItems[i], allItems[j]] = [allItems[j], allItems[i]];
+            }
+            return allItems.slice(0, limit); // Return the final limited number of items
         }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            console.error(`Failed to fetch YouTube playlist ${playlistId}. Falling back to search query. Error: ${errorMessage}`);
-            // Don't re-throw, just log and fall through to the search query
-        }
+        console.log('All playlist fetches failed or returned empty. Falling back to search query.');
     }
-    // 2. Fallback to search query if playlist failed or wasn't provided
+    // 2. Fallback to search query if all playlists failed or none were provided
     if (query) {
         try {
             console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
             const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
-                params: {
-                    part: 'snippet',
-                    q: query,
-                    type: 'video',
-                    maxResults: limit,
-                    key: apiKey,
-                },
+                params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
                 timeout: 5000,
             });
             const normalizedItems = response.data.items
@@ -110,14 +109,11 @@ async function getYouTubeVideos(options) {
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             console.error(`Failed to fetch YouTube videos with query "${query}". Error: ${errorMessage}`);
-            // If search also fails, return an empty array to prevent crashing the app
             return [];
         }
     }
-    // 3. If no query was provided and playlist failed, or if no params at all
     if (!playlistId && !query) {
         console.error('Neither playlistId nor query was provided for YouTube fetch.');
     }
-    // This case is reached if playlist fetch fails and there is no query to fall back on.
     return [];
 }

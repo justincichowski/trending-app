@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load environment variables from .env file in the project root
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import fastify from 'fastify';
 import cors from '@fastify/cors';
 import { getHackerNewsStories } from './lib/hackernews';
