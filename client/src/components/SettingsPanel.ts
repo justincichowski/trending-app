@@ -16,34 +16,34 @@ export class SettingsPanel {
 	private element: HTMLElement;
 
 	constructor(container: HTMLElement) {
-		this.element = document.createElement('div');
-		this.element.className = 'settings-panel';
-		container.appendChild(this.element);
+		// Use the container element directly instead of creating a new one
+		this.element = container;
+		this.element.className = 'settings-panel'; // This is the wrapper/backdrop
 
 		this.render();
 		this.addEventListeners();
 		this.updateUIFromState();
-		this.hide(); // Ensure it's hidden by default
 	}
 
 	/**
-	 * Shows the settings panel.
+	 * Shows the settings panel by removing the 'hidden' attribute.
 	 */
 	show() {
-		this.element.classList.add('active');
+		this.element.hidden = false;
 	}
 
 	/**
-	 * Hides the settings panel.
+	 * Hides the settings panel by adding the 'hidden' attribute.
 	 */
 	hide() {
-		this.element.classList.remove('active');
+		this.element.hidden = true;
 	}
 
 	/**
 	 * Renders the settings panel content.
 	 */
 	private render() {
+		// Create the content container inside the main element
 		this.element.innerHTML = `
 			<div class="settings-panel-content">
 				<h2>Settings</h2>

@@ -170,20 +170,16 @@ body {
 }
 
 .settings-panel {
-	display: none; /* Hidden by default */
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
 	justify-content: center;
 	align-items: center;
 	z-index: 100;
-}
-
-.settings-panel.active {
-	display: flex; /* Show when active */
 }
 
 .settings-panel-content {
