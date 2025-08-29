@@ -141,7 +141,7 @@ body {
 	display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 550px) {
 	.controls > *:not(.search-toggle-button) {
 		display: none;
 	}
