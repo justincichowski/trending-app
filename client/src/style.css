@@ -89,19 +89,27 @@ body {
 	cursor: pointer;
 }
 
-.logo[data-tooltip]:hover::after,
-.logo[data-tooltip]:active::after {
+.logo[data-tooltip]::after {
 	content: attr(data-tooltip);
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
-	bottom: 125%;
+	top: 125%;
 	padding: 0.5rem;
 	border-radius: 4px;
 	background-color: var(--card-background-color);
 	color: var(--text-color);
 	white-space: nowrap;
 	z-index: 10;
+	opacity: 0;
+	transition: opacity 0.3s;
+	pointer-events: none;
+	border: 1px solid var(--accent-color);
+}
+
+.logo[data-tooltip]:hover::after,
+.logo[data-tooltip]:active::after {
+	opacity: 1;
 }
 
 .item-card {
