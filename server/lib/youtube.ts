@@ -16,6 +16,9 @@ interface YouTubeVideo {
 			high: {
 				url: string;
 			};
+			default?: {
+				url: string;
+			};
 		};
 	};
 }
@@ -27,6 +30,9 @@ interface YouTubePlaylistItem {
 		description: string;
 		thumbnails: {
 			high: {
+				url: string;
+			};
+			default?: {
 				url: string;
 			};
 		};
@@ -70,7 +76,7 @@ function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem
 		url: `https://www.youtube.com/watch?v=${videoId}`,
 		source: 'YouTube',
 		description: item.snippet.description,
-		image: item.snippet.thumbnails.high.url,
+		image: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
 	};
 }
 
