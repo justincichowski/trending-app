@@ -65,11 +65,26 @@ export class CategoryNav {
 		this.element.appendChild(swiperWrapper);
 
 		// Initialize Swiper
-		new Swiper(this.element, {
+		const swiper = new Swiper(this.element, {
 			modules: [Mousewheel],
 			slidesPerView: 'auto',
 			freeMode: true,
 			mousewheel: true,
+			on: {
+				// Use Swiper's built-in events to toggle classes for the fade effect
+				init: swiper => {
+					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
+					swiper.el.classList.toggle('is-end', swiper.isEnd);
+				},
+				fromEdge: swiper => {
+					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
+					swiper.el.classList.toggle('is-end', swiper.isEnd);
+				},
+				toEdge: swiper => {
+					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
+					swiper.el.classList.toggle('is-end', swiper.isEnd);
+				},
+			},
 		});
 	}
 }

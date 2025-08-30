@@ -50,11 +50,7 @@ body {
 	border-bottom-color: var(--accent-color, blue);
 }
 
-/* Gradient edges for scroll indication */
-.category-nav {
-	position: relative;
-}
-
+/* Gradient edges for scroll indication, controlled by Swiper events */
 .category-nav::before,
 .category-nav::after {
 	content: '';
@@ -63,16 +59,27 @@ body {
 	bottom: 0;
 	width: 2rem;
 	pointer-events: none;
+	z-index: 2;
+	transition: opacity 0.3s;
 }
 
 .category-nav::before {
 	left: 0;
-	background: linear-gradient(to right, var(--background-color, white), transparent);
+	background: linear-gradient(to right, var(--background-color), transparent);
 }
 
 .category-nav::after {
 	right: 0;
-	background: linear-gradient(to left, var(--background-color, white), transparent);
+	background: linear-gradient(to left, var(--background-color), transparent);
+}
+
+/* Hide the gradients when the slider is at the corresponding edge */
+.category-nav.is-beginning::before {
+	opacity: 0;
+}
+
+.category-nav.is-end::after {
+	opacity: 0;
 }
 
 .logo {
