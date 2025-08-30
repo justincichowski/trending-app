@@ -679,22 +679,8 @@ body {
 
 .search-toggle-button {
 	display: none;
-	width: 42px;
-	height: 42px;
-	border-radius: 50%;
-	transition: background-color 0.2s ease-in-out;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.search-toggle-button svg {
-	width: 32px;
-	height: 32px;
-}
-
-.search-toggle-button:hover {
-	background-color: var(--category-button-background);
+	width: 28px;
+	height: 28px;
 }
 
 .search-toggle-button svg {
@@ -702,12 +688,21 @@ body {
 }
 
 @media (max-width: 550px) {
-	.controls > *:not(.search-toggle-button) {
+	.controls > *:not(.search-toggle-button):not(#theme-toggle-button):not(#settings-button) {
 		display: none;
 	}
 
 	.search-toggle-button {
-		display: block;
+		display: flex;
+		order: 1;
+	}
+
+	#theme-toggle-button {
+		order: 2;
+	}
+
+	#settings-button {
+		order: 3;
 	}
 
 	.controls.active {
