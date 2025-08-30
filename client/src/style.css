@@ -112,8 +112,60 @@ body {
 	opacity: 1;
 }
 
-.item-card {
+.main-content-wrapper {
+	display: flex;
+	justify-content: center;
+	padding: 1rem;
+	/*
+	 * FUTURE-PROOFING NOTE:
+	 * This wrapper uses Flexbox to center the main content column.
+	 * To add a left or right sidebar in the future, you can simply
+	 * add a new sibling element to the `.main-content` div inside
+	 * the `main-content-wrapper` in `index.html`.
+	 *
+	 * Example for a three-column layout:
+	 * <div class="main-content-wrapper">
+	 *   <aside class="left-sidebar">[...]</aside>
+	 *   <main id="main-content">[...]</main>
+	 *   <aside class="right-sidebar">[...]</aside>
+	 * </div>
+	 *
+	 * You would then add flex properties to the sidebars as needed
+	 * (e.g., `flex-basis`, `flex-grow`).
+	 */
+}
+
+.main-content {
+	/*
+	 * This is the main column for the item cards.
+	 * It has a max-width to prevent it from becoming too wide on large screens.
+	 */
 	max-width: 550px;
+	width: 100%; /* Ensure it takes up available space up to its max-width */
+	height: calc(100vh - 150px); /* Example height, adjust as needed */
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+}
+
+.main-content::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, and Opera */
+}
+
+.item-card {
+	/* The item card itself no longer needs a max-width, as its parent (.main-content) now controls it. */
+	border: 1px solid var(--border-color);
+	padding: 1rem;
+	margin-bottom: 1rem;
+	border-radius: 8px;
+	background-color: var(--card-background-color);
+}
+
+.item-controls {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 12.5px;
+	margin-bottom: 12.5px;
 }
 
 .item-image {
@@ -121,7 +173,14 @@ body {
 	height: auto;
 	object-fit: cover;
 	border-radius: 4px;
-	margin-bottom: 1rem;
+	/* margin-bottom is removed as requested */
+}
+
+.item-title {
+	font-size: 1.17em; /* Standard h3 font-size */
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 10px;
 }
 
 .app-header {

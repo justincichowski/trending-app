@@ -41,7 +41,30 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 
 	card.appendChild(image);
 
-	const title = document.createElement('h3');
+	const controls = document.createElement('div');
+	controls.className = 'item-controls';
+
+	const favoriteButton = document.createElement('button');
+	favoriteButton.textContent = 'Favorite';
+	favoriteButton.className = 'favorite-button';
+	favoriteButton.addEventListener('click', () => {
+		favoriteItem(item);
+	});
+
+	const hideButton = document.createElement('button');
+	hideButton.textContent = 'Hide';
+	hideButton.className = 'hide-button';
+	hideButton.addEventListener('click', () => {
+		hideItem(item.id);
+		card.remove();
+	});
+
+	controls.appendChild(favoriteButton);
+	controls.appendChild(hideButton);
+	card.appendChild(controls);
+
+	const title = document.createElement('div');
+	title.className = 'item-title';
 	const link = document.createElement('a');
 	link.href = item.url;
 	link.textContent = item.title;
@@ -69,28 +92,6 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		time.textContent = new Date(item.publishedAt).toLocaleString();
 		card.appendChild(time);
 	}
-
-	const controls = document.createElement('div');
-	controls.className = 'item-controls';
-
-	const favoriteButton = document.createElement('button');
-	favoriteButton.textContent = 'Favorite';
-	favoriteButton.className = 'favorite-button';
-	favoriteButton.addEventListener('click', () => {
-		favoriteItem(item);
-	});
-
-	const hideButton = document.createElement('button');
-	hideButton.textContent = 'Hide';
-	hideButton.className = 'hide-button';
-	hideButton.addEventListener('click', () => {
-		hideItem(item.id);
-		card.remove();
-	});
-
-	controls.appendChild(favoriteButton);
-	controls.appendChild(hideButton);
-	card.appendChild(controls);
 
 	return card;
 }
