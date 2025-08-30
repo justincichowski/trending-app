@@ -4,6 +4,11 @@
 	--accent-color: #007bff;
 	--card-background-color: #f8f9fa;
 	--border-color: #dee2e6;
+	--card-hover-background-color: #f1f3f5;
+	--category-button-background: #e9ecef;
+	--category-button-text: #495057;
+	--category-button-active-background: #343a40; /* Dark background for light theme */
+	--category-button-active-text: #f8f9fa; /* Light text for light theme */
 }
 
 html.dark-theme {
@@ -12,6 +17,11 @@ html.dark-theme {
 	--accent-color: #bb86fc;
 	--card-background-color: #1e1e1e;
 	--border-color: #333333;
+	--card-hover-background-color: #252525;
+	--category-button-background: #343a40;
+	--category-button-text: #e9ecef;
+	--category-button-active-background: #e9ecef; /* Light background for dark theme */
+	--category-button-active-text: #121212; /* Dark text for dark theme */
 }
 
 body {
@@ -36,18 +46,33 @@ body {
 
 .category-nav .swiper-slide {
 	width: auto; /* Allow slides to have their natural width */
+	margin-right: 7.5px; /* Add spacing between buttons */
 }
+
+/*
+ * NOTE: We don't need to remove the margin from the last child
+ * because Swiper's free-scroll mode means the last item
+ * won't be perfectly aligned to the right edge anyway, so the
+ * margin has no negative visual effect. This is simpler and more robust.
+ */
 
 .category-link {
 	display: block;
-	padding: 1rem;
+	padding: 0.4rem 1rem; /* Reduced vertical padding */
 	text-decoration: none;
-	color: inherit;
-	border-bottom: 2px solid transparent;
+	border-radius: 10px;
+	background-color: var(--category-button-background);
+	color: var(--category-button-text);
+	transition: background-color 0.2s, color 0.2s;
+	border: none; /* Remove the old border */
+	white-space: nowrap; /* Prevent text wrapping */
 }
 
+
 .category-link.active {
-	border-bottom-color: var(--accent-color, blue);
+	background-color: var(--category-button-active-background);
+	color: var(--category-button-active-text);
+	font-weight: bold;
 }
 
 /* Gradient edges for scroll indication, controlled by Swiper events */
@@ -149,6 +174,50 @@ body {
 	display: none; /* Chrome, Safari, and Opera */
 }
 
+.loader-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+}
+
+.loader-svg {
+	user-select: none; /* Make the loader non-selectable */
+	-webkit-user-drag: none; /* Prevent dragging */
+}
+
+.loader-svg {
+	animation: rotate 2s linear infinite;
+	transform-origin: center center;
+}
+
+.loader-path {
+	stroke: var(--category-button-text);
+	stroke-linecap: round;
+	animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}
+
 .item-card {
 	/* The item card itself no longer needs a max-width, as its parent (.main-content) now controls it. */
 	border: 1px solid var(--border-color);
@@ -156,6 +225,11 @@ body {
 	margin-bottom: 1rem;
 	border-radius: 8px;
 	background-color: var(--card-background-color);
+	transition: background-color 0.2s ease-in-out;
+}
+
+.item-card:hover {
+	background-color: var(--card-hover-background-color);
 }
 
 .item-controls {
@@ -270,4 +344,5 @@ body {
 	font-size: 2rem;
 	cursor: pointer;
 	line-height: 1;
+	color: var(--text-color);
 }

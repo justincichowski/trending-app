@@ -31,10 +31,13 @@ export class CategoryNav {
 	 */
 	private init() {
 		stateManager.subscribe(state => {
-			// Render only if categories are available and the element is empty
-			if (state.categories.length > 0 && this.element.children.length === 0) {
+			// Render the categories if they haven't been rendered yet
+			if (state.categories.length > 0 && this.element.querySelector('.swiper-wrapper') === null) {
 				this.render(state.categories);
 			}
+
+			// Update the active class based on the current category
+			this.updateActiveClass(state.currentCategory?.id || null);
 		});
 	}
 
@@ -48,6 +51,9 @@ export class CategoryNav {
 		const swiperWrapper = document.createElement('div');
 		swiperWrapper.className = 'swiper-wrapper';
 
+		// Get the initial path from the URL to set the active class on first render
+		const initialPath = window.location.pathname.substring(1);
+
 		categories.forEach(category => {
 			const slide = document.createElement('div');
 			slide.className = 'swiper-slide';
@@ -58,6 +64,12 @@ export class CategoryNav {
 			link.className = 'category-link';
 			link.setAttribute('data-link', '');
 
+			// Set active class on initial page load to prevent a "flash" of unstyled content.
+			// The state-driven `updateActiveClass` method will take over for all subsequent updates.
+			if (category.id === initialPath) {
+				link.classList.add('active');
+			}
+
 			slide.appendChild(link);
 			swiperWrapper.appendChild(slide);
 		});
@@ -65,7 +77,7 @@ export class CategoryNav {
 		this.element.appendChild(swiperWrapper);
 
 		// Initialize Swiper
-		const swiper = new Swiper(this.element, {
+		new Swiper(this.element, {
 			modules: [Mousewheel],
 			slidesPerView: 'auto',
 			freeMode: true,
@@ -85,6 +97,25 @@ export class CategoryNav {
 					swiper.el.classList.toggle('is-end', swiper.isEnd);
 				},
 			},
+		});
+	}
+
+	/**
+		* Updates the active class on the category links.
+		* @param {string | null} activeCategoryId - The ID of the currently active category.
+		*/
+	private updateActiveClass(activeCategoryId: string | null) {
+		const links = this.element.querySelectorAll('.category-link');
+		links.forEach(link => {
+			const linkElement = link as HTMLAnchorElement;
+			// The category ID is the part of the href after the slash
+			const categoryId = linkElement.getAttribute('href')?.substring(1);
+
+			if (categoryId === activeCategoryId) {
+				linkElement.classList.add('active');
+			} else {
+				linkElement.classList.remove('active');
+			}
 		});
 	}
 }

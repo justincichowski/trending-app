@@ -5,6 +5,8 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import fastify from 'fastify';
 import cors from '@fastify/cors';
+import fastifyCookie from '@fastify/cookie';
+import fs from 'fs/promises';
 import { getHackerNewsStories } from './lib/hackernews';
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
@@ -23,18 +25,37 @@ const main = async () => {
 	// Register the CORS plugin to handle cross-origin requests
 	await server.register(cors, {
 		origin: 'http://localhost:5173', // Allow requests from the Vite client
+		credentials: true, // Allow cookies to be sent
+	});
+
+	// Register the cookie parser plugin
+	await server.register(fastifyCookie, {
+		secret: process.env.COOKIE_SECRET || 'a-default-secret-for-development', // Use a default for safety
 	});
 
 	/**
-	 * A simple route that returns a "Hello, World!" message.
-	 * This mirrors the Vercel serverless function.
-	 */
+		* Serves the main index.html file, injecting the theme class based on a cookie.
+		* This prevents a "flash of unstyled content" (FOUC) for users with dark mode enabled.
+		*/
 	server.get('/', async (request, reply) => {
-		return { message: 'Hello, World!' };
+		try {
+			const theme = request.cookies.theme || 'light';
+			const clientIndexPath = path.resolve(__dirname, '../../client/index.html');
+			let indexHtml = await fs.readFile(clientIndexPath, 'utf-8');
+
+			if (theme === 'dark') {
+				indexHtml = indexHtml.replace('<html lang="en">', '<html lang="en" class="dark-theme">');
+			}
+
+			reply.type('text/html').send(indexHtml);
+		} catch (error) {
+			server.log.error(error, 'Failed to serve index.html');
+			reply.status(500).send({ error: 'Could not load the application.' });
+		}
 	});
 
 	/**
-	 * A health check endpoint that responds with an "ok" status.
+		* A health check endpoint that responds with an "ok" status.
 	 */
 	server.get('/health', async (request, reply) => {
 		return { status: 'ok' };

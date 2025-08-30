@@ -53,7 +53,13 @@ export function renderItems() {
  }
 
  if (isLoading) {
- 	mainContent.innerHTML = '<p>Loading...</p>';
+ 	// By inlining the SVG, we can use CSS variables to make it theme-aware.
+ 	const loaderSVG = `
+ 		<svg class="loader-svg" width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+			<circle class="loader-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+		</svg>
+ 	`;
+ 	mainContent.innerHTML = `<div class="loader-container">${loaderSVG}</div>`;
  	return;
  }
 
@@ -67,11 +73,11 @@ export function renderItems() {
  	return;
  }
 
-  // --- DEBUG LOG: Logs the number of items being rendered ---
-  console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
-  mainContent.innerHTML = ''; // Clear the container
-  virtualList.render(filteredItems);
-  mainContent.appendChild(virtualList.getElement()); // Append the list
+   // --- DEBUG LOG: Logs the number of items being rendered ---
+   console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
+   mainContent.innerHTML = ''; // Clear the container
+   virtualList.render(filteredItems);
+   mainContent.appendChild(virtualList.getElement()); // Append the list
 
  // Restore the scroll position for the current category
  if (currentCategory && scrollPositions[currentCategory.id]) {

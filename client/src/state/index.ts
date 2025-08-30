@@ -124,6 +124,8 @@ class StateManager {
 	 storage.set('favorites', this.state.favorites);
 	 storage.set('hiddenItems', this.state.hiddenItems);
 	 storage.set('theme', this.state.theme);
+	 // Also set a cookie for the theme so the server can pre-render the correct theme
+	 document.cookie = `theme=${this.state.theme};path=/;max-age=31536000`; // Expires in 1 year
 	 storage.set('autoScroll', this.state.autoScroll);
 	 storage.set('youtubePlaylists', this.state.youtubePlaylists);
 	}
