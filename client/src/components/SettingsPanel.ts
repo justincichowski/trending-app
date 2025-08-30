@@ -52,10 +52,6 @@ export class SettingsPanel {
 					<button class="close-button">&times;</button>
 				</div>
 				<div class="setting">
-					<label for="theme-toggle">Theme:</label>
-					<button id="theme-toggle">Toggle Theme</button>
-				</div>
-				<div class="setting">
 					<label for="reduced-motion-toggle">Reduced Motion:</label>
 					<input type="checkbox" id="reduced-motion-toggle" />
 				</div>
@@ -63,14 +59,6 @@ export class SettingsPanel {
 					<label for="auto-scroll-toggle">Auto-Scroll:</label>
 					<input type="checkbox" id="auto-scroll-toggle" />
 					<input type="number" id="auto-scroll-interval" value="5000" />
-				</div>
-				<div class="setting">
-					<label for="cooking-playlist-id">Cooking Playlist ID:</label>
-					<input type="text" id="cooking-playlist-id" />
-				</div>
-				<div class="setting">
-					<label for="travel-playlist-id">Travel Playlist ID:</label>
-					<input type="text" id="travel-playlist-id" />
 				</div>
 			</div>
 		`;
@@ -100,15 +88,6 @@ export class SettingsPanel {
 			});
 		}
 
-		const themeToggle = this.element.querySelector('#theme-toggle');
-		if (themeToggle) {
-			themeToggle.addEventListener('click', () => {
-				const { theme } = stateManager.getState();
-				const newTheme = theme === 'light' ? 'dark' : 'light';
-				stateManager.setState({ theme: newTheme });
-			});
-		}
-
 		const reducedMotionToggle = this.element.querySelector('#reduced-motion-toggle') as HTMLInputElement;
 		if (reducedMotionToggle) {
 			reducedMotionToggle.addEventListener('change', () => {
@@ -134,25 +113,6 @@ export class SettingsPanel {
 			});
 		}
 
-		const cookingPlaylistId = this.element.querySelector('#cooking-playlist-id') as HTMLInputElement;
-		if (cookingPlaylistId) {
-			cookingPlaylistId.addEventListener('change', () => {
-				const { youtubePlaylists } = stateManager.getState();
-				stateManager.setState({
-					youtubePlaylists: { ...youtubePlaylists, cooking: cookingPlaylistId.value },
-				});
-			});
-		}
-
-		const travelPlaylistId = this.element.querySelector('#travel-playlist-id') as HTMLInputElement;
-		if (travelPlaylistId) {
-			travelPlaylistId.addEventListener('change', () => {
-				const { youtubePlaylists } = stateManager.getState();
-				stateManager.setState({
-					youtubePlaylists: { ...youtubePlaylists, travel: travelPlaylistId.value },
-				});
-			});
-		}
 	}
 
 	/**
@@ -177,14 +137,5 @@ export class SettingsPanel {
 			autoScrollInterval.value = autoScroll.interval.toString();
 		}
 
-		const cookingPlaylistId = this.element.querySelector('#cooking-playlist-id') as HTMLInputElement;
-		if (cookingPlaylistId) {
-			cookingPlaylistId.value = youtubePlaylists.cooking;
-		}
-
-		const travelPlaylistId = this.element.querySelector('#travel-playlist-id') as HTMLInputElement;
-		if (travelPlaylistId) {
-			travelPlaylistId.value = youtubePlaylists.travel;
-		}
 	}
 }

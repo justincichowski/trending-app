@@ -551,6 +551,7 @@ body {
 	transform: translateY(150%);
 	opacity: 0;
 	transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+	user-select: none;
 }
 
 .notification.show {
@@ -560,6 +561,7 @@ body {
 
 .notification-message {
 	margin: 0;
+	cursor: default;
 }
 
 .undo-button {
@@ -832,4 +834,9 @@ body {
 	cursor: pointer;
 	line-height: 1;
 	color: var(--text-color);
+}
+
+
+.undo-button:hover {
+	text-decoration: underline;
 }
