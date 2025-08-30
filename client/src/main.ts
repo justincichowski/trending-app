@@ -9,6 +9,7 @@ import type { NormalizedItem, Preset } from './types';
 import { Notification } from './components/Notification';
 import { SettingsPanel } from './components/SettingsPanel';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
+import { ContextMenu } from './components/ContextMenu';
 
 /**
  * -----------------------------------------------------------------------------
@@ -39,6 +40,7 @@ const mainContent = document.getElementById('main-content');
 const settingsPanelContainer = document.getElementById('settings-panel');
 const notification = new Notification('notification-container');
 let settingsPanel: SettingsPanel | null = null;
+let contextMenu: ContextMenu | null = null;
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
@@ -315,7 +317,10 @@ async function initializeApp() {
 }
 
 // Start the application once the DOM is ready
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', () => {
+	initializeApp();
+	contextMenu = new ContextMenu('app');
+});
 
 
 /**
@@ -329,22 +334,32 @@ document.addEventListener('DOMContentLoaded', initializeApp);
  * -----------------------------------------------------------------------------
  */
 document.addEventListener('contextmenu', (event) => {
-  let target = event.target as HTMLElement;
+	const target = event.target as HTMLElement;
 
-  // Traverse up the DOM tree from the event target.
-  while (target && target !== document.body) {
-    // If an anchor tag with an href is found, allow the context menu.
-    if (target.tagName === 'A' && target.hasAttribute('href')) {
-      return;
-    }
-    // Move up to the parent element.
-    if (target.parentElement) {
-      target = target.parentElement;
-    } else {
-      break;
-    }
-  }
+	// Check if the right-clicked element is an item image
+	if (target.classList.contains('item-image')) {
+		event.preventDefault();
+		const imageUrl = target.getAttribute('src');
+		const itemCard = target.closest('.item-card');
+		const titleLink = itemCard?.querySelector('.item-title a') as HTMLAnchorElement | null;
+		const itemUrl = titleLink?.href;
 
-  // If no link was found in the hierarchy, prevent the context menu.
-  event.preventDefault();
+		if (imageUrl && contextMenu) {
+			const mouseEvent = event as MouseEvent;
+			contextMenu.show(mouseEvent.clientX, mouseEvent.clientY, imageUrl, itemUrl);
+		}
+		return;
+	}
+
+	// Traverse up the DOM tree to check for an anchor link
+	let parent: HTMLElement | null = target;
+	while (parent && parent !== document.body) {
+		if (parent.tagName === 'A' && parent.hasAttribute('href')) {
+			return; // Allow context menu for links
+		}
+		parent = parent.parentElement;
+	}
+
+	// If no link was found, prevent the context menu
+	event.preventDefault();
 });

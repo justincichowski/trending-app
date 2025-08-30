@@ -12,6 +12,9 @@
 	--category-button-text: #495057;
 	--category-button-active-background: #343a40; /* Dark background for light theme */
 	--category-button-active-text: #f8f9fa; /* Light text for light theme */
+	--context-menu-highlight-bg: #007bff;
+	--context-menu-highlight-text: #ffffff;
+	--context-menu-active-bg: #0056b3;
 }
 
 html.dark-theme {
@@ -26,6 +29,9 @@ html.dark-theme {
 	--category-button-text: #e9ecef;
 	--category-button-active-background: #e9ecef; /* Light background for dark theme */
 	--category-button-active-text: #121212; /* Dark text for dark theme */
+	--context-menu-highlight-bg: #bb86fc;
+	--context-menu-highlight-text: #121212;
+	--context-menu-active-bg: #9857e7;
 }
 
 body, html{
@@ -852,4 +858,48 @@ body {
 
 .undo-button:hover {
 	text-decoration: underline;
+}
+
+
+/* --- Custom Context Menu --- */
+.context-menu {
+    position: fixed;
+    z-index: 10000;
+    width: 180px; /* Wider to prevent text wrapping */
+    background-color: var(--card-background-color);
+    border-radius: 6px; /* Slightly smaller radius */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    padding: 0.25rem 0; /* More compact padding */
+    outline: 1px solid rgba(128, 128, 128, 0.2); /* Subtle outline for floating effect */
+}
+
+.context-menu.show {
+    display: block;
+}
+
+.context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.context-menu ul li {
+    padding: 0.5rem 1rem; /* More compact padding */
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color 0.1s, color 0.1s;
+    font-size: 0.9rem; /* Smaller font size */
+    border-radius: 4px;
+    margin: 0 0.25rem;
+}
+
+.context-menu ul li:hover {
+    background-color: var(--context-menu-highlight-bg);
+    color: var(--context-menu-highlight-text);
+}
+
+.context-menu ul li:active {
+    background-color: var(--context-menu-active-bg);
+    color: var(--context-menu-highlight-text);
 }
