@@ -142,6 +142,19 @@ export async function getRssFeed(options: {
 	}
 
 	const feed = await parser.parseURL(feedUrl);
+
+	// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
+	console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+	/*
+	// --- Previous debug log for inspecting a single raw item ---
+	if (feed.items.length > 0) {
+		console.log('--- RAW RSS ITEM DEBUG ---');
+		console.log(JSON.stringify(feed.items[0], null, 2));
+		console.log('--------------------------');
+	}
+	*/
+	// --- END DEBUG LOG ---
+
 	const limitedItems = feed.items.slice(0, limit);
 
 	// Normalize items in parallel and filter out any that are invalid

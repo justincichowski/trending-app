@@ -37,6 +37,27 @@ async function getOpenGraphImage(url) {
     }
 }
 /**
+ * Extracts the first image URL from an HTML string.
+ *
+ * @param {string} html - The HTML content to parse.
+ * @returns {string | null} The image URL, or null if not found.
+ */
+function extractImageFromContent(html) {
+    if (!html)
+        return null;
+    const match = html.match(/<img[^>]+src="([^"]+)"/);
+    return match ? match[1] : null;
+}
+/**
+ * A utility function to check if a URL is a generic Google News placeholder.
+ *
+ * @param {string | null | undefined} url - The URL to check.
+ * @returns {boolean} True if the URL is a generic placeholder.
+ */
+function isGenericGoogleImage(url) {
+    return !!url && url.includes('googleusercontent.com');
+}
+/**
  * Normalizes a raw RSS item into the common `NormalizedItem` shape.
  * Returns null if the item is missing essential fields.
  *
@@ -49,15 +70,21 @@ async function normalizeItem(item, source) {
         return null;
     }
     let imageUrl = undefined;
-    // 1. Prioritize the RSS feed's enclosure image if it's a valid, non-generic URL.
-    if (item.enclosure?.url && !item.enclosure.url.includes('googleusercontent.com')) {
+    // Strategy 1: Use the 'enclosure' tag if it's valid and not a generic image.
+    if (item.enclosure?.url && !isGenericGoogleImage(item.enclosure.url)) {
         imageUrl = item.enclosure.url;
     }
-    // 2. If no valid image was found in the enclosure, fall back to scraping the Open Graph image.
+    // Strategy 2: If no image yet, try to extract it from the 'content' field.
+    if (!imageUrl) {
+        const contentImage = extractImageFromContent(item.content || '');
+        if (contentImage && !isGenericGoogleImage(contentImage)) {
+            imageUrl = contentImage;
+        }
+    }
+    // Strategy 3: As a last resort, scrape the page for an Open Graph image.
     if (!imageUrl) {
         const scrapedUrl = await getOpenGraphImage(item.link);
-        // 3. Ensure the scraped image is also not a generic Google one.
-        if (scrapedUrl && !scrapedUrl.includes('googleusercontent.com')) {
+        if (scrapedUrl && !isGenericGoogleImage(scrapedUrl)) {
             imageUrl = scrapedUrl;
         }
     }
@@ -68,7 +95,7 @@ async function normalizeItem(item, source) {
         source: source,
         description: item.contentSnippet,
         publishedAt: item.isoDate,
-        image: imageUrl, // Will be undefined if no valid image was found
+        image: imageUrl,
     };
 }
 /**
@@ -104,6 +131,17 @@ async function getRssFeed(options) {
         throw new Error('Either a URL or a query must be provided to fetch an RSS feed.');
     }
     const feed = await parser.parseURL(feedUrl);
+    // --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
+    console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+    /*
+    // --- Previous debug log for inspecting a single raw item ---
+    if (feed.items.length > 0) {
+        console.log('--- RAW RSS ITEM DEBUG ---');
+        console.log(JSON.stringify(feed.items[0], null, 2));
+        console.log('--------------------------');
+    }
+    */
+    // --- END DEBUG LOG ---
     const limitedItems = feed.items.slice(0, limit);
     // Normalize items in parallel and filter out any that are invalid
     const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));

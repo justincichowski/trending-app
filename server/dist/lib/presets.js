@@ -19,8 +19,8 @@ exports.presets = [
         name: 'Gaming',
         source: 'rss',
         params: {
-            query: 'gaming OR "video games"',
-            source: 'Google News',
+            url: 'https://feeds.ign.com/ign/all',
+            source: 'IGN',
         },
     },
     {
@@ -28,8 +28,8 @@ exports.presets = [
         name: 'Movies',
         source: 'rss',
         params: {
-            query: 'movies OR "film trailers" OR "box office"',
-            source: 'Google News',
+            url: 'https://variety.com/feed/',
+            source: 'Variety',
         },
     },
     {
@@ -37,8 +37,8 @@ exports.presets = [
         name: 'Music',
         source: 'rss',
         params: {
-            query: 'music OR songs OR artists OR concerts',
-            source: 'Google News',
+            url: 'https://www.billboard.com/feed/',
+            source: 'Billboard',
         },
     },
     {
@@ -46,8 +46,8 @@ exports.presets = [
         name: 'TV',
         source: 'rss',
         params: {
-            query: 'tv shows OR "streaming series" OR television',
-            source: 'Google News',
+            url: 'https://tvline.com/feed/',
+            source: 'TVLine',
         },
     },
     {
@@ -55,8 +55,8 @@ exports.presets = [
         name: 'Books',
         source: 'rss',
         params: {
-            query: 'books OR literature',
-            source: 'Google News',
+            url: 'https://rss.nytimes.com/services/xml/rss/nyt/Books-BestSellers.xml',
+            source: 'NYT Books',
         },
     },
     {
@@ -90,8 +90,8 @@ exports.presets = [
         name: 'Celebrities',
         source: 'rss',
         params: {
-            query: 'celebrity news',
-            source: 'Google News',
+            url: 'https://people.com/feed/',
+            source: 'People',
         },
     },
     {
@@ -99,8 +99,8 @@ exports.presets = [
         name: 'Finance',
         source: 'rss',
         params: {
-            query: 'finance OR markets OR stocks',
-            source: 'Google News',
+            url: 'http://feeds.reuters.com/reuters/businessNews',
+            source: 'Reuters',
         },
     },
     {
@@ -108,8 +108,8 @@ exports.presets = [
         name: 'Science',
         source: 'rss',
         params: {
-            query: 'science OR research',
-            source: 'Google News',
+            url: 'https://www.sciencedaily.com/rss/all.xml',
+            source: 'ScienceDaily',
         },
     },
     {
@@ -117,8 +117,8 @@ exports.presets = [
         name: 'World',
         source: 'rss',
         params: {
-            query: 'world news OR international news',
-            source: 'Google News',
+            url: 'http://feeds.reuters.com/Reuters/worldNews',
+            source: 'Reuters',
         },
     },
 ];

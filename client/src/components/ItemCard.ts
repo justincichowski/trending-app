@@ -24,19 +24,22 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	 * Creates an image element for the card. If the item has an image, it
 	 * is used; otherwise, a placeholder is used.
 	 */
-	if (item.image) {
-		const image = document.createElement('img');
-		image.src = item.image;
-		image.alt = item.title;
-		image.className = 'item-image';
+	const image = document.createElement('img');
+	image.className = 'item-image';
+	image.alt = item.title;
 
-		// Add an error handler to fall back to the placeholder
-		image.onerror = () => {
+	// Set the initial source. If item.image is missing, start with the placeholder.
+	image.src = item.image || '/placeholder.svg';
+
+	// If the provided item.image URL fails, fall back to the placeholder.
+	// This also prevents an infinite loop if the placeholder itself is broken.
+	image.onerror = () => {
+		if (image.src !== '/placeholder.svg') {
 			image.src = '/placeholder.svg';
-		};
+		}
+	};
 
-		card.appendChild(image);
-	}
+	card.appendChild(image);
 
 	const title = document.createElement('h3');
 	const link = document.createElement('a');
