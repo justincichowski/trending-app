@@ -28,21 +28,12 @@ const sortSelect = document.getElementById('sort-select');
 const searchToggleButton = document.getElementById('search-toggle-button');
 const controls = document.querySelector('.controls');
 
-if (favoritesButton) {
-	favoritesButton.addEventListener('click', () => {
-		router.navigate('/favorites');
-	});
-}
+// The favorites button has been removed from the header, so this is no longer needed.
 
 const mainContent = document.getElementById('main-content');
-const notificationContainer = document.getElementById('notification-container');
 const settingsPanelContainer = document.getElementById('settings-panel');
-let notification: Notification | null = null;
+const notification = new Notification('notification-container');
 let settingsPanel: SettingsPanel | null = null;
-
-if (notificationContainer) {
-	notification = new Notification(notificationContainer);
-}
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
@@ -219,10 +210,19 @@ stateManager.subscribe(state => {
 async function initializeApp() {
 	try {
 		// 1. Fetch essential data (category presets)
-		const categories: Preset[] = await getCategories();
+		const dynamicCategories: Preset[] = await getCategories();
+		
+		// 2. Create a static "Favorites" category and add it to the list
+		const favoritesCategory: Preset = {
+			id: 'favorites',
+			name: 'Favorites',
+			source: 'local', // This is a client-side only category
+			params: {},
+		};
+		const categories = [...dynamicCategories, favoritesCategory];
 		stateManager.setState({ categories });
 
-		// 2. Initialize the category navigation
+		// 3. Initialize the category navigation
 		if (categoryNavContainer) {
 			new CategoryNav(categoryNavContainer);
 		}

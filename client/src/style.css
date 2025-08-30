@@ -251,6 +251,72 @@ body {
 	margin-bottom: 12.5px;
 }
 
+.icon-button {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	width: 24px;
+	height: 24px;
+	position: relative; /* For tooltip positioning */
+}
+
+.icon-button svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--text-color);
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	transition: all 0.2s ease-in-out;
+}
+
+/* Favorite Button (Heart) */
+.favorite-button .icon-heart path {
+	fill: transparent;
+	transition: fill 0.2s ease-in-out;
+}
+
+.favorite-button.is-favorited .icon-heart path {
+	fill: var(--accent-color);
+	stroke: var(--accent-color);
+}
+
+/* Hide Button (Eye) */
+.hide-button .icon-eye-slash {
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+}
+
+.hide-button:hover .icon-eye-slash {
+	opacity: 1;
+}
+
+/* Tooltips for Icon Buttons */
+.icon-button[data-tooltip]::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	bottom: 125%; /* Position above the button */
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--card-background-color);
+	color: var(--text-color);
+	padding: 0.3rem 0.6rem;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	white-space: nowrap;
+	z-index: 10;
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+	pointer-events: none;
+	border: 1px solid var(--border-color);
+}
+
+.icon-button[data-tooltip]:hover::after {
+	opacity: 1;
+}
+
 .item-image {
 	width: 100%;
 	height: auto;
@@ -274,6 +340,50 @@ body {
 .item-title a:hover,
 .item-title a:active {
 	color: var(--text-color);
+}
+
+/* --- Notification Toast --- */
+.notification-container {
+	position: fixed;
+	bottom: 1rem;
+	right: 1rem;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.notification {
+	background-color: var(--card-background-color);
+	color: var(--text-color);
+	padding: 0.8rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	transform: translateY(150%);
+	opacity: 0;
+	transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.notification.show {
+	transform: translateY(0);
+	opacity: 1;
+}
+
+.notification-message {
+	margin: 0;
+}
+
+.undo-button {
+	background: none;
+	border: none;
+	color: var(--accent-color);
+	cursor: pointer;
+	font-weight: bold;
+	padding: 0;
 }
 
 .app-header {

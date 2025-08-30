@@ -2,8 +2,9 @@
  * -----------------------------------------------------------------------------
  * Notification Component
  * -----------------------------------------------------------------------------
- * This component is responsible for displaying a notification message to the
- * user, with an optional "Undo" button and a configurable duration.
+ * This component is responsible for displaying toast-style notifications at the
+ * bottom-right of the screen. It supports "Undo" actions and can manage a
+ * queue of notifications.
  * -----------------------------------------------------------------------------
  */
 
@@ -11,58 +12,90 @@
  * A component that displays a notification message with an optional "Undo" button.
  */
 export class Notification {
-	private element: HTMLElement;
-	private timer: number | null = null;
+	private container: HTMLElement;
+	private queue: { message: string; options: { onUndo?: () => void; duration?: number } }[] = [];
+	private isShowing = false;
 
-	constructor(container: HTMLElement) {
-		this.element = document.createElement('div');
-		this.element.className = 'notification';
-		this.element.hidden = true;
-		container.appendChild(this.element);
+	constructor(containerId: string) {
+		const container = document.getElementById(containerId);
+		if (!container) {
+			throw new Error(`Notification container with id "${containerId}" not found.`);
+		}
+		this.container = container;
+		this.container.className = 'notification-container';
 	}
 
 	/**
-	 * Shows a notification message.
+	 * Shows a notification message or adds it to the queue if one is already showing.
 	 *
 	 * @param {string} message - The message to display.
 	 * @param {object} [options] - Options for the notification.
-	 * @param {() => void} [options.onUndo] - A callback function to be called when the "Undo" button is clicked.
-	 * @param {number} [options.duration=5000] - The duration in milliseconds to show the notification.
+	 * @param {() => void} [options.onUndo] - A callback function for the "Undo" button.
+	 * @param {number} [options.duration=5000] - The duration in milliseconds.
 	 */
 	show(message: string, options: { onUndo?: () => void; duration?: number } = {}) {
+		this.queue.push({ message, options });
+		if (!this.isShowing) {
+			this.showNext();
+		}
+	}
+
+	/**
+	 * Shows the next notification in the queue.
+	 */
+	private showNext() {
+		if (this.queue.length === 0) {
+			this.isShowing = false;
+			return;
+		}
+
+		this.isShowing = true;
+		const { message, options } = this.queue.shift()!;
 		const { onUndo, duration = 5000 } = options;
 
-		this.element.innerHTML = `<p>${message}</p>`;
-		this.element.hidden = false;
+		const notificationElement = document.createElement('div');
+		notificationElement.className = 'notification';
+		notificationElement.innerHTML = `<p class="notification-message">${message}</p>`;
 
 		if (onUndo) {
 			const undoButton = document.createElement('button');
 			undoButton.textContent = 'Undo';
 			undoButton.className = 'undo-button';
-			undoButton.addEventListener('click', () => {
+			undoButton.onclick = () => {
 				onUndo();
-				this.hide();
-			});
-			this.element.appendChild(undoButton);
+				this.hide(notificationElement);
+			};
+			notificationElement.appendChild(undoButton);
 		}
 
-		if (this.timer) {
-			clearTimeout(this.timer);
-		}
+		this.container.appendChild(notificationElement);
 
-		this.timer = window.setTimeout(() => {
-			this.hide();
+		// Trigger the slide-in animation
+		setTimeout(() => {
+			notificationElement.classList.add('show');
+		}, 10);
+
+		// Set a timer to hide the notification
+		setTimeout(() => {
+			this.hide(notificationElement);
 		}, duration);
 	}
 
 	/**
-	 * Hides the notification.
+	 * Hides a specific notification element and shows the next one in the queue.
+	 *
+	 * @param {HTMLElement} notificationElement - The notification element to hide.
 	 */
-	hide() {
-		this.element.hidden = true;
-		if (this.timer) {
-			clearTimeout(this.timer);
-			this.timer = null;
-		}
+	private hide(notificationElement: HTMLElement) {
+		notificationElement.classList.remove('show');
+
+		// Wait for the slide-out animation to complete before removing the element
+		notificationElement.addEventListener('transitionend', () => {
+			notificationElement.remove();
+			// If this was the last notification, check the queue again
+			if (this.container.childElementCount === 0) {
+				this.showNext();
+			}
+		}, { once: true });
 	}
 }
