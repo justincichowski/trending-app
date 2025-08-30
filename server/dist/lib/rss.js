@@ -25,7 +25,7 @@ async function getOpenGraphImage(url) {
         });
         const match = html.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/);
         if (match && match[1]) {
-            console.log(`Scraped og:image: ${match[1]}`);
+            // console.log(`Scraped og:image: ${match[1]}`);
             return match[1];
         }
         return null;

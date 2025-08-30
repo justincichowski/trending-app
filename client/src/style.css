@@ -34,6 +34,11 @@ body {
 	white-space: nowrap;
 	-webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
 	scrollbar-width: none; /* for Firefox */
+	cursor: grab;
+}
+
+.category-nav.grabbing {
+	cursor: grabbing;
 }
 
 .category-nav::-webkit-scrollbar {
