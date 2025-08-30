@@ -24,10 +24,16 @@ html.dark-theme {
 	--category-button-active-text: #121212; /* Dark text for dark theme */
 }
 
+
 body {
 	background-color: var(--background-color);
 	color: var(--text-color);
 	transition: background-color 0.3s, color 0.3s;
+	margin-top: 8px;
+	margin-left: 8px;
+	margin-right: 8px;
+	margin-bottom: 0px!important;
+	
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -58,7 +64,7 @@ body {
 
 .category-link {
 	display: block;
-	padding: 0.4rem 1rem; /* Reduced vertical padding */
+	padding: 0.3rem 0.8rem; /* Further reduced padding */
 	text-decoration: none;
 	border-radius: 10px;
 	background-color: var(--category-button-background);
@@ -138,7 +144,10 @@ body {
 .main-content-wrapper {
 	display: flex;
 	justify-content: center;
-	padding: 1rem;
+	padding-top: 1rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	padding-bottom: 0px;
 	/*
 	 * FUTURE-PROOFING NOTE:
 	 * This wrapper uses Flexbox to center the main content column.
@@ -165,7 +174,7 @@ body {
 	 */
 	max-width: 550px;
 	width: 100%; /* Ensure it takes up available space up to its max-width */
-	height: calc(100vh - 150px); /* Example height, adjust as needed */
+	height: calc(100vh - 105px); /* Example height, adjust as needed */
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 }
