@@ -130,7 +130,7 @@ body {
 	transition: transform 0.1s ease-in-out;
 }
 
-.logo:active {
+.logo:active:not(.no-animation) {
 	transform: scale(1.05);
 }
 
@@ -190,6 +190,9 @@ body {
 	}
 }
 
+.logo-link {
+	text-decoration: none;
+}
 .logo-wrapper {
 	position: relative;
 	display: inline-block;

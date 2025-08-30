@@ -23,7 +23,7 @@ import { ThemeToggleButton } from './components/ThemeToggleButton';
 const categoryNavContainer = document.getElementById('category-nav');
 const settingsButton = document.getElementById('settings-button');
 const themeToggleButton = document.getElementById('theme-toggle-button');
-const logo = document.querySelector('.logo');
+const logo = document.querySelector('.logo-link');
 const logoWrapper = document.querySelector('.logo-wrapper');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
@@ -184,6 +184,23 @@ function updateLastUpdated() {
  * Adds a click event listener to the logo to refresh the current category.
  */
 if (logo) {
+	const logoEl = logo.querySelector('.logo');
+
+	logo.addEventListener('mousedown', (e) => {
+		const mouseEvent = e as MouseEvent;
+		if (mouseEvent.button === 2) { // Right-click
+			logoEl?.classList.add('no-animation');
+		}
+	});
+
+	logo.addEventListener('mouseup', () => {
+		logoEl?.classList.remove('no-animation');
+	});
+
+	logo.addEventListener('contextmenu', () => {
+		logoEl?.classList.remove('no-animation');
+	});
+
 	logo.addEventListener('click', () => {
 		const { categories } = stateManager.getState();
 		const currentPath = window.location.pathname;
@@ -299,3 +316,35 @@ async function initializeApp() {
 
 // Start the application once the DOM is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+
+/**
+ * -----------------------------------------------------------------------------
+ * Right-Click Context Menu Handling
+ * -----------------------------------------------------------------------------
+ * This logic disables the default right-click context menu for all elements
+ * except for anchor tags (`<a>`) that have an `href` attribute. This allows
+ * users to use "Open in New Tab" on links while preventing the menu on other
+ * UI elements.
+ * -----------------------------------------------------------------------------
+ */
+document.addEventListener('contextmenu', (event) => {
+  let target = event.target as HTMLElement;
+
+  // Traverse up the DOM tree from the event target.
+  while (target && target !== document.body) {
+    // If an anchor tag with an href is found, allow the context menu.
+    if (target.tagName === 'A' && target.hasAttribute('href')) {
+      return;
+    }
+    // Move up to the parent element.
+    if (target.parentElement) {
+      target = target.parentElement;
+    } else {
+      break;
+    }
+  }
+
+  // If no link was found in the hierarchy, prevent the context menu.
+  event.preventDefault();
+});
