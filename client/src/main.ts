@@ -29,6 +29,7 @@ const sortSelect = document.getElementById('sort-select');
 const searchBarWrapper = document.querySelector('.search-bar-wrapper');
 const clearSearchButton = document.getElementById('clear-search-button');
 const searchToggleButton = document.getElementById('search-toggle-button');
+const searchBackButton = document.getElementById('search-back-button');
 const controls = document.querySelector('.controls');
 
 // The favorites button has been removed from the header, so this is no longer needed.
@@ -215,7 +216,14 @@ if (sortSelect) {
 
 if (searchToggleButton && controls) {
 	searchToggleButton.addEventListener('click', () => {
-		controls.classList.toggle('active');
+		controls.classList.add('search-active');
+		(document.getElementById('search-input') as HTMLInputElement)?.focus();
+	});
+}
+
+if (searchBackButton && controls) {
+	searchBackButton.addEventListener('click', () => {
+		controls.classList.remove('search-active');
 	});
 }
 

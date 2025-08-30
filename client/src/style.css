@@ -28,7 +28,10 @@ html.dark-theme {
 	--category-button-active-text: #121212; /* Dark text for dark theme */
 }
 
-
+body, html{
+	max-height: 100%;
+	overflow: hidden;
+}
 body {
 	background-color: var(--background-color);
 	color: var(--text-color);
@@ -121,8 +124,9 @@ body {
 .logo {
 	position: relative;
 	cursor: pointer;
-	width: 240px;
+	width: 220px;
 	height: 50px;
+	flex-shrink: 0;
 }
 
 .logo-svg {
@@ -596,7 +600,7 @@ body {
 }
 
 .select-wrapper {
-	min-width: 60px;
+	min-width: 65px;
 }
 
 .search-bar-wrapper {
@@ -609,6 +613,11 @@ body {
 	border-color: var(--accent-color);
 }
 
+.search-bar-wrapper:focus-within #search-input,
+.select-wrapper:focus-within #sort-select {
+	background-color: var(--card-background-color);
+}
+
 #search-input,
 #sort-select {
 	background: none;
@@ -616,6 +625,13 @@ body {
 	outline: none;
 	color: var(--text-color);
 	width: 100%;
+	background-color: var(--category-button-background);
+	padding-left: 4px;
+}
+
+#sort-select option {
+	background-color: var(--background-color);
+	color: var(--text-color);
 }
 
 #sort-select:focus {
@@ -624,6 +640,11 @@ body {
 
 #search-input {
 	padding-right: 28px; /* Space for the clear button */
+}
+
+#search-input::placeholder {
+	color: var(--text-color);
+	opacity: 0.7;
 }
 
 #search-input::-webkit-search-cancel-button {
@@ -642,7 +663,7 @@ body {
 .select-wrapper::after {
 	content: '▼';
 	position: absolute;
-	right: 0.8rem;
+	right: 0.6rem;
 	top: 50%;
 	transform: translateY(-50%);
 	font-size: 0.8em;
@@ -688,12 +709,45 @@ body {
 }
 
 @media (max-width: 550px) {
-	.controls > *:not(.search-toggle-button):not(#theme-toggle-button):not(#settings-button) {
+	/* Default mobile view: show only the icons */
+	.search-bar-wrapper,
+	.select-wrapper,
+	.search-back-button {
+		display: none;
+	}
+
+	.search-toggle-button,
+	#theme-toggle-button,
+	#settings-button {
+		display: flex;
+	}
+
+	/* When search is active: show search bar and back button, hide icons */
+	.controls.search-active .search-bar-wrapper,
+	.controls.search-active .search-back-button {
+		display: flex;
+	}
+
+	.controls.search-active .search-back-button {
+		order: 1;
+	}
+
+	.controls.search-active .search-bar-wrapper {
+		order: 2;
+	}
+
+	.search-back-button {
+		flex-shrink: 0;
+	}
+
+	.controls.search-active .search-toggle-button,
+	.controls.search-active #theme-toggle-button,
+	.controls.search-active #settings-button,
+	.controls.search-active .select-wrapper {
 		display: none;
 	}
 
 	.search-toggle-button {
-		display: flex;
 		order: 1;
 	}
 
