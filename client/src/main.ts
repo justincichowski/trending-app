@@ -85,7 +85,12 @@ export async function categoryView(params: Record<string, string>) {
 			items = await getCategoryItems(id);
 		}
 
-		const newCurrentCategory = categories.find(c => c.id === id) || null;
+		let newCurrentCategory = categories.find(c => c.id === id) || null;
+		// If the category is 'favorites' and it wasn't found in the state (e.g., during initial load),
+		// create a temporary object to ensure it's always correctly set.
+		if (id === 'favorites' && !newCurrentCategory) {
+			newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
+		}
 		stateManager.setState({
 			items,
 			currentCategory: newCurrentCategory,
