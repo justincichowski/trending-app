@@ -78,6 +78,16 @@ export class SettingsPanel {
 		* Adds event listeners to the settings controls.
 		*/
 	private addEventListeners() {
+		// Close when clicking the backdrop
+		this.element.addEventListener('click', (event) => {
+			// If the click target is the backdrop itself (not the content), close the panel.
+			if (event.target === this.element) {
+				// Use pushState to remove the hash without a page reload
+				history.pushState('', document.title, window.location.pathname + window.location.search);
+				this.hide();
+			}
+		});
+
 		const closeButton = this.element.querySelector('.close-button');
 		if (closeButton) {
 			closeButton.addEventListener('click', () => {
