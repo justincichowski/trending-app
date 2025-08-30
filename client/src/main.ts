@@ -26,6 +26,8 @@ const themeToggleButton = document.getElementById('theme-toggle-button');
 const logo = document.querySelector('.logo');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
+const searchBarWrapper = document.querySelector('.search-bar-wrapper');
+const clearSearchButton = document.getElementById('clear-search-button');
 const searchToggleButton = document.getElementById('search-toggle-button');
 const controls = document.querySelector('.controls');
 
@@ -185,8 +187,23 @@ if (logo) {
 }
 
 if (searchInput) {
-	searchInput.addEventListener('input', () => {
+	searchInput.addEventListener('input', (e) => {
+		const target = e.target as HTMLInputElement;
+		if (target.value.length > 0) {
+			searchBarWrapper?.classList.add('has-text');
+		} else {
+			searchBarWrapper?.classList.remove('has-text');
+		}
 		renderItems();
+	});
+}
+
+if (clearSearchButton && searchInput) {
+	clearSearchButton.addEventListener('click', () => {
+		(searchInput as HTMLInputElement).value = '';
+		searchBarWrapper?.classList.remove('has-text');
+		renderItems();
+		searchInput.focus();
 	});
 }
 

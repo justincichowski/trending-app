@@ -28,7 +28,7 @@ export class SettingsPanel {
 	 * Shows the settings panel by removing the 'hidden' attribute.
 	 */
 	show() {
-		this.element.hidden = false;
+		this.element.classList.add('is-visible');
 		document.getElementById('settings-button')?.classList.add('is-active');
 	}
 
@@ -36,7 +36,7 @@ export class SettingsPanel {
 	 * Hides the settings panel by adding the 'hidden' attribute.
 	 */
 	hide() {
-		this.element.hidden = true;
+		this.element.classList.remove('is-visible');
 		document.getElementById('settings-button')?.classList.remove('is-active');
 	}
 

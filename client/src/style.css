@@ -432,6 +432,9 @@ body {
 #theme-toggle-button,
 #settings-button {
 	fill: var(--text-color);
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0; /* Prevent shrinking */
 }
 
 #settings-button .icon-wrapper {
@@ -579,6 +582,101 @@ body {
 	gap: 1rem;
 }
 
+/* --- Search and Select Wrappers --- */
+.search-bar-wrapper,
+.select-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	background-color: var(--category-button-background);
+	border-radius: 20px;
+	padding: 0.3rem 0.8rem;
+	transition: background-color 0.2s;
+	border: 1px solid transparent;
+}
+
+.select-wrapper {
+	min-width: 60px;
+}
+
+.search-bar-wrapper {
+	flex-grow: 1;
+}
+
+.search-bar-wrapper:focus-within,
+.select-wrapper:focus-within {
+	background-color: var(--card-background-color);
+	border-color: var(--accent-color);
+}
+
+#search-input,
+#sort-select {
+	background: none;
+	border: none;
+	outline: none;
+	color: var(--text-color);
+	width: 100%;
+}
+
+#sort-select:focus {
+    outline: none;
+}
+
+#search-input {
+	padding-right: 28px; /* Space for the clear button */
+}
+
+#search-input::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	appearance: none;
+	display: none;
+}
+
+#sort-select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	/* padding-right is no longer needed as the wrapper handles spacing */
+}
+
+.select-wrapper::after {
+	content: '▼';
+	position: absolute;
+	right: 0.8rem;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 0.8em;
+	pointer-events: none;
+	color: var(--text-color);
+}
+
+
+.clear-button {
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	display: none; /* Hidden by default */
+	align-items: center;
+	justify-content: center;
+}
+
+.search-bar-wrapper.has-text .clear-button {
+	display: flex; /* Shown when text is present */
+}
+
+.clear-button svg {
+	width: 14px;
+	height: 14px;
+	fill: var(--text-color);
+}
+
 .search-toggle-button {
 	display: none;
 }
@@ -612,11 +710,6 @@ body {
 }
 
 .settings-panel {
-	display: none; /* Hidden by default */
-}
-
-.settings-panel:not([hidden]) {
-	display: flex; /* Show when not hidden */
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -627,6 +720,18 @@ body {
 	justify-content: center;
 	align-items: center;
 	z-index: 100;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s ease-in-out;
+}
+
+.settings-panel.is-visible {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.settings-panel.is-visible .settings-panel-content {
+	transform: scale(1);
 }
 
 .settings-panel-content {
@@ -634,6 +739,8 @@ body {
 	padding: 2rem;
 	border-radius: 8px;
 	border: 1px solid var(--border-color);
+	transform: scale(0.95);
+	transition: transform 0.3s ease-in-out;
 }
 
 .settings-panel-header {
