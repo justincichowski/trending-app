@@ -15,6 +15,7 @@
 	--context-menu-highlight-bg: #007bff;
 	--context-menu-highlight-text: #ffffff;
 	--context-menu-active-bg: #0056b3;
+	--back-to-top-hover-bg: #d3d9df;
 }
 
 html.dark-theme {
@@ -32,6 +33,7 @@ html.dark-theme {
 	--context-menu-highlight-bg: #bb86fc;
 	--context-menu-highlight-text: #121212;
 	--context-menu-active-bg: #9857e7;
+	--back-to-top-hover-bg: #4a4a4a;
 }
 
 body, html{
@@ -414,7 +416,7 @@ body {
 	color: var(--text-color);
 	padding: 0.3rem 0.6rem;
 	border-radius: 4px;
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 	white-space: nowrap;
 	z-index: 10;
 	opacity: 0;
@@ -438,7 +440,7 @@ body {
 	color: var(--text-color);
 	padding: 0.3rem 0.6rem;
 	border-radius: 4px;
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 	white-space: nowrap;
 	z-index: 10;
 	opacity: 0;
@@ -527,6 +529,7 @@ body {
 	object-fit: cover;
 	border-radius: 4px;
 	/* margin-bottom is removed as requested */
+	cursor: pointer;
 }
 
 .item-title {
@@ -902,4 +905,42 @@ body {
 .context-menu ul li:active {
     background-color: var(--context-menu-active-bg);
     color: var(--context-menu-highlight-text);
+}
+
+/* --- Back to Top Button --- */
+#back-to-top {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background-color: var(--category-button-background);
+    transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 100;
+}
+
+#back-to-top:not([hidden]) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#back-to-top:hover {
+    background-color: var(--back-to-top-hover-bg);
+}
+
+#back-to-top svg {
+    fill: var(--category-button-active-text);
+    width: 24px;
+    height: 24px;
+}
+
+#back-to-top[data-tooltip]::after {
+    top: auto;
+    bottom: 125%;
+    transform: translateX(calc(-50% - 10px));
 }

@@ -320,6 +320,34 @@ async function initializeApp() {
 document.addEventListener('DOMContentLoaded', () => {
 	initializeApp();
 	contextMenu = new ContextMenu('app');
+
+	const backToTopButton = document.getElementById('back-to-top');
+
+	mainContent?.addEventListener('scroll', () => {
+		if (mainContent.scrollTop > 200) {
+			backToTopButton?.removeAttribute('hidden');
+		} else {
+			backToTopButton?.setAttribute('hidden', 'true');
+		}
+	});
+
+	backToTopButton?.addEventListener('click', () => {
+		mainContent?.scrollTo({
+			top: 0,
+			behavior: 'smooth'
+		});
+	});
+
+	mainContent?.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement;
+		if (target.classList.contains('item-image')) {
+			const itemCard = target.closest('.item-card');
+			const titleLink = itemCard?.querySelector('.item-title a') as HTMLAnchorElement | null;
+			if (titleLink?.href) {
+				window.open(titleLink.href, '_blank');
+			}
+		}
+	});
 });
 
 
