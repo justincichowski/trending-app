@@ -8,6 +8,7 @@
  */
 
 import { stateManager } from '../state';
+import { categoryView } from '../main';
 import type { Preset } from '../types';
 import Swiper from 'swiper';
 import { Mousewheel } from 'swiper/modules';
@@ -70,6 +71,14 @@ export class CategoryNav {
 				link.classList.add('active');
 			}
 
+			link.addEventListener('click', (event) => {
+				const { currentCategory } = stateManager.getState();
+				if (currentCategory && currentCategory.id === category.id) {
+					event.preventDefault();
+					categoryView({ id: category.id });
+				}
+			});
+
 			slide.appendChild(link);
 			swiperWrapper.appendChild(slide);
 		});
@@ -106,12 +115,22 @@ export class CategoryNav {
 		*/
 	private updateActiveClass(activeCategoryId: string | null) {
 		const links = this.element.querySelectorAll('.category-link');
+		const currentPath = window.location.pathname;
+		const { categories } = stateManager.getState();
+		const defaultCategoryId = categories.length > 0 ? categories[0].id : null;
+
 		links.forEach(link => {
 			const linkElement = link as HTMLAnchorElement;
-			// The category ID is the part of the href after the slash
 			const categoryId = linkElement.getAttribute('href')?.substring(1);
 
-			if (categoryId === activeCategoryId) {
+			let isActive = categoryId === activeCategoryId;
+
+			// If the user is on the root path, the first category should be active.
+			if (currentPath === '/' && categoryId === defaultCategoryId) {
+				isActive = true;
+			}
+
+			if (isActive) {
 				linkElement.classList.add('active');
 			} else {
 				linkElement.classList.remove('active');

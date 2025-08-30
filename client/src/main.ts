@@ -62,12 +62,12 @@ if (settingsButton) {
  *
  * @param {Record<string, string>} params - The route parameters.
  */
-async function categoryView(params: Record<string, string>) {
+export async function categoryView(params: Record<string, string>) {
 	const { id } = params;
 	if (!id) return;
 
 	// Save the scroll position of the current category before switching
-	const { currentCategory, scrollPositions } = stateManager.getState();
+	const { currentCategory, scrollPositions, favorites, categories } = stateManager.getState();
 	if (currentCategory && mainContent) {
 		scrollPositions[currentCategory.id] = mainContent.scrollTop;
 		stateManager.setState({ scrollPositions });
@@ -77,10 +77,15 @@ async function categoryView(params: Record<string, string>) {
 	stateManager.setState({ isLoading: true });
 
 	try {
-		const items = await getCategoryItems(id);
-		// --- DEBUG LOG: Logs the number of items received from the API ---
-		console.log(`--- RECEIVED ${items.length} ITEMS ---`);
-		const newCurrentCategory = stateManager.getState().categories.find(c => c.id === id) || null;
+		let items: NormalizedItem[];
+		// Handle 'favorites' as a special local-only case
+		if (id === 'favorites') {
+			items = favorites;
+		} else {
+			items = await getCategoryItems(id);
+		}
+
+		const newCurrentCategory = categories.find(c => c.id === id) || null;
 		stateManager.setState({
 			items,
 			currentCategory: newCurrentCategory,
@@ -89,7 +94,6 @@ async function categoryView(params: Record<string, string>) {
 		});
 	} catch (error) {
 		console.error(`Failed to fetch items for category ${id}:`, error);
-		// Clear items and set loading to false on error
 		stateManager.setState({ items: [], isLoading: false });
 	}
 }
@@ -139,13 +143,6 @@ export function hideItem(id: string) {
  }
 }
 
-/**
- * Renders the user's favorite items.
- */
-function favoritesView() {
-	const { favorites } = stateManager.getState();
-	stateManager.setState({ items: favorites, currentCategory: null });
-}
 
 /**
  * Renders the user's hidden items.
@@ -165,7 +162,6 @@ function hiddenItemsView() {
 
 // Set up the application routes
 router.addRoute('/:id', categoryView);
-router.addRoute('/favorites', favoritesView);
 router.addRoute('/hidden', hiddenItemsView);
 
 function updateLastUpdated() {
@@ -180,9 +176,17 @@ function updateLastUpdated() {
  */
 if (logo) {
 	logo.addEventListener('click', () => {
-		const { currentCategory } = stateManager.getState();
-		if (currentCategory) {
-			categoryView({ id: currentCategory.id });
+		const { categories } = stateManager.getState();
+		const currentPath = window.location.pathname;
+
+		if (currentPath === '/') {
+			// If already on the home page, refresh the first category
+			if (categories.length > 0) {
+				categoryView({ id: categories[0].id });
+			}
+		} else {
+			// Otherwise, navigate to the home page
+			router.navigate('/');
 		}
 	});
 }
@@ -249,7 +253,7 @@ async function initializeApp() {
 			source: 'local', // This is a client-side only category
 			params: {},
 		};
-		const categories = [...dynamicCategories, favoritesCategory];
+		const categories = [favoritesCategory, ...dynamicCategories];
 		stateManager.setState({ categories });
 
 		// 3. Initialize the category navigation
@@ -260,8 +264,8 @@ async function initializeApp() {
 		// 3. Set the default route AFTER presets are loaded
 		router.addRoute('/', () => {
 			if (categories.length > 0) {
-				// Navigate to the first category by default
-				router.navigate(`/${categories[0].id}`);
+				// Load the first category's content by default without changing the URL
+				categoryView({ id: categories[0].id });
 			} else if (mainContent) {
 				mainContent.innerHTML = '<p>No categories found.</p>';
 			}

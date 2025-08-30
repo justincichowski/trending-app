@@ -30,8 +30,8 @@ export class ThemeToggleButton {
 		if (wrapper) {
 			wrapper.innerHTML = `
 				<svg class="icon-theme-toggle" viewBox="0 0 24 24">
-					<path class="icon-sun" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-					<path class="icon-moon" d="M21.64 13.5A9.21 9.21 0 0 1 12 21.93 9.21 9.21 0 0 1 2.36 13.5 9.21 9.21 0 0 1 12 4.07a9.21 9.21 0 0 1 9.64 9.43z"/>
+					<path class="icon-sun" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" transform="scale(0.95)" style="transform-origin: center;"/>
+					<path class="icon-moon" d="M15 2.5 A10 10 0 1 0 15 21.5 A8 8 0 1 1 15 2.5 Z" transform="scale(0.95) rotate(-135)" style="transform-origin: center;"/>
 				</svg>
 			`;
 		}
@@ -55,11 +55,11 @@ export class ThemeToggleButton {
 
 		if (sunIcon && moonIcon) {
 			if (theme === 'dark') {
-				sunIcon.style.opacity = '0';
-				moonIcon.style.opacity = '1';
-			} else {
 				sunIcon.style.opacity = '1';
 				moonIcon.style.opacity = '0';
+			} else {
+				sunIcon.style.opacity = '0';
+				moonIcon.style.opacity = '1';
 			}
 		}
 	}
