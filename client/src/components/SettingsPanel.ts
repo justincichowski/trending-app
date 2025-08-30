@@ -29,6 +29,7 @@ export class SettingsPanel {
 	 */
 	show() {
 		this.element.hidden = false;
+		document.getElementById('settings-button')?.classList.add('is-active');
 	}
 
 	/**
@@ -36,6 +37,7 @@ export class SettingsPanel {
 	 */
 	hide() {
 		this.element.hidden = true;
+		document.getElementById('settings-button')?.classList.remove('is-active');
 	}
 
 	/**

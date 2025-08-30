@@ -50,6 +50,7 @@ body {
 .category-nav {
 	position: relative;
 	padding: 0 1rem; /* Add some padding on the sides */
+	z-index: 5;       /* Position below the header */
 }
 
 .category-nav .swiper-slide {
@@ -297,7 +298,7 @@ body {
 .icon-button[data-tooltip]::after {
 	content: attr(data-tooltip);
 	position: absolute;
-	bottom: 125%; /* Position above the button */
+	top: 125%; /* Position below the button */
 	left: 50%;
 	transform: translateX(-50%);
 	background-color: var(--card-background-color);
@@ -316,6 +317,73 @@ body {
 .icon-button[data-tooltip]:hover::after {
 	opacity: 1;
 }
+
+/* --- Header Icon Buttons --- */
+#theme-toggle-button,
+#settings-button {
+	fill: var(--text-color);
+}
+
+#settings-button .icon-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.4s ease-in-out;
+}
+
+#settings-button:hover .icon-wrapper,
+#settings-button:focus-within .icon-wrapper {
+	transform: rotate(360deg);
+}
+
+.icon-theme-toggle .icon-sun,
+.icon-theme-toggle .icon-moon {
+	fill: var(--text-color);
+	transition: opacity 0.3s ease-in-out;
+}
+
+#theme-toggle-button .icon-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.2s ease-in-out;
+}
+
+#theme-toggle-button:hover .icon-wrapper {
+	transform: scale(1.1);
+}
+
+/* --- Header Icon Buttons --- */
+#theme-toggle-button,
+#settings-button {
+	fill: var(--text-color);
+}
+
+#settings-button .icon-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.4s ease-in-out;
+}
+
+#settings-button:hover .icon-wrapper:not(.is-active) {
+	transform: rotate(360deg);
+}
+
+.icon-theme-toggle .icon-sun,
+.icon-theme-toggle .icon-moon {
+	fill: var(--text-color);
+	transition: opacity 0.3s ease-in-out;
+}
+
+/* This was the incorrect rule that was transforming the button itself.
+   It has been replaced by the rule above that targets the wrapper. */
 
 .item-image {
 	width: 100%;
@@ -391,6 +459,8 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem;
+	position: relative; /* Needed for z-index to work */
+	z-index: 10;      /* Ensure header is on top */
 }
 
 .controls {

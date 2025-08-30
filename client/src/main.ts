@@ -8,6 +8,7 @@ import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
 import { Notification } from './components/Notification';
 import { SettingsPanel } from './components/SettingsPanel';
+import { ThemeToggleButton } from './components/ThemeToggleButton';
 
 /**
  * -----------------------------------------------------------------------------
@@ -20,8 +21,8 @@ import { SettingsPanel } from './components/SettingsPanel';
  */
 
 const categoryNavContainer = document.getElementById('category-nav');
-const favoritesButton = document.getElementById('favorites-button');
 const settingsButton = document.getElementById('settings-button');
+const themeToggleButton = document.getElementById('theme-toggle-button');
 const logo = document.querySelector('.logo');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
@@ -37,6 +38,10 @@ let settingsPanel: SettingsPanel | null = null;
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
+}
+
+if (themeToggleButton) {
+	new ThemeToggleButton('theme-toggle-button');
 }
 
 if (settingsButton) {
