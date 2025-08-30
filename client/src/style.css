@@ -5,6 +5,7 @@
 	--card-background-color: #f8f9fa;
 	--border-color: #dee2e6;
 	--card-hover-background-color: #f1f3f5;
+	--item-title-color: #555555;
 	--category-button-background: #e9ecef;
 	--category-button-text: #495057;
 	--category-button-active-background: #343a40; /* Dark background for light theme */
@@ -18,6 +19,7 @@ html.dark-theme {
 	--card-background-color: #1e1e1e;
 	--border-color: #333333;
 	--card-hover-background-color: #252525;
+	--item-title-color: #bbbbbb;
 	--category-button-background: #343a40;
 	--category-button-text: #e9ecef;
 	--category-button-active-background: #e9ecef; /* Light background for dark theme */
@@ -262,6 +264,16 @@ body {
 	font-weight: bold;
 	margin-top: 0;
 	margin-bottom: 10px;
+}
+
+.item-title a {
+	color: var(--item-title-color);
+	text-decoration: underline;
+}
+
+.item-title a:hover,
+.item-title a:active {
+	color: var(--text-color);
 }
 
 .app-header {
