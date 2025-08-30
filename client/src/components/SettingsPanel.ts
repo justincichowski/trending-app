@@ -119,7 +119,7 @@ export class SettingsPanel {
 		* Updates the UI controls based on the current state.
 		*/
 	updateUIFromState() {
-		const { theme, autoScroll, youtubePlaylists } = stateManager.getState();
+		const { theme, autoScroll } = stateManager.getState();
 		document.documentElement.className = `${theme}-theme`;
 
 		const reducedMotionToggle = this.element.querySelector('#reduced-motion-toggle') as HTMLInputElement;
