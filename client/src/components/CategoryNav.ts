@@ -8,9 +8,10 @@
  * -----------------------------------------------------------------------------
  */
 
-import { getCategories } from '../api';
 import { stateManager } from '../state';
 import type { Preset } from '../types';
+import Swiper from 'swiper';
+import { Mousewheel } from 'swiper/modules';
 
 /**
  * Creates and manages the category navigation bar.

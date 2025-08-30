@@ -13,6 +13,7 @@
     "vite": "^7.1.2"
   },
   "dependencies": {
+    "swiper": "^11.2.10",
     "trending_app": "file:.."
   }
 }

@@ -1,4 +1,5 @@
 import './style.css';
+import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
