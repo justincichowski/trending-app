@@ -127,6 +127,11 @@ body {
 	width: 220px;
 	height: 50px;
 	flex-shrink: 0;
+	transition: transform 0.1s ease-in-out;
+}
+
+.logo:active {
+	transform: scale(1.05);
 }
 
 .logo-svg {
@@ -185,7 +190,12 @@ body {
 	}
 }
 
-.logo[data-tooltip]::after {
+.logo-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+.logo-wrapper[data-tooltip]::after {
 	content: attr(data-tooltip);
 	position: absolute;
 	left: -10px;
@@ -203,8 +213,8 @@ body {
 	border: 1px solid var(--accent-color);
 }
 
-.logo[data-tooltip]:hover::after,
-.logo[data-tooltip]:active::after {
+.logo-wrapper[data-tooltip]:hover::after,
+.logo-wrapper[data-tooltip]:active::after {
 	opacity: 1;
 }
 

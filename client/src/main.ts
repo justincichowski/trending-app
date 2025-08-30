@@ -24,6 +24,7 @@ const categoryNavContainer = document.getElementById('category-nav');
 const settingsButton = document.getElementById('settings-button');
 const themeToggleButton = document.getElementById('theme-toggle-button');
 const logo = document.querySelector('.logo');
+const logoWrapper = document.querySelector('.logo-wrapper');
 const searchInput = document.getElementById('search-input');
 const sortSelect = document.getElementById('sort-select');
 const searchBarWrapper = document.querySelector('.search-bar-wrapper');
@@ -174,8 +175,8 @@ router.addRoute('/hidden', hiddenItemsView);
 
 function updateLastUpdated() {
 	const { lastUpdated } = stateManager.getState();
-	if (lastUpdated && logo) {
-		logo.setAttribute('data-tooltip', `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
+	if (lastUpdated && logoWrapper) {
+		logoWrapper.setAttribute('data-tooltip', `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
 	}
 }
 
