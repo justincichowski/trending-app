@@ -66,34 +66,37 @@ export async function categoryView(params: Record<string, string>) {
 	const { id } = params;
 	if (!id) return;
 
-	// Save the scroll position of the current category before switching
 	const { currentCategory, scrollPositions, favorites, categories } = stateManager.getState();
+
+	// Save the scroll position of the previous category
 	if (currentCategory && mainContent) {
 		scrollPositions[currentCategory.id] = mainContent.scrollTop;
 		stateManager.setState({ scrollPositions });
 	}
 
-	// Set loading state
-	stateManager.setState({ isLoading: true });
+	// Find the new category first
+	let newCurrentCategory = categories.find(c => c.id === id) || null;
+	if (id === 'favorites' && !newCurrentCategory) {
+		newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
+	}
+
+	// Set the new category and loading state immediately for instant UI feedback
+	stateManager.setState({
+		currentCategory: newCurrentCategory,
+		isLoading: true,
+	});
 
 	try {
 		let items: NormalizedItem[];
-		// Handle 'favorites' as a special local-only case
 		if (id === 'favorites') {
-			items = favorites;
+			items = favorites; // Load from state
 		} else {
-			items = await getCategoryItems(id);
+			items = await getCategoryItems(id); // Fetch from API
 		}
 
-		let newCurrentCategory = categories.find(c => c.id === id) || null;
-		// If the category is 'favorites' and it wasn't found in the state (e.g., during initial load),
-		// create a temporary object to ensure it's always correctly set.
-		if (id === 'favorites' && !newCurrentCategory) {
-			newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
-		}
+		// Update the state with the new items and turn off loading
 		stateManager.setState({
 			items,
-			currentCategory: newCurrentCategory,
 			lastUpdated: Date.now(),
 			isLoading: false,
 		});
