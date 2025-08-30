@@ -2,9 +2,8 @@
  * -----------------------------------------------------------------------------
  * Category Navigation Component
  * -----------------------------------------------------------------------------
- * This component is responsible for fetching the preset categories from the
- * API, rendering them as a horizontally scrollable navigation bar, and
- * updating the URL hash when a category is selected.
+ * This component is responsible for rendering the categories as a horizontally
+ * scrollable navigation bar using the Swiper.js library.
  * -----------------------------------------------------------------------------
  */
 
@@ -20,21 +19,19 @@ export class CategoryNav {
 	private element: HTMLElement;
 
 	constructor(container: HTMLElement) {
-		this.element = document.createElement('nav');
-		this.element.className = 'category-nav';
-		container.appendChild(this.element);
+		// The main container will be the Swiper instance
+		this.element = container;
+		this.element.className = 'swiper category-nav'; // Add swiper classes
 
 		this.init();
-		this.addDragScroll();
 	}
 
 	/**
-		* Initializes the component by fetching categories and rendering them.
-		*/
-	private async init() {
-		// This logic is now handled in main.ts to ensure proper app initialization order.
-		// We just need to subscribe to the state to know when categories are ready.
+	 * Initializes the component by subscribing to state changes.
+	 */
+	private init() {
 		stateManager.subscribe(state => {
+			// Render only if categories are available and the element is empty
 			if (state.categories.length > 0 && this.element.children.length === 0) {
 				this.render(state.categories);
 			}
@@ -42,82 +39,37 @@ export class CategoryNav {
 	}
 
 	/**
-		* Adds drag-to-scroll functionality to the navigation bar.
-		*/
-	private addDragScroll() {
-		let isDown = false;
-		let startX: number;
-		let scrollLeft: number;
-
-		this.element.addEventListener('mousedown', (e: MouseEvent) => {
-			isDown = true;
-			this.element.classList.add('grabbing');
-			startX = e.pageX - this.element.offsetLeft;
-			scrollLeft = this.element.scrollLeft;
-		});
-
-		this.element.addEventListener('mouseleave', () => {
-			isDown = false;
-			this.element.classList.remove('grabbing');
-		});
-
-		this.element.addEventListener('mouseup', () => {
-			isDown = false;
-			this.element.classList.remove('grabbing');
-		});
-
-		this.element.addEventListener('mousemove', (e: MouseEvent) => {
-			if (!isDown) return;
-			e.preventDefault();
-			const x = e.pageX - this.element.offsetLeft;
-			const walk = (x - startX) * 2; // The multiplier makes scrolling faster
-			this.element.scrollLeft = scrollLeft - walk;
-		});
-
-		// Add touch events for mobile devices
-		this.element.addEventListener('touchstart', (e: TouchEvent) => {
-			isDown = true;
-			startX = e.touches[0].pageX - this.element.offsetLeft;
-			scrollLeft = this.element.scrollLeft;
-		}, { passive: true });
-
-		this.element.addEventListener('touchend', () => {
-			isDown = false;
-		});
-
-		this.element.addEventListener('touchmove', (e: TouchEvent) => {
-			if (!isDown) return;
-			const x = e.touches[0].pageX - this.element.offsetLeft;
-			const walk = (x - startX) * 2;
-			this.element.scrollLeft = scrollLeft - walk;
-		}, { passive: true });
-	}
-
-	/**
-	 * Renders the category links.
+	 * Renders the category links within the Swiper structure.
 	 *
 	 * @param {Preset[]} categories - The array of categories to render.
 	 */
 	private render(categories: Preset[]) {
-		const list = document.createElement('ul');
-		list.className = 'category-list';
+		// Create the structure Swiper expects
+		const swiperWrapper = document.createElement('div');
+		swiperWrapper.className = 'swiper-wrapper';
 
 		categories.forEach(category => {
-			const listItem = document.createElement('li');
+			const slide = document.createElement('div');
+			slide.className = 'swiper-slide';
+
 			const link = document.createElement('a');
 			link.href = `/${category.id}`;
 			link.textContent = category.name;
 			link.className = 'category-link';
-			/**
-			 * Mark the link with the `data-link` attribute. This allows the
-			 * router to intercept the click and handle the navigation on the
-			 * client-side, preventing a full page reload.
-			 */
 			link.setAttribute('data-link', '');
-			listItem.appendChild(link);
-			list.appendChild(listItem);
+
+			slide.appendChild(link);
+			swiperWrapper.appendChild(slide);
 		});
 
-		this.element.appendChild(list);
+		this.element.appendChild(swiperWrapper);
+
+		// Initialize Swiper
+		new Swiper(this.element, {
+			modules: [Mousewheel],
+			slidesPerView: 'auto',
+			freeMode: true,
+			mousewheel: true,
+		});
 	}
 }
