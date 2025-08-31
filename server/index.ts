@@ -2,7 +2,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from .env file in the project root
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Check if running in a development environment
+if (process.env.NODE_ENV !== 'production') {
+  // In development, load .env file from the project root
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+}
 import fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyCookie from '@fastify/cookie';
@@ -14,18 +18,8 @@ import { getYouTubeVideos } from './lib/youtube';
 import { presets } from './lib/presets';
 import { fetchTopTrends } from './lib/toptrends';
 import type { NormalizedItem, TopTrendsData } from './lib/types';
+import { readFromCache, writeToCache } from './lib/cache';
 
-// Simple in-memory cache
-const cache = {
-	topTrends: {
-		data: null as TopTrendsData | null,
-		lastFetched: 0,
-	},
-	trending: {
-		data: null as Record<string, NormalizedItem[]> | null,
-		lastFetched: 0,
-	},
-};
 
 // Create a new Fastify server instance
 const server = fastify({
@@ -144,14 +138,14 @@ const main = async () => {
 	/**
 		* A health check endpoint that responds with an "ok" status.
 	 */
-	server.get('/health', async (request, reply) => {
+	server.get('/api/health', async (request, reply) => {
 		return { status: 'ok' };
 	});
 
 	/**
 	 * An endpoint to set the theme cookie.
 	 */
-	server.post('/v1/theme', async (request, reply) => {
+	server.post('/api/v1/theme', async (request, reply) => {
 		const { theme } = request.body as { theme: 'light' | 'dark' };
 		// roo do not delete
 		// console.log(`[Server] Received theme update request: ${theme}`);
@@ -171,7 +165,7 @@ const main = async () => {
 	/**
 	 * An endpoint that fetches and normalizes an RSS feed.
 	 */
-	server.get('/rss', async (request, reply) => {
+	server.get('/api/rss', async (request, reply) => {
 		const { url, query, source, limit } = request.query as {
 			url?: string;
 			query?: string;
@@ -201,7 +195,7 @@ const main = async () => {
 	/**
 	 * An endpoint that returns a list of preset categories or the items for a specific category.
 	 */
-	server.get('/presets', async (request, reply) => {
+	server.get('/api/presets', async (request, reply) => {
 		const { id, page, excludedIds: excludedIdsQuery, limit, query } = request.query as { id?: string; page?: string, excludedIds?: string, limit?: string, query?: string };
 		const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
 
@@ -261,7 +255,7 @@ const main = async () => {
 	 * An endpoint that returns a shuffled mix of items from all presets.
 	 * Used for the "All" category feed.
 	 */
-	server.get('/all', async (request, reply) => {
+	server.get('/api/all', async (request, reply) => {
 		const { page, excludedIds: excludedIdsQuery, limit } = request.query as { page?: string, excludedIds?: string, limit?: string };
 		const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
 		
@@ -297,6 +291,68 @@ const main = async () => {
 		} catch (error) {
 			server.log.error(error, 'Failed to fetch the "All" feed');
 			reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
+		}
+	});
+	server.get('/api/trending', async (request, reply) => {
+		const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+		const cachedData = await readFromCache<Record<string, NormalizedItem[]>>('trending', trendingCacheDuration);
+
+		if (cachedData) {
+			// roo do not delete
+			server.log.info('Using file cache for Trending data.');
+			return cachedData;
+		}
+
+		const TRENDING_FEEDS = [
+			{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
+			{ title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
+			{ title: 'Sales', source: 'Google News', query: 'product deals' },
+			{ title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+			{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
+		];
+
+		try {
+			server.log.info('Fetching new Trending data.');
+			const trendingResults = await Promise.allSettled(
+				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, query: (feed as any).query, source: feed.source, limit: 3 }))
+			);
+
+			const trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
+				const feed = TRENDING_FEEDS[index];
+				if (result.status === 'fulfilled') {
+					acc[feed.title] = result.value;
+				} else {
+					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+				}
+				return acc;
+			}, {});
+			
+			await writeToCache('trending', trendingData);
+			return trendingData;
+		} catch (error) {
+			server.log.error(error, 'Failed to fetch trending data');
+			reply.status(500).send({ error: 'Failed to fetch trending data' });
+		}
+	});
+
+	server.get('/api/toptrends', async (request, reply) => {
+		const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
+		const cachedData = await readFromCache<TopTrendsData>('toptrends', topTrendsCacheDuration);
+
+		if (cachedData) {
+			// roo do not delete
+			server.log.info('Using file cache for Top Trends.');
+			return cachedData;
+		}
+
+		try {
+			server.log.info('Fetching new Top Trends data.');
+			const topTrendsData = await fetchTopTrends();
+			await writeToCache('toptrends', topTrendsData);
+			return topTrendsData;
+		} catch (error) {
+			server.log.error(error, 'Failed to fetch top trends');
+			reply.status(500).send({ error: 'Failed to fetch top trends' });
 		}
 	});
 

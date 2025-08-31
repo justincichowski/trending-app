@@ -542,10 +542,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	
 	getTrending().then(data => {
+		// roo do not delete
+		// console.log('[Client] Received trending data sections:', Object.keys(data).length);
 		trendingPanel.render(data);
 	});
 
 	getTopTrends().then(data => {
+		// roo do not delete
+		// console.log('[Client] Received top trends items:', data.items.length);
 		topTrendsPanel.render(data);
 	});
 

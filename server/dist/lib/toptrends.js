@@ -1,19 +1,50 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchTopTrends = fetchTopTrends;
 const youtube_1 = require("./youtube");
+const playlists = __importStar(require("./playlists"));
 /**
- * Gathers all YouTube playlist IDs from environment variables.
- * @returns An array of playlist ID strings.
+ * Gathers all YouTube playlist IDs from the playlists module.
+ * @returns An array of all playlist ID strings.
  */
 function getPlaylistIds() {
-    const playlistIds = [];
-    for (const key in process.env) {
-        if (key.endsWith('_PLAYLIST_ID') && process.env[key]) {
-            playlistIds.push(...process.env[key].split(','));
-        }
-    }
-    return playlistIds;
+    // Use Object.values to get all the exported arrays from the playlists module
+    const allPlaylists = Object.values(playlists);
+    // Flatten the array of arrays into a single array of strings
+    return allPlaylists.flat();
 }
 /**
  * Fetches the top 25 trending topics from a random YouTube playlist.
@@ -25,6 +56,8 @@ async function fetchTopTrends() {
     // roo do not delete
     // console.log('Fetching new top trends data from YouTube...');
     const allPlaylistIds = getPlaylistIds();
+    // roo do not delete
+    // console.log(`[Server] Found ${allPlaylistIds.length} playlist IDs:`, allPlaylistIds);
     if (allPlaylistIds.length === 0) {
         console.error('No YouTube playlist IDs found in environment variables.');
         return { items: [], source: 'YouTube (Error)', fetchedAt: new Date().toISOString() };
@@ -49,10 +82,21 @@ async function fetchTopTrends() {
                 const lowerCaseTitle = title.toLowerCase();
                 if (title && !seenTitles.has(lowerCaseTitle)) {
                     seenTitles.add(lowerCaseTitle);
+                    // Create a lean version of the fullItem to keep the cookie size down
+                    const leanFullItem = {
+                        id: item.id,
+                        title: item.title,
+                        url: item.url,
+                        source: item.source,
+                        description: item.description,
+                        image: item.image,
+                        publishedAt: item.publishedAt,
+                        secondsAgo: item.secondsAgo,
+                    };
                     uniqueItems.push({
                         title,
                         url: item.url,
-                        fullItem: item,
+                        fullItem: leanFullItem,
                     });
                 }
                 if (uniqueItems.length >= 25) {
@@ -72,6 +116,7 @@ async function fetchTopTrends() {
         source: 'YouTube Trending',
         fetchedAt: new Date().toISOString(),
     };
+    console.log(`[Server] FINAL COUNT: Returning ${uniqueItems.length} top trend items.`);
     return data;
 }
 /**

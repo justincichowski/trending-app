@@ -13,12 +13,22 @@ export class TopTrendsPanel {
 		}
 		this.gallery = new FullScreenGallery();
 		this.addEventListeners();
+		this.showLoader();
+	}
+
+	private showLoader() {
+		this.container.innerHTML = `
+			<div class="panel-loader">
+				<svg class="loader-svg" viewBox="0 0 50 50">
+					<circle class="loader-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+				</svg>
+			</div>`;
 	}
 
 	public render(data: TopTrendsData): void {
 		this.data = data;
 		if (!this.data || !this.data.items || this.data.items.length === 0) {
-			this.container.innerHTML = '';
+			this.container.innerHTML = '<div class="error-message">No top trends available.</div>';
 			return;
 		}
 

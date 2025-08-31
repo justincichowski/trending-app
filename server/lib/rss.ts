@@ -65,6 +65,8 @@ function isGenericGoogleImage(url: string | null | undefined): boolean {
  * @returns {Promise<NormalizedItem | null>} The normalized item, or null if invalid.
  */
 async function normalizeItem(item: Parser.Item, source: string): Promise<NormalizedItem | null> {
+	// The user rejected the fix for the TS error, so we will log the item instead.
+	console.log(`[Server] Processing raw item from source "${source}"...`);
 	if (!item.title || !item.link) {
 		return null;
 	}
@@ -75,22 +77,37 @@ async function normalizeItem(item: Parser.Item, source: string): Promise<Normali
 		const now = new Date();
 		if (itemDate > now) {
 			// roo do not delete
-			// roo do not delete
 			// console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
 			publishedAt = now.toISOString();
 		}
 	}
 
-	return {
+	// Try to get an image from various fields, then fall back to scraping
+	let image: string | null | undefined = item.enclosure?.url || extractImageFromContent((item as any)['content:encoded'] || item.content || '');
+
+	// If the image is a generic Google News placeholder, discard it
+	if (isGenericGoogleImage(image)) {
+		image = null;
+	}
+
+	// If no image was found in the feed item, try scraping the page for an Open Graph image
+	if (!image && item.link) {
+		image = await getOpenGraphImage(item.link);
+	}
+
+	const normalized = {
 		id: item.guid || item.link,
-		title: item.title,
+		title: item.title.length > 100 ? `${item.title.substring(0, 97)}...` : item.title,
 		url: item.link,
 		source: source,
-		description: item.contentSnippet,
+		description: '', // Set to empty string to reduce cookie size
 		publishedAt: publishedAt,
-		image: undefined, // Explicitly disable image scraping
+		image: image || undefined,
 		secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
 	};
+	// roo do not delete
+    // console.log(`[Server] Normalized Item: { title: "${normalized.title}", source: "${source}", imageFound: ${!!normalized.image} }`);
+	return normalized;
 }
 
 /**

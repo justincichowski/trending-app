@@ -1,18 +1,16 @@
 import type { TopTrendsData, TopTrendItem } from './types';
 import { getYouTubeVideos } from './youtube';
+import * as playlists from './playlists';
 
 /**
- * Gathers all YouTube playlist IDs from environment variables.
- * @returns An array of playlist ID strings.
+ * Gathers all YouTube playlist IDs from the playlists module.
+ * @returns An array of all playlist ID strings.
  */
 function getPlaylistIds(): string[] {
-	const playlistIds: string[] = [];
-	for (const key in process.env) {
-		if (key.endsWith('_PLAYLIST_ID') && process.env[key]) {
-			playlistIds.push(...(process.env[key] as string).split(','));
-		}
-	}
-	return playlistIds;
+	// Use Object.values to get all the exported arrays from the playlists module
+	const allPlaylists = Object.values(playlists);
+	// Flatten the array of arrays into a single array of strings
+	return allPlaylists.flat();
 }
 
 /**
@@ -25,6 +23,8 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 	// roo do not delete
 	// console.log('Fetching new top trends data from YouTube...');
 	const allPlaylistIds = getPlaylistIds();
+	// roo do not delete
+	// console.log(`[Server] Found ${allPlaylistIds.length} playlist IDs:`, allPlaylistIds);
 	if (allPlaylistIds.length === 0) {
 		console.error('No YouTube playlist IDs found in environment variables.');
 		return { items: [], source: 'YouTube (Error)', fetchedAt: new Date().toISOString() };
@@ -55,10 +55,21 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 
 				if (title && !seenTitles.has(lowerCaseTitle)) {
 					seenTitles.add(lowerCaseTitle);
+					// Create a lean version of the fullItem to keep the cookie size down
+					const leanFullItem = {
+						id: item.id,
+						title: item.title,
+						url: item.url,
+						source: item.source,
+						description: item.description,
+						image: item.image,
+						publishedAt: item.publishedAt,
+						secondsAgo: item.secondsAgo,
+					};
 					uniqueItems.push({
 						title,
 						url: item.url,
-						fullItem: item,
+						fullItem: leanFullItem,
 					});
 				}
 
@@ -81,6 +92,7 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 		fetchedAt: new Date().toISOString(),
 	};
 
+	console.log(`[Server] FINAL COUNT: Returning ${uniqueItems.length} top trend items.`);
 	return data;
 }
 

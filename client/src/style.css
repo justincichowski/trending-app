@@ -1420,3 +1420,24 @@ body:not(.show-trending) .trending-panel {
 	cursor: auto;
 	pointer-events: none;
 }
+
+/* --- Panel Loaders --- */
+.panel-loader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100px; /* Give it some space */
+}
+
+.panel-loader .loader-svg {
+	width: 30px; /* Smaller size for panels */
+	height: 30px;
+	animation: rotate 2s linear infinite;
+	transform-origin: center center;
+}
+
+.panel-loader .loader-path {
+	stroke: var(--text-color); /* Use theme variable for color */
+	stroke-linecap: round;
+	animation: dash 1.5s ease-in-out infinite;
+}
