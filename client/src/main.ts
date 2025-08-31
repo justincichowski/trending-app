@@ -189,16 +189,26 @@ export function favoriteItem(item: NormalizedItem) {
  * @param {string} id - The ID of the item to hide.
  */
 export function hideItem(id: string) {
- const { hiddenItems } = stateManager.getState();
- if (!hiddenItems.includes(id)) {
- 	stateManager.setState({ hiddenItems: [...hiddenItems, id] });
- 	notification?.show('Item hidden.', {
- 		onUndo: () => {
- 			const { hiddenItems } = stateManager.getState();
- 			stateManager.setState({ hiddenItems: hiddenItems.filter(i => i !== id) });
- 		},
- 	});
- }
+	const { hiddenItems } = stateManager.getState();
+	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`);
+
+	if (!hiddenItems.includes(id) && cardElement) {
+		notification?.show('Item hidden.', {
+			onUndo: () => {
+				// If undone, we don't need to do anything to the state.
+				// The item was never removed from view.
+			},
+			onClose: (didUndo: boolean) => {
+				if (!didUndo) {
+					// Animate out, then update state
+					cardElement.classList.add('is-removing');
+					cardElement.addEventListener('transitionend', () => {
+						stateManager.setState({ hiddenItems: [...hiddenItems, id] });
+					}, { once: true });
+				}
+			},
+		});
+	}
 }
 
 
@@ -315,9 +325,35 @@ if (searchBackButton && controls) {
 }
 
 
-stateManager.subscribe(state => {
+stateManager.subscribe((newState, oldState) => {
+	// Check what has changed
+	const favoritesChanged = newState.favorites.length !== oldState.favorites.length;
+	const themeChanged = newState.theme !== oldState.theme;
+	const itemsChanged = newState.items !== oldState.items;
+
+	// If only the theme or favorites have changed, we can do a partial update.
+	// Any other change (like items, hiddenItems, category) requires a full re-render.
+	if (!itemsChanged && (themeChanged || favoritesChanged)) {
+		document.documentElement.className = `${newState.theme}-theme`;
+
+		if (favoritesChanged) {
+			// Update favorite icons without re-rendering the whole list
+			const allCards = document.querySelectorAll('.item-card[data-id]');
+			allCards.forEach(card => {
+				const cardId = card.getAttribute('data-id');
+				if (cardId) {
+					const favoriteButton = card.querySelector('.favorite-button');
+					const isFavorited = newState.favorites.some(f => f.id === cardId);
+					favoriteButton?.classList.toggle('is-favorited', isFavorited);
+				}
+			});
+		}
+		return; // Stop here to prevent the full re-render
+	}
+
+	// For any other change (new items, hidden items, category change), do a full re-render.
 	renderItems(tooltip);
-	document.documentElement.className = `${state.theme}-theme`;
+	document.documentElement.className = `${newState.theme}-theme`;
 });
 
 /**

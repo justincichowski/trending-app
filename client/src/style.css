@@ -316,7 +316,7 @@ body {
 	 */
 	max-width: 550px;
 	width: 100%; /* Ensure it takes up available space up to its max-width */
-	height: calc(100vh - 105px); /* Example height, adjust as needed */
+	height: calc(100vh - 120px); /* Example height, adjust as needed */
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 }

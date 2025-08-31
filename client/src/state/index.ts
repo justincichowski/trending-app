@@ -102,7 +102,7 @@ const initialState: AppState = {
  */
 class StateManager {
 	private state: AppState;
-	private listeners: Set<(state: AppState) => void> = new Set();
+	private listeners: Set<(newState: AppState, oldState: AppState) => void> = new Set();
 
 	constructor(initialState: AppState) {
 		this.state = initialState;
@@ -123,11 +123,12 @@ class StateManager {
 	 * @param {Partial<AppState>} newState - The partial state to merge.
 	 */
 	setState(newState: Partial<AppState>) {
-	 this.state = { ...this.state, ...newState };
-	 this.listeners.forEach(listener => listener(this.state));
+		const oldState = { ...this.state };
+		this.state = { ...this.state, ...newState };
+		this.listeners.forEach(listener => listener(this.state, oldState));
 
-	 // Persist the relevant parts of the state to local storage
-	 storage.set('favorites', this.state.favorites);
+		// Persist the relevant parts of the state to local storage
+		storage.set('favorites', this.state.favorites);
 	 storage.set('hiddenItems', this.state.hiddenItems);
 	 storage.set('theme', this.state.theme);
 	 // Also set a cookie for the theme so the server can pre-render the correct theme
@@ -142,7 +143,7 @@ class StateManager {
 	 * @param {(state: AppState) => void} listener - The listener function.
 	 * @returns {() => void} An unsubscribe function.
 	 */
-	subscribe(listener: (state: AppState) => void): () => void {
+	subscribe(listener: (newState: AppState, oldState: AppState) => void): () => void {
 		this.listeners.add(listener);
 		return () => {
 			this.listeners.delete(listener);
