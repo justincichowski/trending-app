@@ -408,6 +408,11 @@ stateManager.subscribe((newState, oldState) => {
  * Main application initialization function.
  */
 async function initializeApp() {
+	// Set initial trending visibility
+	if (stateManager.getState().showTrending) {
+		document.body.classList.add('show-trending');
+	}
+
 	try {
 		// 1. Fetch essential data (category presets)
 		const dynamicCategories: Preset[] = await getCategories();
