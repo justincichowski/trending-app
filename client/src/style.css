@@ -86,6 +86,16 @@ body {
  * margin has no negative visual effect. This is simpler and more robust.
  */
 
+.category-nav .swiper-wrapper {
+	justify-content: flex-start; /* Default alignment */
+}
+
+@media (min-width: 1187px) {
+	.category-nav .swiper-wrapper {
+		justify-content: center; /* Center on wide screens */
+	}
+}
+
 .category-link {
 	display: block;
 	padding: 0.3rem 0.8rem; /* Further reduced padding */

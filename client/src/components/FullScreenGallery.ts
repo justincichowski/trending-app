@@ -4,6 +4,7 @@ import 'swiper/css';
 import type { NormalizedItem } from '../types';
 import { createItemCard } from './ItemCard';
 import { Tooltip } from './Tooltip';
+import { playYouTubeVideo, destroyCurrentPlayer } from '../main';
 
 export class FullScreenGallery {
 	private container: HTMLElement | null = null;
@@ -43,12 +44,30 @@ export class FullScreenGallery {
 		this.container.querySelector('.gallery-close-button')?.addEventListener('click', () => this.hide());
 		this.container.querySelector('.gallery-overlay')?.addEventListener('click', () => this.hide());
 
+		this.container.addEventListener('click', (event) => {
+			const target = event.target as HTMLElement;
+			if (target.classList.contains('item-image')) {
+				const itemCard = target.closest('.item-card');
+				const imageContainer = target.closest('.item-image-container') as HTMLElement;
+				const itemId = itemCard?.getAttribute('data-id');
+
+				if (itemCard && itemId && imageContainer) {
+					playYouTubeVideo(imageContainer, itemId);
+				}
+			}
+		});
+
 		this.swiperInstance = new Swiper('.gallery-swiper', {
 			modules: [Navigation],
 			initialSlide: startIndex,
 			navigation: {
 				nextEl: '.fullscreen-gallery .swiper-button-next',
 				prevEl: '.fullscreen-gallery .swiper-button-prev',
+			},
+			on: {
+				slideChange: () => {
+					destroyCurrentPlayer();
+				},
 			},
 		});
 	}

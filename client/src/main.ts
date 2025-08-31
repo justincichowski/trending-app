@@ -51,6 +51,63 @@ const tooltip = new Tooltip();
 let autocomplete: Autocomplete | null = null;
 let currentPlayer: YT.Player | null = null;
 
+/**
+ * Destroys the currently active YouTube player instance.
+ */
+export function destroyCurrentPlayer() {
+	if (currentPlayer) {
+		currentPlayer.destroy();
+		currentPlayer = null;
+	}
+}
+
+/**
+ * Handles the creation and playback of a YouTube video in an item card.
+ * @param imageContainer - The container element for the video.
+ * @param itemId - The ID of the item (used to derive the video ID).
+ */
+export function playYouTubeVideo(imageContainer: HTMLElement, itemId: string) {
+	// Destroy the previous player if it exists
+	if (currentPlayer) {
+		currentPlayer.destroy();
+		currentPlayer = null;
+	}
+
+	// Hide the image to prevent layout shift
+	const image = imageContainer.querySelector('.item-image') as HTMLElement;
+	if (image) {
+		image.style.visibility = 'hidden';
+	}
+
+	// The raw YouTube video ID is our item.id without the 'yt-' prefix
+	const videoId = itemId.replace(/^yt-/, '');
+	const playerContainer = document.createElement('div');
+	// The YouTube API requires a unique ID for each player instance
+	const playerId = `yt-player-${videoId}-${Date.now()}`; // Add timestamp for uniqueness
+	playerContainer.id = playerId;
+
+	// Ensure the container is empty before adding the new player div
+	imageContainer.innerHTML = '';
+	imageContainer.appendChild(playerContainer);
+
+	// Create the new player using the YouTube IFrame Player API
+	currentPlayer = new YT.Player(playerId, {
+		height: '100%',
+		width: '100%',
+		videoId: videoId,
+		playerVars: {
+			autoplay: 1,
+			rel: 0, // Don't show related videos
+			modestbranding: 1, // Hide YouTube logo
+		},
+		events: {
+			onReady: (e: YT.PlayerEvent) => {
+				e.target.playVideo();
+			},
+		},
+	});
+}
+
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
 }
@@ -495,42 +552,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Handle inline video playback
 		if (target.classList.contains('item-image')) {
 			const itemCard = target.closest('.item-card');
-			const imageContainer = target.closest('.item-image-container');
+			const imageContainer = target.closest('.item-image-container') as HTMLElement;
 			const itemId = itemCard?.getAttribute('data-id');
 
 			if (itemCard && itemId && imageContainer) {
-				// Destroy the previous player if it exists
-				if (currentPlayer) {
-					currentPlayer.destroy();
-					currentPlayer = null;
-				}
-
-				// The raw YouTube video ID is our item.id without the 'yt-' prefix
-				const videoId = itemId.replace(/^yt-/, '');
-				const playerContainer = document.createElement('div');
-				// The YouTube API requires a unique ID for each player instance
-				const playerId = `yt-player-${videoId}`;
-				playerContainer.id = playerId;
-
-				imageContainer.innerHTML = ''; // Clear the container
-				imageContainer.appendChild(playerContainer);
-
-				// Create the new player using the YouTube IFrame Player API
-				currentPlayer = new YT.Player(playerId, {
-					height: '100%',
-					width: '100%',
-					videoId: videoId,
-					playerVars: {
-						autoplay: 1,
-						rel: 0, // Don't show related videos
-						modestbranding: 1, // Hide YouTube logo
-					},
-					events: {
-						onReady: (e: YT.PlayerEvent) => {
-							e.target.playVideo();
-						},
-					},
-				});
+				playYouTubeVideo(imageContainer, itemId);
 			}
 		}
 	});
