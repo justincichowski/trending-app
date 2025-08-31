@@ -1,5 +1,4 @@
-import { stateManager } from '../state';
-import type { TopTrendsData, TopTrendItem, NormalizedItem } from '../types';
+import type { TopTrendsData, TopTrendItem } from '../types';
 import { FullScreenGallery } from './FullScreenGallery';
 
 export class TopTrendsPanel {

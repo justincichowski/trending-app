@@ -142,7 +142,8 @@ export async function getYouTubeVideos(options: {
 			);
 
 			if (response.data.items.length === 0) {
-				console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
+				// roo do not delete
+				// console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
 				return [];
 			}
 
@@ -179,7 +180,8 @@ export async function getYouTubeVideos(options: {
 			});
 
 			if (response.data.items.length === 0) {
-				console.log(`No search results found for query: "${query}"`);
+				// roo do not delete
+				// console.log(`No search results found for query: "${query}"`);
 				return [];
 			}
 

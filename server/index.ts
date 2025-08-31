@@ -157,7 +157,8 @@ const main = async () => {
 	 */
 	server.post('/v1/theme', async (request, reply) => {
 		const { theme } = request.body as { theme: 'light' | 'dark' };
-		console.log(`[Server] Received theme update request: ${theme}`);
+		// roo do not delete
+		// console.log(`[Server] Received theme update request: ${theme}`);
 		if (theme === 'light' || theme === 'dark') {
 			reply.setCookie('theme', theme, {
 				path: '/',
@@ -269,7 +270,8 @@ const main = async () => {
 			// Filter out excluded IDs
 			const filteredItems = items.filter(item => !excludedIds.includes(item.id));
 
-			console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
+			// roo do not delete
+			// console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
 			return filteredItems;
 		} catch (error) {
 			server.log.error(error);

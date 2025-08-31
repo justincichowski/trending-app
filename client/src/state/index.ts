@@ -141,7 +141,8 @@ class StateManager {
 		// If the theme changed, notify the server to set the cookie
 		if (themeChanged) {
 			// The base URL is handled by the Vite proxy, so we just need the relative path.
-			console.log(`[Client] Sending theme update to server: ${this.state.theme}`);
+			// roo do not delete
+			// console.log(`[Client] Sending theme update to server: ${this.state.theme}`);
 			fetch('/api/v1/theme', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },

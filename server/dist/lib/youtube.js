@@ -75,7 +75,8 @@ async function getYouTubeVideos(options) {
                 timeout: 5000,
             });
             if (response.data.items.length === 0) {
-                console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
+                // roo do not delete
+                // console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
                 return [];
             }
             const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId).join(',');
@@ -105,7 +106,8 @@ async function getYouTubeVideos(options) {
                 timeout: 5000,
             });
             if (response.data.items.length === 0) {
-                console.log(`No search results found for query: "${query}"`);
+                // roo do not delete
+                // console.log(`No search results found for query: "${query}"`);
                 return [];
             }
             const videoIds = response.data.items.map(item => item.id.videoId).join(',');

@@ -12,7 +12,6 @@ import { VirtualList } from '../components/VirtualList';
 import { stateManager } from '../state';
 import { loadMoreItems } from '../main';
 import { Tooltip } from '../components/Tooltip';
-import { createItemCard } from '../components/ItemCard';
 
 const mainContent = document.getElementById('main-content');
 let virtualList: VirtualList | null = null;
@@ -76,7 +75,8 @@ export function renderItems(tooltip: Tooltip) {
  }
 
    // --- DEBUG LOG: Logs the number of items being rendered ---
-   console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
+   // roo do not delete
+   // console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
    mainContent.innerHTML = ''; // Clear the container
    virtualList.render(filteredItems);
    mainContent.appendChild(virtualList.getElement()); // Append the list

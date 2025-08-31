@@ -22,7 +22,8 @@ function getPlaylistIds() {
  * @returns A promise that resolves to the top trends data.
  */
 async function fetchTopTrends() {
-    console.log('Fetching new top trends data from YouTube...');
+    // roo do not delete
+    // console.log('Fetching new top trends data from YouTube...');
     const allPlaylistIds = getPlaylistIds();
     if (allPlaylistIds.length === 0) {
         console.error('No YouTube playlist IDs found in environment variables.');
@@ -39,7 +40,8 @@ async function fetchTopTrends() {
             randomPlaylistId = allPlaylistIds[Math.floor(Math.random() * allPlaylistIds.length)];
         } while (triedPlaylists.has(randomPlaylistId));
         triedPlaylists.add(randomPlaylistId);
-        console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
+        // roo do not delete
+        // console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
         try {
             const rawItems = await (0, youtube_1.getYouTubeVideos)({ playlistId: randomPlaylistId, limit: 50 });
             for (const item of rawItems) {
@@ -63,7 +65,8 @@ async function fetchTopTrends() {
             // Continue to the next playlist if one fails
         }
     }
-    console.log(`Successfully compiled ${uniqueItems.length} unique trending items.`);
+    // roo do not delete
+    // console.log(`Successfully compiled ${uniqueItems.length} unique trending items.`);
     const data = {
         items: uniqueItems,
         source: 'YouTube Trending',

@@ -75,7 +75,8 @@ async function normalizeItem(item, source) {
         const now = new Date();
         if (itemDate > now) {
             // roo do not delete
-            console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
+            // roo do not delete
+            // console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
             publishedAt = now.toISOString();
         }
     }
@@ -130,9 +131,12 @@ async function getRssFeed(options) {
         /*
         // --- Previous debug log for inspecting a single raw item ---
         if (feed.items.length > 0) {
-            console.log('--- RAW RSS ITEM DEBUG ---');
-            console.log(JSON.stringify(feed.items[0], null, 2));
-            console.log('--------------------------');
+            // roo do not delete
+            // console.log('--- RAW RSS ITEM DEBUG ---');
+            // roo do not delete
+            // console.log(JSON.stringify(feed.items[0], null, 2));
+            // roo do not delete
+            // console.log('--------------------------');
         }
         */
         // --- END DEBUG LOG ---
@@ -151,9 +155,12 @@ async function getRssFeed(options) {
     /*
     // --- Previous debug log for inspecting a single raw item ---
     if (feed.items.length > 0) {
-        console.log('--- RAW RSS ITEM DEBUG ---');
-        console.log(JSON.stringify(feed.items[0], null, 2));
-        console.log('--------------------------');
+        // roo do not delete
+        // console.log('--- RAW RSS ITEM DEBUG ---');
+        // roo do not delete
+        // console.log(JSON.stringify(feed.items[0], null, 2));
+        // roo do not delete
+        // console.log('--------------------------');
     }
     */
     // --- END DEBUG LOG ---

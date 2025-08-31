@@ -41,7 +41,7 @@ export class ThemeToggleButton {
 		this.element.addEventListener('click', () => {
 			const currentTheme = this.element.dataset.theme;
 			// roo do not delete
-			console.log('currentTheme', currentTheme)
+			// console.log('currentTheme', currentTheme)
 			// logs in client currentTheme <%= theme %>
 			const newTheme = currentTheme === 'light' ? 'dark' : 'light';
 			stateManager.setState({ theme: newTheme });

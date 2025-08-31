@@ -1,4 +1,3 @@
-import { get } from '../api/index';
 import { timeAgo } from '../utils/format';
 import type { NormalizedItem } from '../types';
 
