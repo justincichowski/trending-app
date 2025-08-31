@@ -22,7 +22,7 @@ export class ThemeToggleButton {
 
 		this.render();
 		this.addEventListeners();
-		this.updateIcon(); // Set the initial state
+		this.updateIcon(stateManager.getState().theme); // Set the initial state
 	}
 
 	private render() {
@@ -39,8 +39,11 @@ export class ThemeToggleButton {
 
 	private addEventListeners() {
 		this.element.addEventListener('click', () => {
-			const { theme } = stateManager.getState();
-			const newTheme = theme === 'light' ? 'dark' : 'light';
+			const currentTheme = this.element.dataset.theme;
+			// roo do not delete
+			console.log('currentTheme', currentTheme)
+			// logs in client currentTheme <%= theme %>
+			const newTheme = currentTheme === 'light' ? 'dark' : 'light';
 			stateManager.setState({ theme: newTheme });
 		});
 
@@ -49,9 +52,12 @@ export class ThemeToggleButton {
 		});
 	}
 
-	private updateIcon(theme = stateManager.getState().theme) {
+	private updateIcon(theme: 'light' | 'dark') {
 		const sunIcon = this.element.querySelector('.icon-sun') as SVGPathElement;
 		const moonIcon = this.element.querySelector('.icon-moon') as SVGPathElement;
+
+		// Set the theme identifier directly on the element
+		this.element.dataset.theme = theme;
 
 		if (sunIcon && moonIcon) {
 			if (theme === 'dark') {

@@ -65,7 +65,8 @@ async function getYouTubeVideos(options) {
         }
         // Use the page number to cycle through the shuffled playlists
         const playlistToFetch = playlistIds[page % playlistIds.length];
-        console.log(`Attempting to fetch YouTube playlist: ${playlistToFetch}`);
+        // roo do not delete
+        // console.log(`Attempting to fetch YouTube playlist: ${playlistToFetch}`);
         try {
             const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
                 params: { part: 'snippet', playlistId: playlistToFetch, maxResults: limit, key: apiKey },
@@ -83,7 +84,8 @@ async function getYouTubeVideos(options) {
             const normalizedItems = videoDetailsResponse.data.items
                 .map(normalizeItem)
                 .filter((item) => item !== null);
-            console.log(`Successfully fetched ${normalizedItems.length} items from playlist ${playlistToFetch}.`);
+            // roo do not delete
+            // console.log(`Successfully fetched ${normalizedItems.length} items from playlist ${playlistToFetch}.`);
             return normalizedItems;
         }
         catch (error) {
@@ -94,7 +96,8 @@ async function getYouTubeVideos(options) {
     // 2. Fallback to search query if all playlists failed or none were provided
     if (query) {
         try {
-            console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
+            // roo do not delete
+            // console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
             const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
                 params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
                 timeout: 5000,
@@ -111,7 +114,8 @@ async function getYouTubeVideos(options) {
             const normalizedItems = videoDetailsResponse.data.items
                 .map(normalizeItem)
                 .filter((item) => item !== null);
-            console.log(`Successfully fetched ${normalizedItems.length} items from search.`);
+            // roo do not delete
+            // console.log(`Successfully fetched ${normalizedItems.length} items from search.`);
             return normalizedItems;
         }
         catch (error) {

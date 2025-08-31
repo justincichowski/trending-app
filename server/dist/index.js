@@ -10,7 +10,9 @@ dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env') 
 const fastify_1 = __importDefault(require("fastify"));
 const cors_1 = __importDefault(require("@fastify/cors"));
 const cookie_1 = __importDefault(require("@fastify/cookie"));
-const promises_1 = __importDefault(require("fs/promises"));
+const static_1 = __importDefault(require("@fastify/static"));
+const view_1 = __importDefault(require("@fastify/view"));
+const ejs_1 = __importDefault(require("ejs"));
 const hackernews_1 = require("./lib/hackernews");
 const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
@@ -32,30 +34,67 @@ const main = async () => {
     await server.register(cookie_1.default, {
         secret: process.env.COOKIE_SECRET || 'a-default-secret-for-development', // Use a default for safety
     });
+    // Register the view engine
+    await server.register(view_1.default, {
+        engine: {
+            ejs: ejs_1.default,
+        },
+        root: path_1.default.join(__dirname, '../../client'),
+    });
+    // In production, serve static files from the client's 'dist' directory.
+    // In development, Vite handles this.
+    if (process.env.NODE_ENV === 'production') {
+        await server.register(static_1.default, {
+            root: path_1.default.join(__dirname, '../../client/dist'),
+            prefix: '/',
+        });
+    }
     /**
-        * Serves the main index.html file, injecting the theme class based on a cookie.
-        * This prevents a "flash of unstyled content" (FOUC) for users with dark mode enabled.
-        */
+     * Serves the main index.html file as a view, injecting the theme.
+     * This is used in both development (via Vite proxy) and production.
+     */
     server.get('/', async (request, reply) => {
-        try {
-            const theme = request.cookies.theme || 'light';
-            const clientIndexPath = path_1.default.resolve(__dirname, '../../client/index.html');
-            let indexHtml = await promises_1.default.readFile(clientIndexPath, 'utf-8');
-            if (theme === 'dark') {
-                indexHtml = indexHtml.replace('<html lang="en">', '<html lang="en" class="dark-theme">');
-            }
-            reply.type('text/html').send(indexHtml);
-        }
-        catch (error) {
-            server.log.error(error, 'Failed to serve index.html');
-            reply.status(500).send({ error: 'Could not load the application.' });
-        }
+        const { theme: themeCookie } = request.cookies;
+        const theme = themeCookie === 'dark' ? 'dark' : 'light';
+        server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
+        // Define critical CSS variables for both themes to prevent FOUC.
+        // The correct theme is applied via the class on the <html> tag.
+        const criticalCss = `
+			<style>
+				:root {
+					--background-color: #ffffff;
+					--text-color: #333333;
+				}
+				html.dark-theme {
+					--background-color: #121212;
+					--text-color: #ffffff;
+				}
+			</style>
+		`;
+        return reply.view('index.html', { theme, criticalCss });
     });
     /**
         * A health check endpoint that responds with an "ok" status.
      */
     server.get('/health', async (request, reply) => {
         return { status: 'ok' };
+    });
+    /**
+     * An endpoint to set the theme cookie.
+     */
+    server.post('/v1/theme', async (request, reply) => {
+        const { theme } = request.body;
+        console.log(`[Server] Received theme update request: ${theme}`);
+        if (theme === 'light' || theme === 'dark') {
+            reply.setCookie('theme', theme, {
+                path: '/',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 31536000, // 1 year
+            });
+            return { success: true };
+        }
+        reply.status(400).send({ error: 'Invalid theme' });
     });
     /**
      * An endpoint that returns the top Hacker News stories.

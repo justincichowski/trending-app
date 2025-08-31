@@ -1,25 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="<%= theme %>-theme">
 	<head>
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Trending App</title>
-		<script>
-			// Anti-flicker script
-			(function() {
-				try {
-					const theme = localStorage.getItem('theme') || 'light';
-					document.documentElement.className = theme + '-theme';
-				} catch (e) {
-					console.error('Failed to apply theme from localStorage', e);
-				}
-			})();
-		</script>
+		<%- criticalCss %>
+		<link rel="preload" href="/src/style.css" as="style" />
+		<link rel="stylesheet" href="/src/style.css" />
 	</head>
 	<body>
 		<div id="app">
-	  <header class="app-header">
+		       <header class="app-header">
 				<a href="/" onclick="event.preventDefault()" class="logo-link">
 					<div class="logo-wrapper" data-tooltip="Trending">
 						<div class="logo">
