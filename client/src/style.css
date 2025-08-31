@@ -153,12 +153,12 @@ body {
 }
 
 .swiper-button-prev, .swiper-container-rtl .swiper-button-next {
-	left: 0.5px;
+	left: -0.5px;
 	right: auto;
 }
 
 .swiper-button-next, .swiper-container-rtl .swiper-button-prev {
-	right: 0.5px;
+	right: -0.5px;
 	left: auto;
 }
 
