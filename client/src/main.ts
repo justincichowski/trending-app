@@ -24,6 +24,7 @@ import { Autocomplete } from './components/Autocomplete';
  * -----------------------------------------------------------------------------
  */
 
+const PAGE_SIZE = 15;
 const categoryNavContainer = document.getElementById('category-nav');
 const settingsButton = document.getElementById('settings-button');
 const themeToggleButton = document.getElementById('theme-toggle-button');
@@ -77,11 +78,6 @@ export async function categoryView(params: Record<string, string>) {
 
 	const { currentCategory, scrollPositions, favorites, categories } = stateManager.getState();
 
-	// Save the scroll position of the previous category
-	if (currentCategory && mainContent) {
-		scrollPositions[currentCategory.id] = mainContent.scrollTop;
-		stateManager.setState({ scrollPositions });
-	}
 
 	// Find the new category first
 	let newCurrentCategory = categories.find(c => c.id === id) || null;
@@ -100,11 +96,11 @@ export async function categoryView(params: Record<string, string>) {
 	try {
 		let items: NormalizedItem[] = [];
 		if (id === 'favorites') {
-			items = favorites; // Load from state
+			items = [...favorites].reverse().slice(0, PAGE_SIZE);
 		} else if (id === '/') {
-			items = await getAllItems(); // Use the new dedicated endpoint
+			items = await getAllItems(0, [], PAGE_SIZE); // Use the new dedicated endpoint
 		} else {
-			items = await getCategoryItems(id, 0); // Fetch first page for a regular category
+			items = await getCategoryItems(id, 0, PAGE_SIZE); // Fetch first page for a regular category
 		}
 
 		// Update the state with the new items and turn off loading
@@ -133,19 +129,26 @@ export async function loadMoreItems() {
 
 	try {
 		let newItems: NormalizedItem[] = [];
-		const excludedIds = items.map(item => item.id);
-
-		if (currentCategory.id === '/') {
-			newItems = await getAllItems(nextPage, excludedIds);
+		if (currentCategory.id === 'favorites') {
+			const { favorites } = stateManager.getState();
+			const reversedFavorites = [...favorites].reverse();
+			const startIndex = nextPage * PAGE_SIZE;
+			newItems = reversedFavorites.slice(startIndex, startIndex + PAGE_SIZE);
 		} else {
-			// For regular categories, fetch as normal, but pass excluded IDs
-			newItems = await getCategoryItems(currentCategory.id, nextPage, undefined, excludedIds);
+			const excludedIds = items.map(item => item.id);
+			if (currentCategory.id === '/') {
+				newItems = await getAllItems(nextPage, excludedIds, PAGE_SIZE);
+			} else {
+				newItems = await getCategoryItems(currentCategory.id, nextPage, PAGE_SIZE, excludedIds);
+			}
 		}
 
-		stateManager.setState({
-			items: [...items, ...newItems],
-			pages: { ...pages, [currentCategory.id]: nextPage },
-		});
+		if (newItems.length > 0) {
+			stateManager.setState({
+				items: [...items, ...newItems],
+				pages: { ...pages, [currentCategory.id]: nextPage },
+			});
+		}
 	} catch (error) {
 		console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
 	} finally {
@@ -364,6 +367,11 @@ stateManager.subscribe((newState, oldState) => {
 	const favoritesChanged = newState.favorites.length !== oldState.favorites.length;
 	const themeChanged = newState.theme !== oldState.theme;
 	const itemsChanged = newState.items !== oldState.items;
+	const categoryChanged = newState.currentCategory?.id !== oldState.currentCategory?.id;
+
+	if (categoryChanged && mainContent) {
+		mainContent.scrollTop = 0;
+	}
 
 	// If only the theme or favorites have changed, we can do a partial update.
 	// Any other change (like items, hiddenItems, category) requires a full re-render.

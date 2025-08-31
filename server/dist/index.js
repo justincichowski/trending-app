@@ -136,7 +136,7 @@ const main = async () => {
      * An endpoint that returns a list of preset categories or the items for a specific category.
      */
     server.get('/presets', async (request, reply) => {
-        const { id, page, excludedIds: excludedIdsQuery } = request.query;
+        const { id, page, excludedIds: excludedIdsQuery, limit } = request.query;
         const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
         if (!id) {
             return presets_1.presets;
@@ -151,13 +151,13 @@ const main = async () => {
             const pageNumber = page ? parseInt(page, 10) : 0;
             switch (preset.source) {
                 case 'hackernews':
-                    items = await (0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber });
+                    items = await (0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
                     break;
                 case 'rss':
-                    items = await (0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber });
+                    items = await (0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
                     break;
                 case 'youtube':
-                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber });
+                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
                     break;
             }
             // Filter out excluded IDs
@@ -175,23 +175,24 @@ const main = async () => {
      * Used for the "All" category feed.
      */
     server.get('/all', async (request, reply) => {
-        const { page, excludedIds: excludedIdsQuery } = request.query;
+        const { page, excludedIds: excludedIdsQuery, limit } = request.query;
         const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
         try {
             const pageNumber = page ? parseInt(page, 10) : 0;
+            const limitNumber = limit ? parseInt(limit, 10) : 5;
             const fetchPromises = [];
             // Get all presets except for local ones (like 'Favorites')
             const remotePresets = presets_1.presets.filter(p => p.source !== 'local');
             for (const preset of remotePresets) {
                 switch (preset.source) {
                     case 'hackernews':
-                        fetchPromises.push((0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        fetchPromises.push((0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: limitNumber }));
                         break;
                     case 'rss':
-                        fetchPromises.push((0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        fetchPromises.push((0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limitNumber }));
                         break;
                     case 'youtube':
-                        fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limitNumber }));
                         break;
                 }
             }
@@ -210,6 +211,24 @@ const main = async () => {
             server.log.error(error, 'Failed to fetch the "All" feed');
             reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
         }
+    });
+    // Add a catch-all route to serve the main index.html file for client-side routing.
+    server.setNotFoundHandler(async (request, reply) => {
+        const { theme: themeCookie } = request.cookies;
+        const theme = themeCookie === 'dark' ? 'dark' : 'light';
+        const criticalCss = `
+			<style>
+				:root {
+					--background-color: #ffffff;
+					--text-color: #333333;
+				}
+				html.dark-theme {
+					--background-color: #121212;
+					--text-color: #ffffff;
+				}
+			</style>
+		`;
+        return reply.view('index.html', { theme, criticalCss });
     });
     /**
      * Starts the Fastify server on port 3000.

@@ -42,9 +42,13 @@ export function getCategories(): Promise<Preset[]> {
  * @param {string[]} excludedIds - An array of item IDs to exclude.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getAllItems(page = 0, excludedIds: string[] = []): Promise<NormalizedItem[]> {
+export function getAllItems(page = 0, excludedIds: string[] = [], limit?: number): Promise<NormalizedItem[]> {
 	const excludedIdsParam = excludedIds.length > 0 ? `&excludedIds=${excludedIds.join(',')}` : '';
-	return get<NormalizedItem[]>(`${API_BASE_URL}/all?page=${page}${excludedIdsParam}`);
+	let url = `${API_BASE_URL}/all?page=${page}${excludedIdsParam}`;
+	if (limit) {
+		url += `&limit=${limit}`;
+	}
+	return get<NormalizedItem[]>(url);
 }
 
 /**
