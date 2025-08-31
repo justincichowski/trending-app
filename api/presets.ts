@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { presets } from './lib/presets';
-import { getHackerNewsStories } from './lib/hackernews';
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
 import type { NormalizedItem } from './lib/types';
@@ -33,9 +32,6 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
 		let items: NormalizedItem[] = [];
 		switch (preset.source) {
-			case 'hackernews':
-				items = await getHackerNewsStories(preset.params);
-				break;
 			case 'rss':
 				items = await getRssFeed(preset.params);
 				break;
