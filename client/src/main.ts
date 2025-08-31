@@ -3,7 +3,7 @@ import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
-import { getCategoryItems, getCategories } from './api';
+import { getCategoryItems, getCategories, getAllItems } from './api';
 import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
 import { showPageLoader, hidePageLoader } from './components/PageLoader';
@@ -87,6 +87,8 @@ export async function categoryView(params: Record<string, string>) {
 	let newCurrentCategory = categories.find(c => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
 		newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
+	} else if (id === '/' && !newCurrentCategory) {
+		newCurrentCategory = { id: '/', name: 'All', source: 'local', params: {} };
 	}
 
 	// Set the new category and loading state immediately for instant UI feedback
@@ -96,11 +98,13 @@ export async function categoryView(params: Record<string, string>) {
 	});
 
 	try {
-		let items: NormalizedItem[];
+		let items: NormalizedItem[] = [];
 		if (id === 'favorites') {
 			items = favorites; // Load from state
+		} else if (id === '/') {
+			items = await getAllItems(); // Use the new dedicated endpoint
 		} else {
-			items = await getCategoryItems(id, 0); // Fetch first page
+			items = await getCategoryItems(id, 0); // Fetch first page for a regular category
 		}
 
 		// Update the state with the new items and turn off loading
@@ -128,7 +132,16 @@ export async function loadMoreItems() {
 	showPageLoader();
 
 	try {
-		const newItems = await getCategoryItems(currentCategory.id, nextPage);
+		let newItems: NormalizedItem[] = [];
+		const excludedIds = items.map(item => item.id);
+
+		if (currentCategory.id === '/') {
+			newItems = await getAllItems(nextPage, excludedIds);
+		} else {
+			// For regular categories, fetch as normal, but pass excluded IDs
+			newItems = await getCategoryItems(currentCategory.id, nextPage, undefined, excludedIds);
+		}
+
 		stateManager.setState({
 			items: [...items, ...newItems],
 			pages: { ...pages, [currentCategory.id]: nextPage },
@@ -385,14 +398,20 @@ async function initializeApp() {
 		// 1. Fetch essential data (category presets)
 		const dynamicCategories: Preset[] = await getCategories();
 		
-		// 2. Create a static "Favorites" category and add it to the list
+		// 2. Create static client-side categories
+		const allCategory: Preset = {
+			id: '/',
+			name: 'All',
+			source: 'local',
+			params: {},
+		};
 		const favoritesCategory: Preset = {
 			id: 'favorites',
 			name: 'Favorites',
-			source: 'local', // This is a client-side only category
+			source: 'local',
 			params: {},
 		};
-		const categories = [favoritesCategory, ...dynamicCategories];
+		const categories = [allCategory, favoritesCategory, ...dynamicCategories];
 		stateManager.setState({ categories });
 
 		// 3. Initialize the category navigation
@@ -402,12 +421,8 @@ async function initializeApp() {
 
 		// 3. Set the default route AFTER presets are loaded
 		router.addRoute('/', () => {
-			if (categories.length > 0) {
-				// Load the first category's content by default without changing the URL
-				categoryView({ id: categories[0].id });
-			} else if (mainContent) {
-				mainContent.innerHTML = '<p>No categories found.</p>';
-			}
+			// Load the "All" category's content by default without changing the URL
+			categoryView({ id: '/' });
 		});
 
 		// 4. Initialize router link interception and handle initial route

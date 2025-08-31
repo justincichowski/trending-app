@@ -119,7 +119,7 @@ function buildGoogleNewsUrl(query) {
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
 async function getRssFeed(options) {
-    const { url, query, source = 'RSS', limit = 30 } = options;
+    const { url, query, source = 'RSS', limit = 30, page = 0 } = options;
     let feedUrl;
     if (url) {
         feedUrl = url;
@@ -142,7 +142,8 @@ async function getRssFeed(options) {
     }
     */
     // --- END DEBUG LOG ---
-    const limitedItems = feed.items.slice(0, limit);
+    const startIndex = page * limit;
+    const limitedItems = feed.items.slice(startIndex, startIndex + limit);
     // Normalize items in parallel and filter out any that are invalid
     const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
     const normalizedItems = (await Promise.all(normalizationPromises)).filter((item) => item !== null);

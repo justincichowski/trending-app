@@ -43,7 +43,7 @@ export class CategoryNav {
 			}
 
 			// Update the active class based on the current category
-			this.updateActiveClass(state.currentCategory?.id || null);
+			this.updateActiveClass();
 		});
 	}
 
@@ -65,14 +65,16 @@ export class CategoryNav {
 			slide.className = 'swiper-slide';
 
 			const link = document.createElement('a');
-			link.href = `/${category.id}`;
+			link.href = category.id === '/' ? '/' : `/${category.id}`;
 			link.textContent = category.name;
 			link.className = 'category-link';
 			link.setAttribute('data-link', '');
 
 			// Set active class on initial page load to prevent a "flash" of unstyled content.
 			// The state-driven `updateActiveClass` method will take over for all subsequent updates.
-			if (category.id === initialPath) {
+			if (initialPath === '' && category.id === '/') {
+				link.classList.add('active');
+			} else if (category.id === initialPath) {
 				link.classList.add('active');
 			}
 
@@ -167,24 +169,15 @@ export class CategoryNav {
 		* Updates the active class on the category links.
 		* @param {string | null} activeCategoryId - The ID of the currently active category.
 		*/
-	private updateActiveClass(activeCategoryId: string | null) {
+	private updateActiveClass() {
 		const links = this.element.querySelectorAll('.category-link');
 		const currentPath = window.location.pathname;
-		const { categories } = stateManager.getState();
-		const defaultCategoryId = categories.length > 0 ? categories[0].id : null;
 
 		links.forEach(link => {
 			const linkElement = link as HTMLAnchorElement;
-			const categoryId = linkElement.getAttribute('href')?.substring(1);
+			const linkPath = linkElement.getAttribute('href');
 
-			let isActive = categoryId === activeCategoryId;
-
-			// If the user is on the root path, the first category should be active.
-			if (currentPath === '/' && categoryId === defaultCategoryId) {
-				isActive = true;
-			}
-
-			if (isActive) {
+			if (linkPath === currentPath) {
 				linkElement.classList.add('active');
 				if (this.swiper && this.isInitialLoad) {
 					const activeSlide = linkElement.closest('.swiper-slide') as HTMLElement;

@@ -36,11 +36,30 @@ export function getCategories(): Promise<Preset[]> {
 }
 
 /**
+ * Fetches the items for the "All" category.
+ *
+ * @param {number} page - The page number to fetch.
+ * @param {string[]} excludedIds - An array of item IDs to exclude.
+ * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
+ */
+export function getAllItems(page = 0, excludedIds: string[] = []): Promise<NormalizedItem[]> {
+	const excludedIdsParam = excludedIds.length > 0 ? `&excludedIds=${excludedIds.join(',')}` : '';
+	return get<NormalizedItem[]>(`${API_BASE_URL}/all?page=${page}${excludedIdsParam}`);
+}
+
+/**
  * Fetches the items for a specific preset category.
  *
  * @param {string} id - The ID of the preset to fetch.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getCategoryItems(id: string, page = 0): Promise<NormalizedItem[]> {
-	return get<NormalizedItem[]>(`${API_BASE_URL}/presets?id=${id}&page=${page}`);
+export function getCategoryItems(id: string, page = 0, limit?: number, excludedIds: string[] = []): Promise<NormalizedItem[]> {
+	let url = `${API_BASE_URL}/presets?id=${id}&page=${page}`;
+	if (limit) {
+		url += `&limit=${limit}`;
+	}
+	if (excludedIds.length > 0) {
+		url += `&excludedIds=${excludedIds.join(',')}`;
+	}
+	return get<NormalizedItem[]>(url);
 }

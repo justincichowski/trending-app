@@ -64,10 +64,13 @@ function normalizeItem(item: HackerNewsItem): NormalizedItem {
  * @param {number} [options.limit=30] - The number of stories to return.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export async function getHackerNewsStories(options: { limit?: number } = {}): Promise<NormalizedItem[]> {
-	const { limit = 30 } = options;
+export async function getHackerNewsStories(
+	options: { limit?: number; page?: number } = {}
+): Promise<NormalizedItem[]> {
+	const { limit = 30, page = 0 } = options;
 	const storyIds = await getTopStoryIds();
-	const topStoryIds = storyIds.slice(0, limit);
+	const startIndex = page * limit;
+	const topStoryIds = storyIds.slice(startIndex, startIndex + limit);
 
 	// Fetch items in parallel batches
 	const storyPromises = topStoryIds.map(id => getItem(id));

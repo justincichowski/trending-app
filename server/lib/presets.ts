@@ -1,33 +1,4 @@
-/**
- * Represents the configuration for a preset category.
- */
-export interface Preset {
-	/**
-	 * A unique identifier for the preset.
-	 */
-	id: string;
-
-	/**
-	 * The display name of the category.
-	 */
-	name: string;
-
-	/**
-	 * The data source to use for this category.
-	 */
-	source: 'hackernews' | 'rss' | 'youtube';
-
-	/**
-	 * The parameters to pass to the data source service.
-	 */
-	params: {
-		url?: string;
-		query?: string;
-		playlistId?: string;
-		source?: string;
-		limit?: number;
-	};
-}
+import type { Preset } from './types';
 
 /**
  * An array of all the preset categories.

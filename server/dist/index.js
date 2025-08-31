@@ -97,52 +97,79 @@ const main = async () => {
      * An endpoint that returns a list of preset categories or the items for a specific category.
      */
     server.get('/presets', async (request, reply) => {
-        const { id, page } = request.query;
-        // roo do not delete
-        if (id?.toLowerCase() === 'cooking') {
-            // roo do not delete
-            console.log('cooking playlist');
-        }
-        if (id?.toLowerCase() === 'travel') {
-            // roo do not delete
-            console.log('travel playlist');
-        }
+        const { id, page, excludedIds: excludedIdsQuery } = request.query;
+        const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
         if (!id) {
             return presets_1.presets;
         }
         const preset = presets_1.presets.find(p => p.id === id);
-        // roo do not delete
-        console.log('preset', preset);
         if (!preset) {
             reply.status(404).send({ error: 'Preset not found.' });
             return;
         }
         try {
             let items = [];
+            const pageNumber = page ? parseInt(page, 10) : 0;
             switch (preset.source) {
                 case 'hackernews':
-                    items = await (0, hackernews_1.getHackerNewsStories)(preset.params);
+                    items = await (0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber });
                     break;
                 case 'rss':
-                    items = await (0, rss_1.getRssFeed)(preset.params);
+                    items = await (0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber });
                     break;
                 case 'youtube':
-                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: page ? parseInt(page, 10) : 0 });
+                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber });
                     break;
             }
-            // --- DEBUG LOG: Confirm number of items sent to the client ---
-            console.log(`Sending ${items.length} items for preset: ${preset.name}`);
-            /*
-            // --- Previous debug log for inspecting the full object ---
-            console.log('--- FINAL NORMALIZED ITEMS ---');
-            console.log(JSON.stringify(items, null, 2));
-            console.log('------------------------------');
-            */
-            return items;
+            // Filter out excluded IDs
+            const filteredItems = items.filter(item => !excludedIds.includes(item.id));
+            console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
+            return filteredItems;
         }
         catch (error) {
             server.log.error(error);
             reply.status(500).send({ error: `Failed to fetch data for preset: ${preset.name}.` });
+        }
+    });
+    /**
+     * An endpoint that returns a shuffled mix of items from all presets.
+     * Used for the "All" category feed.
+     */
+    server.get('/all', async (request, reply) => {
+        const { page, excludedIds: excludedIdsQuery } = request.query;
+        const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
+        try {
+            const pageNumber = page ? parseInt(page, 10) : 0;
+            const fetchPromises = [];
+            // Get all presets except for local ones (like 'Favorites')
+            const remotePresets = presets_1.presets.filter(p => p.source !== 'local');
+            for (const preset of remotePresets) {
+                switch (preset.source) {
+                    case 'hackernews':
+                        fetchPromises.push((0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        break;
+                    case 'rss':
+                        fetchPromises.push((0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        break;
+                    case 'youtube':
+                        fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: 5 }));
+                        break;
+                }
+            }
+            const allItemsArrays = await Promise.all(fetchPromises);
+            let allItems = allItemsArrays.flat();
+            // Filter out excluded IDs
+            const filteredItems = allItems.filter(item => !excludedIds.includes(item.id));
+            // Shuffle the combined items
+            for (let i = filteredItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredItems[i], filteredItems[j]] = [filteredItems[j], filteredItems[i]];
+            }
+            return filteredItems;
+        }
+        catch (error) {
+            server.log.error(error, 'Failed to fetch the "All" feed');
+            reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
         }
     });
     /**
