@@ -101,6 +101,7 @@ body {
 	font-weight: bold;
 }
 
+
 /* Gradient edges for scroll indication, controlled by Swiper events */
 /* --- Swiper Navigation Arrows --- */
 .swiper-button-prev,
@@ -262,26 +263,23 @@ body {
 	display: inline-block;
 }
 
-.logo-wrapper[data-tooltip]::after {
-	content: attr(data-tooltip);
-	position: absolute;
-	left: -10px;
-	transform: translateX(0);
-	top: 125%;
-	padding: 0.5rem;
-	border-radius: 4px;
+
+/* --- Global Tooltip --- */
+.global-tooltip {
+	position: fixed;
 	background-color: var(--card-background-color);
 	color: var(--text-color);
-	white-space: nowrap;
-	z-index: 10;
-	opacity: 0;
-	transition: opacity 0.3s;
-	pointer-events: none;
+	padding: 0.5rem;
+	border-radius: 4px;
 	border: 1px solid var(--accent-color);
+	z-index: 10000;
+	opacity: 0;
+	transition: opacity 0.2s;
+	pointer-events: none;
+	white-space: nowrap;
 }
 
-.logo-wrapper[data-tooltip]:hover::after,
-.logo-wrapper[data-tooltip]:active::after {
+.global-tooltip.is-visible {
 	opacity: 1;
 }
 

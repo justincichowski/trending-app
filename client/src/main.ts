@@ -11,6 +11,7 @@ import { Notification } from './components/Notification';
 import { SettingsPanel } from './components/SettingsPanel';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { ContextMenu } from './components/ContextMenu';
+import { Tooltip } from './components/Tooltip';
 
 /**
  * -----------------------------------------------------------------------------
@@ -42,6 +43,7 @@ const settingsPanelContainer = document.getElementById('settings-panel');
 const notification = new Notification('notification-container');
 let settingsPanel: SettingsPanel | null = null;
 let contextMenu: ContextMenu | null = null;
+const tooltip = new Tooltip();
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
@@ -186,12 +188,6 @@ function hiddenItemsView() {
 router.addRoute('/:id', categoryView);
 router.addRoute('/hidden', hiddenItemsView);
 
-function updateLastUpdated() {
-	const { lastUpdated } = stateManager.getState();
-	if (lastUpdated && logoWrapper) {
-		logoWrapper.setAttribute('data-tooltip', `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
-	}
-}
 
 /**
  * Adds a click event listener to the logo to refresh the current category.
@@ -203,6 +199,20 @@ if (logo) {
 		const mouseEvent = e as MouseEvent;
 		if (mouseEvent.button === 2) { // Right-click
 			logoEl?.classList.add('no-animation');
+		}
+		
+		if (logoWrapper) {
+			logoWrapper.addEventListener('mouseover', () => {
+				const { lastUpdated, currentCategory } = stateManager.getState();
+				const currentPath = window.location.pathname;
+				// Only show on logo if we are on the root path
+				if (lastUpdated && (currentPath === '/' || currentCategory?.id === 'favorites')) {
+					tooltip.show(logoWrapper as HTMLElement, `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
+				}
+			});
+			logoWrapper.addEventListener('mouseout', () => {
+				tooltip.hide();
+			});
 		}
 	});
 
@@ -273,7 +283,6 @@ if (searchBackButton && controls) {
 
 stateManager.subscribe(state => {
 	renderItems();
-	updateLastUpdated();
 	document.documentElement.className = `${state.theme}-theme`;
 });
 

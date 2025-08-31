@@ -12,6 +12,7 @@ import { categoryView } from '../main';
 import type { Preset } from '../types';
 import Swiper from 'swiper';
 import { Mousewheel, Navigation } from 'swiper/modules';
+import { Tooltip } from './Tooltip';
 
 /**
  * Creates and manages the category navigation bar.
@@ -20,6 +21,7 @@ export class CategoryNav {
 	private element: HTMLElement;
 	private swiper: Swiper | null = null;
 	private isInitialLoad = true;
+	private tooltip: Tooltip;
 
 	constructor(container: HTMLElement) {
 		// The main container will be the Swiper instance
@@ -27,6 +29,7 @@ export class CategoryNav {
 		this.element.className = 'swiper category-nav'; // Add swiper classes
 
 		this.init();
+		this.tooltip = new Tooltip();
 	}
 
 	/**
@@ -108,7 +111,56 @@ export class CategoryNav {
 				nextEl: '.swiper-button-next',
 				prevEl: '.swiper-button-prev',
 			},
+			on: {
+				// Use Swiper's event system to attach listeners
+				slideChange: () => this.attachTooltipEvents(),
+				touchEnd: () => this.attachTooltipEvents(),
+			},
 		});
+
+		// Attach events initially
+		this.attachTooltipEvents();
+	}
+
+	/**
+		* Attaches mouseover/mouseout events to the visible slides.
+		*/
+	private attachTooltipEvents() {
+		if (!this.swiper) return;
+
+		this.swiper.slides.forEach(slide => {
+			const link = slide.querySelector('.category-link');
+			if (link) {
+				// Remove old listeners to prevent duplicates
+				link.removeEventListener('mouseover', this.handleMouseOver);
+				link.removeEventListener('mouseout', this.handleMouseOut);
+
+				// Add new listeners
+				link.addEventListener('mouseover', this.handleMouseOver.bind(this));
+				link.addEventListener('mouseout', this.handleMouseOut.bind(this));
+			}
+		});
+	}
+
+	/**
+		* Handles the mouseover event for a category link.
+		* @param {Event} e - The mouse event.
+		*/
+	private handleMouseOver(e: Event) {
+		const target = e.currentTarget as HTMLElement;
+		if (target.classList.contains('active')) {
+			const { lastUpdated } = stateManager.getState();
+			if (lastUpdated) {
+				this.tooltip.show(target, `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
+			}
+		}
+	}
+
+	/**
+		* Handles the mouseout event for a category link.
+		*/
+	private handleMouseOut() {
+		this.tooltip.hide();
 	}
 
 	/**
