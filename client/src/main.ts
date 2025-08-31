@@ -14,6 +14,7 @@ import { ContextMenu } from './components/ContextMenu';
 import { Tooltip } from './components/Tooltip';
 import { Autocomplete } from './components/Autocomplete';
 import { TrendingPanel } from './components/TrendingPanel';
+import { TopTrendsPanel } from './components/TopTrendsPanel';
 
 /**
  * -----------------------------------------------------------------------------
@@ -465,6 +466,7 @@ async function initializeApp() {
 document.addEventListener('DOMContentLoaded', () => {
 	initializeApp();
 	new TrendingPanel('trending-panel');
+	new TopTrendsPanel('top-trends-panel');
 	if (stateManager.getState().showTrending) {
 		document.body.classList.add('show-trending');
 	}

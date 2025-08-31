@@ -17,6 +17,7 @@ const hackernews_1 = require("./lib/hackernews");
 const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
+const toptrends_1 = require("./lib/toptrends");
 // Create a new Fastify server instance
 const server = (0, fastify_1.default)({
     logger: true,
@@ -50,57 +51,43 @@ const main = async () => {
         });
     }
     /**
-     * Serves the main index.html file as a view, injecting the theme.
-     * This is used in both development (via Vite proxy) and production.
+     * Renders the main HTML page, injecting server-side data.
+     * This function is used for both the root route and the catch-all 404 handler
+     * to support client-side routing.
      */
-    server.get('/', async (request, reply) => {
-        const { theme: themeCookie } = request.cookies;
+    const renderApp = async (request, reply) => {
+        const { theme: themeCookie, top_trends: topTrendsCookie } = request.cookies;
         const theme = themeCookie === 'dark' ? 'dark' : 'light';
         server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
         // Define critical CSS variables for both themes to prevent FOUC.
-        // The correct theme is applied via the class on the <html> tag.
         const criticalCss = `
 			<style>
-				:root {
-					--background-color: #ffffff;
-					--text-color: #333333;
-				}
-				html.dark-theme {
-					--background-color: #121212;
-					--text-color: #ffffff;
-				}
+				:root { --background-color: #ffffff; --text-color: #333333; }
+				html.dark-theme { --background-color: #121212; --text-color: #ffffff; }
 			</style>
 		`;
         const TRENDING_FEEDS = [
-            {
-                title: 'Sports',
-                source: 'ESPN',
-                url: 'https://www.espn.com/espn/rss/news',
-            },
-            {
-                title: 'Movies',
-                source: 'The New York Times',
-                url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml',
-            },
-            {
-                title: 'Sales',
-                source: 'Slickdeals',
-                url: 'https://slickdeals.net/rss/frontpage.php',
-            },
-            {
-                title: 'Websites',
-                source: 'TechCrunch',
-                url: 'http://feeds.feedburner.com/TechCrunch/',
-            },
-            {
-                title: 'Books',
-                source: 'NPR',
-                url: 'https://www.npr.org/rss/rss.php?id=1032',
-            },
+            { title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
+            { title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
+            { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
+            { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+            { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
-        const fetchPromises = TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 }));
-        const results = await Promise.allSettled(fetchPromises);
-        const trendingData = results.reduce((acc, result, index) => {
+        // For development: clear the cookie on every request to test keyword extraction
+        reply.clearCookie('top_trends');
+        server.log.info('Cleared top_trends cookie for development.');
+        let topTrendsData;
+        // The cookie logic is temporarily bypassed. We will always fetch.
+        server.log.info('Fetching new Top Trends data for development.');
+        topTrendsData = await (0, toptrends_1.fetchTopTrends)();
+        reply.setCookie('top_trends', JSON.stringify(topTrendsData), {
+            path: '/',
+            httpOnly: true,
+            maxAge: 3600, // 1 hour in seconds
+        });
+        // Fetch right-hand panel data
+        const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 })));
+        const trendingData = trendingResults.reduce((acc, result, index) => {
             const feed = TRENDING_FEEDS[index];
             if (result.status === 'fulfilled') {
                 acc[feed.title] = result.value;
@@ -110,65 +97,16 @@ const main = async () => {
             }
             return acc;
         }, {});
-        return reply.view('index.html', { theme, criticalCss, trendingData: JSON.stringify(trendingData) });
-    });
-    // Add a catch-all route to serve the main index.html file for client-side routing.
-    server.setNotFoundHandler(async (request, reply) => {
-        const { theme: themeCookie } = request.cookies;
-        const theme = themeCookie === 'dark' ? 'dark' : 'light';
-        const criticalCss = `
-			<style>
-				:root {
-					--background-color: #ffffff;
-					--text-color: #333333;
-				}
-				html.dark-theme {
-					--background-color: #121212;
-					--text-color: #ffffff;
-				}
-			</style>
-		`;
-        const TRENDING_FEEDS = [
-            {
-                title: 'Sports',
-                source: 'ESPN',
-                url: 'https://www.espn.com/espn/rss/news',
-            },
-            {
-                title: 'Movies',
-                source: 'The New York Times',
-                url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml',
-            },
-            {
-                title: 'Sales',
-                source: 'Slickdeals',
-                url: 'https://slickdeals.net/rss/frontpage.php',
-            },
-            {
-                title: 'Websites',
-                source: 'TechCrunch',
-                url: 'http://feeds.feedburner.com/TechCrunch/',
-            },
-            {
-                title: 'Books',
-                source: 'NPR',
-                url: 'https://www.npr.org/rss/rss.php?id=1032',
-            },
-        ];
-        const fetchPromises = TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 }));
-        const results = await Promise.allSettled(fetchPromises);
-        const trendingData = results.reduce((acc, result, index) => {
-            const feed = TRENDING_FEEDS[index];
-            if (result.status === 'fulfilled') {
-                acc[feed.title] = result.value;
-            }
-            else {
-                server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
-            }
-            return acc;
-        }, {});
-        return reply.view('index.html', { theme, criticalCss, trendingData: JSON.stringify(trendingData) });
-    });
+        return reply.view('index.html', {
+            theme,
+            criticalCss,
+            trendingData: JSON.stringify(trendingData),
+            topTrendsData: JSON.stringify(topTrendsData),
+        });
+    };
+    // Use the renderApp function for both the root and catch-all routes
+    server.get('/', renderApp);
+    server.setNotFoundHandler(renderApp);
     /**
         * A health check endpoint that responds with an "ok" status.
      */

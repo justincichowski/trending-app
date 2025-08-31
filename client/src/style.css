@@ -1243,3 +1243,63 @@ body:not(.show-trending) .trending-panel {
 .trending-item a:hover .trending-item-meta {
 	text-decoration: none;
 }
+
+.top-trends-panel {
+	width: 200px;
+	flex-shrink: 0;
+	margin-right: 1rem;
+	position: sticky;
+	top: 1rem;
+	height: calc(100vh - 155px);
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+.top-trends-panel::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, and Opera */
+}
+
+.top-trends-section {
+	background-color: var(--card-background-color);
+	border-radius: 8px;
+	padding: 1rem;
+	border: 1px solid var(--border-color);
+}
+
+.top-trends-title {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 1rem;
+	color: var(--item-title-color);
+	cursor: default;
+}
+
+.top-trends-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.top-trends-item {
+	margin-bottom: 0.5rem;
+}
+
+.top-trends-item a {
+	color: var(--item-title-color);
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+
+.top-trends-item a:hover {
+	color: var(--text-color);
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+@media (max-width: 900px) {
+	.top-trends-panel {
+		display: none;
+	}
+}

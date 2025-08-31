@@ -72,3 +72,20 @@ export interface Preset {
 		limit?: number;
 	};
 }
+
+/**
+ * Represents a single trending topic for the left panel.
+ */
+export interface TopTrendItem {
+	title: string;
+	url: string;
+}
+
+/**
+ * Represents the complete data structure for the top trends panel.
+ */
+export interface TopTrendsData {
+	items: TopTrendItem[];
+	source: string;
+	fetchedAt: string; // ISO string
+}

@@ -69,6 +69,7 @@
 			</header>
 			<nav id="category-nav" class="category-nav"></nav>
 			<div class="main-content-wrapper">
+				<aside id="top-trends-panel" class="top-trends-panel"></aside>
 				<main id="main-content" class="main-content"></main>
 				<aside id="trending-panel" class="trending-panel"></aside>
 				<button id="back-to-top" class="icon-button" data-tooltip="Back to top" hidden>
@@ -82,6 +83,9 @@
 		</div>
 		<script id="trending-data" type="application/json">
 			<%- trendingData %>
+		</script>
+		<script id="top-trends-data" type="application/json">
+			<%- topTrendsData %>
 		</script>
 		<script type="module" src="/src/main.ts"></script>
 		<script src="https://www.youtube.com/iframe_api"></script>
