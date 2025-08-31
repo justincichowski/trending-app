@@ -38,4 +38,5 @@ export interface NormalizedItem {
 	 * This is a string in ISO 8601 format.
 	 */
 	publishedAt?: string;
+	viewCount?: number;
 }

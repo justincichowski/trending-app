@@ -51,6 +51,8 @@ function normalizeItem(item) {
         source: 'YouTube',
         description: item.snippet.description,
         image: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
+        publishedAt: item.snippet.publishedAt,
+        viewCount: item.statistics ? parseInt(item.statistics.viewCount, 10) : undefined,
     };
 }
 /**
@@ -85,7 +87,12 @@ async function getYouTubeVideos(options) {
                 params: { part: 'snippet', playlistId: playlistToFetch, maxResults: limit, key: apiKey },
                 timeout: 5000,
             });
-            const normalizedItems = response.data.items
+            const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId).join(',');
+            const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
+                params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
+                timeout: 5000,
+            });
+            const normalizedItems = videoDetailsResponse.data.items
                 .map(normalizeItem)
                 .filter((item) => item !== null);
             console.log(`Successfully fetched ${normalizedItems.length} items from playlist ${playlistToFetch}.`);
@@ -104,7 +111,12 @@ async function getYouTubeVideos(options) {
                 params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
                 timeout: 5000,
             });
-            const normalizedItems = response.data.items
+            const videoIds = response.data.items.map(item => item.id.videoId).join(',');
+            const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
+                params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
+                timeout: 5000,
+            });
+            const normalizedItems = videoDetailsResponse.data.items
                 .map(normalizeItem)
                 .filter((item) => item !== null);
             console.log(`Successfully fetched ${normalizedItems.length} items from search.`);

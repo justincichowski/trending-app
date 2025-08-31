@@ -10,6 +10,7 @@
 import type { NormalizedItem } from '../types';
 import { stateManager } from '../state';
 import { favoriteItem, hideItem } from '../main';
+import { formatNumber, timeAgo } from '../utils/format';
 
 /**
  * Creates and returns an HTML element for a single item card.
@@ -45,7 +46,34 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	const controls = document.createElement('div');
 	controls.className = 'item-controls';
 
-	// --- Favorite Button ---
+	// --- Item Meta (Views & Date) ---
+	const meta = document.createElement('div');
+	meta.className = 'item-meta';
+
+	if (item.viewCount) {
+		const views = document.createElement('span');
+		views.textContent = `${formatNumber(item.viewCount)} views`;
+		meta.appendChild(views);
+	}
+
+	if (item.publishedAt) {
+		if (item.viewCount) {
+			const separator = document.createElement('span');
+			separator.className = 'separator';
+			separator.textContent = '•';
+			meta.appendChild(separator);
+		}
+		const time = document.createElement('span');
+		time.textContent = timeAgo(item.publishedAt);
+		meta.appendChild(time);
+	}
+
+	controls.appendChild(meta);
+
+	// --- Action Buttons (Favorite & Hide) ---
+	const actions = document.createElement('div');
+	actions.className = 'item-actions';
+
 	const isFavorited = stateManager.getState().favorites.some((fav: NormalizedItem) => fav.id === item.id);
 	const favoriteButtonContainer = document.createElement('div');
 	favoriteButtonContainer.className = 'tooltip-container';
@@ -66,9 +94,8 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		favoriteButtonContainer.setAttribute('data-tooltip', isNowFavorited ? 'Unfavorite' : 'Favorite');
 	});
 	favoriteButtonContainer.appendChild(favoriteButton);
+	actions.appendChild(favoriteButtonContainer);
 
-
-	// --- Hide Button ---
 	const hideButton = document.createElement('button');
 	hideButton.className = 'icon-button hide-button';
 	hideButton.setAttribute('data-tooltip', 'Hide');
@@ -82,9 +109,9 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		hideItem(item.id);
 		card.remove();
 	});
+	actions.appendChild(hideButton);
 
-	controls.appendChild(favoriteButtonContainer);
-	controls.appendChild(hideButton);
+	controls.appendChild(actions);
 	card.appendChild(controls);
 
 	const title = document.createElement('div');
@@ -188,12 +215,6 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		}, 0);
 	}
 
-	if (item.publishedAt) {
-		const time = document.createElement('p');
-		time.className = 'item-time';
-		time.textContent = new Date(item.publishedAt).toLocaleString();
-		card.appendChild(time);
-	}
 
 	return card;
 }
