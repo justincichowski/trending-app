@@ -4,8 +4,8 @@ import type { NormalizedItem } from './types';
 // Base URL for the YouTube Data API
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 
-// Interface for the raw YouTube video shape from the API
-interface YouTubeVideo {
+// Interface for a raw YouTube SEARCH result item
+interface YouTubeSearchResult {
 	id: {
 		videoId: string;
 	};
@@ -13,68 +13,60 @@ interface YouTubeVideo {
 		title: string;
 		description: string;
 		thumbnails: {
-			high: {
-				url: string;
-			};
-			default?: {
-				url: string;
-			};
+			high: { url: string };
+			default?: { url: string };
 		};
 		publishedAt?: string;
 	};
-	statistics?: {
-		viewCount: string;
-	};
 }
 
-// Interface for the raw YouTube playlist item shape
+// Interface for a raw YouTube PLAYLIST item
 interface YouTubePlaylistItem {
 	snippet: {
 		title: string;
 		description: string;
 		thumbnails: {
-			high: {
-				url: string;
-			};
-			default?: {
-				url: string;
-			};
+			high: { url: string };
+			default?: { url: string };
 		};
 		resourceId: {
 			videoId: string;
 		};
 		publishedAt?: string;
 	};
+}
+
+// Interface for a full YouTube VIDEO resource (from the /videos endpoint)
+interface YouTubeVideoResource {
+	id: string; // The ID is a string here
+	snippet: {
+		title: string;
+		description: string;
+		thumbnails: {
+			high: { url: string };
+			default?: { url: string };
+		};
+		publishedAt?: string;
+	};
 	statistics?: {
 		viewCount: string;
 	};
 }
 
 /**
- * Type guard to check if an item is a YouTubePlaylistItem.
+ * Normalizes a full YouTube video resource into the common `NormalizedItem` shape.
  *
- * @param {YouTubeVideo | YouTubePlaylistItem} item - The item to check.
- * @returns {item is YouTubePlaylistItem} True if the item is a YouTubePlaylistItem.
- */
-function isPlaylistItem(item: YouTubeVideo | YouTubePlaylistItem): item is YouTubePlaylistItem {
-	return 'resourceId' in item.snippet;
-}
-
-/**
- * Normalizes a raw YouTube video or playlist item into the common `NormalizedItem` shape.
- *
- * @param {YouTubeVideo | YouTubePlaylistItem} item - The raw item from the YouTube API.
+ * @param {YouTubeVideoResource} item - The full video resource from the YouTube API's /videos endpoint.
  * @returns {NormalizedItem | null} The normalized item, or null if invalid.
  */
-function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem | null {
+function normalizeItem(item: YouTubeVideoResource): NormalizedItem | null {
 	const image = item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url;
 	const title = item.snippet.title?.toLowerCase() || '';
 	const description = item.snippet.description?.toLowerCase() || '';
 
 	// Filter out videos that are genuinely unavailable or lack essential content.
-	// Comparisons are case-insensitive and check if the string starts with the given text.
 	if (
-		!image || // Must have an image
+		!image ||
 		title.indexOf('private video') === 0 ||
 		description.indexOf('this video is unavailable') === 0 ||
 		(title.indexOf('deleted video') === 0 && !item.snippet.description)
@@ -82,12 +74,7 @@ function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem
 		return null;
 	}
 
-	let videoId: string;
-	if (isPlaylistItem(item)) {
-		videoId = item.snippet.resourceId.videoId;
-	} else {
-		videoId = item.id.videoId;
-	}
+	const videoId = item.id; // The ID is directly on the item for a video resource
 
 	if (!videoId || !item.snippet.title) {
 		return null;
@@ -151,8 +138,13 @@ export async function getYouTubeVideos(options: {
 				},
 			);
 
+			if (response.data.items.length === 0) {
+				console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
+				return [];
+			}
+
 			const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId).join(',');
-			const videoDetailsResponse = await axios.get<{ items: YouTubeVideo[] }>(
+			const videoDetailsResponse = await axios.get<{ items: YouTubeVideoResource[] }>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
 					params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
@@ -176,12 +168,18 @@ export async function getYouTubeVideos(options: {
 	if (query) {
 		try {
 			console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
-			const response = await axios.get<{ items: YouTubeVideo[] }>(`${YOUTUBE_API_BASE_URL}/search`, {
+			const response = await axios.get<{ items: YouTubeSearchResult[] }>(`${YOUTUBE_API_BASE_URL}/search`, {
 				params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
 				timeout: 5000,
 			});
+
+			if (response.data.items.length === 0) {
+				console.log(`No search results found for query: "${query}"`);
+				return [];
+			}
+
 			const videoIds = response.data.items.map(item => item.id.videoId).join(',');
-			const videoDetailsResponse = await axios.get<{ items: YouTubeVideo[] }>(
+			const videoDetailsResponse = await axios.get<{ items: YouTubeVideoResource[] }>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
 					params: { part: 'snippet,statistics', id: videoIds, key: apiKey },

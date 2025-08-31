@@ -11,6 +11,7 @@ import type { NormalizedItem } from '../types';
 import { stateManager } from '../state';
 import { favoriteItem, hideItem } from '../main';
 import { formatNumber, timeAgo } from '../utils/format';
+import { Tooltip } from './Tooltip';
 
 /**
  * Creates and returns an HTML element for a single item card.
@@ -18,9 +19,10 @@ import { formatNumber, timeAgo } from '../utils/format';
  * @param {NormalizedItem} item - The item to render.
  * @returns {HTMLElement} The card element.
  */
-export function createItemCard(item: NormalizedItem): HTMLElement {
+export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElement {
 	const card = document.createElement('div');
 	card.className = 'item-card';
+	card.setAttribute('data-id', item.id);
 
 	/**
 	 * Creates an image element for the card. If the item has an image, it
@@ -77,7 +79,6 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	const isFavorited = stateManager.getState().favorites.some((fav: NormalizedItem) => fav.id === item.id);
 	const favoriteButtonContainer = document.createElement('div');
 	favoriteButtonContainer.className = 'tooltip-container';
-	favoriteButtonContainer.setAttribute('data-tooltip', isFavorited ? 'Unfavorite' : 'Favorite');
 
 	const favoriteButton = document.createElement('button');
 	favoriteButton.className = `icon-button favorite-button ${isFavorited ? 'is-favorited' : ''}`;
@@ -89,27 +90,38 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		</span>
 	`;
 	favoriteButton.addEventListener('click', () => {
+		// Toggle the class immediately for instant visual feedback.
+		// The state-driven update in `renderItems` will ensure it's correct.
+		favoriteButton.classList.toggle('is-favorited');
 		favoriteItem(item);
-		const isNowFavorited = favoriteButton.classList.toggle('is-favorited');
-		favoriteButtonContainer.setAttribute('data-tooltip', isNowFavorited ? 'Unfavorite' : 'Favorite');
 	});
-	favoriteButtonContainer.appendChild(favoriteButton);
-	actions.appendChild(favoriteButtonContainer);
 
-	const hideButton = document.createElement('button');
-	hideButton.className = 'icon-button hide-button';
-	hideButton.setAttribute('data-tooltip', 'Hide');
-	hideButton.innerHTML = `
-		<svg class="icon-eye" viewBox="0 0 24 24">
-			<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 5.5 12 5.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5zm0-7C10.62 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5z"/>
-			<line class="icon-eye-slash" x1="1" y1="1" x2="23" y2="23" />
-		</svg>
-	`;
-	hideButton.addEventListener('click', () => {
-		hideItem(item.id);
-		card.remove();
+	favoriteButton.addEventListener('mouseover', () => {
+		const isFavorited = favoriteButton.classList.contains('is-favorited');
+		tooltip.show(favoriteButton, isFavorited ? 'Unfavorite' : 'Favorite');
 	});
-	actions.appendChild(hideButton);
+	favoriteButton.addEventListener('mouseout', () => tooltip.hide());
+
+	actions.appendChild(favoriteButton);
+
+	// Only show the hide button if not in the favorites category
+	if (stateManager.getState().currentCategory?.id !== 'favorites') {
+		const hideButton = document.createElement('button');
+		hideButton.className = 'icon-button hide-button';
+		hideButton.innerHTML = `
+			<svg class="icon-eye" viewBox="0 0 24 24">
+				<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 5.5 12 5.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5zm0-7C10.62 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5z"/>
+				<line class="icon-eye-slash" x1="1" y1="1" x2="23" y2="23" />
+			</svg>
+		`;
+		hideButton.addEventListener('click', () => {
+			hideItem(item.id);
+			card.remove();
+		});
+		hideButton.addEventListener('mouseover', () => tooltip.show(hideButton, 'Hide'));
+		hideButton.addEventListener('mouseout', () => tooltip.hide());
+		actions.appendChild(hideButton);
+	}
 
 	controls.appendChild(actions);
 	card.appendChild(controls);

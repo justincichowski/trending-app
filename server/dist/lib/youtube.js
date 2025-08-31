@@ -8,18 +8,9 @@ const axios_1 = __importDefault(require("axios"));
 // Base URL for the YouTube Data API
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 /**
- * Type guard to check if an item is a YouTubePlaylistItem.
+ * Normalizes a full YouTube video resource into the common `NormalizedItem` shape.
  *
- * @param {YouTubeVideo | YouTubePlaylistItem} item - The item to check.
- * @returns {item is YouTubePlaylistItem} True if the item is a YouTubePlaylistItem.
- */
-function isPlaylistItem(item) {
-    return 'resourceId' in item.snippet;
-}
-/**
- * Normalizes a raw YouTube video or playlist item into the common `NormalizedItem` shape.
- *
- * @param {YouTubeVideo | YouTubePlaylistItem} item - The raw item from the YouTube API.
+ * @param {YouTubeVideoResource} item - The full video resource from the YouTube API's /videos endpoint.
  * @returns {NormalizedItem | null} The normalized item, or null if invalid.
  */
 function normalizeItem(item) {
@@ -27,20 +18,13 @@ function normalizeItem(item) {
     const title = item.snippet.title?.toLowerCase() || '';
     const description = item.snippet.description?.toLowerCase() || '';
     // Filter out videos that are genuinely unavailable or lack essential content.
-    // Comparisons are case-insensitive and check if the string starts with the given text.
-    if (!image || // Must have an image
+    if (!image ||
         title.indexOf('private video') === 0 ||
         description.indexOf('this video is unavailable') === 0 ||
         (title.indexOf('deleted video') === 0 && !item.snippet.description)) {
         return null;
     }
-    let videoId;
-    if (isPlaylistItem(item)) {
-        videoId = item.snippet.resourceId.videoId;
-    }
-    else {
-        videoId = item.id.videoId;
-    }
+    const videoId = item.id; // The ID is directly on the item for a video resource
     if (!videoId || !item.snippet.title) {
         return null;
     }
@@ -87,6 +71,10 @@ async function getYouTubeVideos(options) {
                 params: { part: 'snippet', playlistId: playlistToFetch, maxResults: limit, key: apiKey },
                 timeout: 5000,
             });
+            if (response.data.items.length === 0) {
+                console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
+                return [];
+            }
             const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId).join(',');
             const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
                 params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
@@ -111,6 +99,10 @@ async function getYouTubeVideos(options) {
                 params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
                 timeout: 5000,
             });
+            if (response.data.items.length === 0) {
+                console.log(`No search results found for query: "${query}"`);
+                return [];
+            }
             const videoIds = response.data.items.map(item => item.id.videoId).join(',');
             const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
                 params: { part: 'snippet,statistics', id: videoIds, key: apiKey },

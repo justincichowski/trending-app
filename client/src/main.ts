@@ -143,10 +143,44 @@ export async function loadMoreItems() {
  * @param {NormalizedItem} item - The item to favorite.
  */
 export function favoriteItem(item: NormalizedItem) {
- const { favorites } = stateManager.getState();
- if (!favorites.find(f => f.id === item.id)) {
- 	stateManager.setState({ favorites: [...favorites, item] });
- }
+	const { favorites, currentCategory } = stateManager.getState();
+	const existingIndex = favorites.findIndex(f => f.id === item.id);
+	const cardElement = document.querySelector(`.item-card[data-id="${item.id}"]`);
+	const isFavoritesView = currentCategory?.id === 'favorites';
+
+	if (existingIndex > -1) {
+		// --- Unfavoriting ---
+		if (isFavoritesView && cardElement) {
+			// In favorites view, we handle removal with a toast and animation.
+			notification?.show('Item removed from favorites.', {
+				onUndo: () => {
+					// User clicked Undo. We don't need to do anything to the state,
+					// as it was never changed. The re-render will fix the icon.
+				},
+				onClose: (didUndo: boolean) => {
+					if (!didUndo) {
+						// If the toast was not undone, start the removal animation.
+						setTimeout(() => {
+							cardElement.classList.add('is-removing');
+							cardElement.addEventListener('transitionend', () => {
+								// AFTER the animation, remove the item from the state.
+								const currentFavorites = stateManager.getState().favorites;
+								const newFavorites = currentFavorites.filter(f => f.id !== item.id);
+								stateManager.setState({ favorites: newFavorites });
+							}, { once: true });
+						}, 200); // 200ms delay after toast closes
+					}
+				},
+			});
+		} else {
+			// If not in favorites view, remove immediately from the state.
+			const newFavorites = favorites.filter(f => f.id !== item.id);
+			stateManager.setState({ favorites: newFavorites });
+		}
+	} else {
+		// --- Favoriting ---
+		stateManager.setState({ favorites: [...favorites, item] });
+	}
 }
 
 /**
@@ -248,7 +282,7 @@ if (searchInput) {
 		} else {
 			searchBarWrapper?.classList.remove('has-text');
 		}
-		renderItems();
+		renderItems(tooltip);
 	});
 }
 
@@ -256,14 +290,14 @@ if (clearSearchButton && searchInput) {
 	clearSearchButton.addEventListener('click', () => {
 		(searchInput as HTMLInputElement).value = '';
 		searchBarWrapper?.classList.remove('has-text');
-		renderItems();
+		renderItems(tooltip);
 		searchInput.focus();
 	});
 }
 
 if (sortSelect) {
 	sortSelect.addEventListener('change', () => {
-		renderItems();
+		renderItems(tooltip);
 	});
 }
 
@@ -282,7 +316,7 @@ if (searchBackButton && controls) {
 
 
 stateManager.subscribe(state => {
-	renderItems();
+	renderItems(tooltip);
 	document.documentElement.className = `${state.theme}-theme`;
 });
 

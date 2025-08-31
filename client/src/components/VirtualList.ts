@@ -11,6 +11,8 @@
 import type { NormalizedItem } from '../types';
 import { createItemCard } from './ItemCard';
 
+import { Tooltip } from './Tooltip';
+
 /**
  * A component that renders a virtualized list of items.
  */
@@ -19,10 +21,12 @@ export class VirtualList {
 	private items: NormalizedItem[] = [];
 	private observer: IntersectionObserver;
 	private loadMoreCallback: () => void = () => {};
+	private tooltip: Tooltip;
 
-	constructor() {
+	constructor(tooltip: Tooltip) {
 		this.element = document.createElement('div');
 		this.element.className = 'virtual-list';
+		this.tooltip = tooltip;
 
 		this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
 			root: null,
@@ -49,7 +53,7 @@ export class VirtualList {
 		this.observer.disconnect();
 
 		this.items.forEach((item, index) => {
-			const card = createItemCard(item);
+			const card = createItemCard(item, this.tooltip);
 			card.dataset.virtualized = 'true';
 			this.element.appendChild(card);
 

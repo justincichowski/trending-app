@@ -11,6 +11,7 @@
 import { VirtualList } from '../components/VirtualList';
 import { stateManager } from '../state';
 import { loadMoreItems } from '../main';
+import { Tooltip } from '../components/Tooltip';
 
 const mainContent = document.getElementById('main-content');
 let virtualList: VirtualList | null = null;
@@ -18,15 +19,15 @@ let virtualList: VirtualList | null = null;
 /**
  * Renders the items for the current category using a virtualized list.
  */
-export function renderItems() {
- if (!mainContent) return;
+export function renderItems(tooltip: Tooltip) {
+	if (!mainContent) return;
 
- if (!virtualList) {
- 	virtualList = new VirtualList();
- 	virtualList.onLoadMore(loadMoreItems);
- }
+	if (!virtualList) {
+		virtualList = new VirtualList(tooltip);
+		virtualList.onLoadMore(loadMoreItems);
+	}
 
- const { items, currentCategory, scrollPositions, isLoading } = stateManager.getState();
+ const { items, currentCategory, scrollPositions, isLoading, favorites } = stateManager.getState();
  const searchInput = document.getElementById('search-input') as HTMLInputElement;
  const sortSelect = document.getElementById('sort-select') as HTMLSelectElement;
 
@@ -78,6 +79,17 @@ export function renderItems() {
    mainContent.innerHTML = ''; // Clear the container
    virtualList.render(filteredItems);
    mainContent.appendChild(virtualList.getElement()); // Append the list
+
+ // After rendering, update the favorite icons to match the current state
+ document.querySelectorAll('.favorite-button').forEach(button => {
+  const card = button.closest('.item-card');
+  const itemId = card?.getAttribute('data-id');
+  if (itemId && favorites.some(fav => fav.id === itemId)) {
+   button.classList.add('is-favorited');
+  } else {
+   button.classList.remove('is-favorited');
+  }
+ });
 
  // Restore the scroll position for the current category
  if (currentCategory && scrollPositions[currentCategory.id]) {
