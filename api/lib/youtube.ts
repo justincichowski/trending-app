@@ -89,7 +89,7 @@ export async function getYouTubeVideos(options: {
 	limit?: number;
 }): Promise<NormalizedItem[]> {
 	const { playlistId, query, limit = 15 } = options;
-	const apiKey = process.env.VITE_YOUTUBE_API_KEY;
+	const apiKey = process.env.YOUTUBE_API_KEY;
 
 	if (!apiKey) {
 		throw new Error('YouTube API key is missing.');

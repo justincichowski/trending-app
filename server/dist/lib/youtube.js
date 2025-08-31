@@ -52,7 +52,7 @@ function normalizeItem(item) {
  */
 async function getYouTubeVideos(options) {
     const { playlistId, query, limit = 15, page = 0 } = options;
-    const apiKey = process.env.VITE_YOUTUBE_API_KEY;
+    const apiKey = process.env.YOUTUBE_API_KEY;
     if (!apiKey) {
         console.warn('YouTube API key is missing. YouTube category will be empty.');
         return [];
