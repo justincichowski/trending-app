@@ -6,6 +6,7 @@ import { stateManager } from './state';
 import { getCategoryItems, getCategories } from './api';
 import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
+import { showPageLoader, hidePageLoader } from './components/PageLoader';
 import { Notification } from './components/Notification';
 import { SettingsPanel } from './components/SettingsPanel';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
@@ -119,6 +120,8 @@ export async function loadMoreItems() {
 
 	const nextPage = (pages[currentCategory.id] || 0) + 1;
 
+	showPageLoader();
+
 	try {
 		const newItems = await getCategoryItems(currentCategory.id, nextPage);
 		stateManager.setState({
@@ -127,6 +130,8 @@ export async function loadMoreItems() {
 		});
 	} catch (error) {
 		console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
+	} finally {
+		hidePageLoader();
 	}
 }
 

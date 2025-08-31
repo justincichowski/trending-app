@@ -317,6 +317,14 @@ body {
 	display: none; /* Chrome, Safari, and Opera */
 }
 
+.page-loader-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px;
+	margin-bottom: 40px;
+}
+
 .loader-container {
 	display: flex;
 	justify-content: center;
@@ -375,9 +383,10 @@ body {
 	background-color: var(--card-hover-background-color);
 }
 
-.item-card:last-child {
+/* This is no longer needed as the page loader provides the bottom spacing. */
+/* .item-card:last-child {
 	margin-bottom: 40px;
-}
+} */
 
 .item-controls {
 	display: flex;
