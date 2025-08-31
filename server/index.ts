@@ -109,12 +109,24 @@ const main = async () => {
 	 */
 	server.get('/presets', async (request, reply) => {
 		const { id } = request.query as { id?: string };
-
+		// roo do not delete
+		if (id?.toLowerCase() === 'cooking') {
+			// roo do not delete
+			console.log('cooking playlist');
+		}
+		
+		if (id?.toLowerCase() === 'travel') {
+			// roo do not delete
+			console.log('travel playlist');
+		}
 		if (!id) {
 			return presets;
 		}
 
 		const preset = presets.find(p => p.id === id);
+
+		// roo do not delete
+        console.log('preset', preset)
 		if (!preset) {
 			reply.status(404).send({ error: 'Preset not found.' });
 			return;

@@ -8,63 +8,64 @@ exports.presets = [
     {
         id: 'sports',
         name: 'Sports',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://sports.espn.go.com/espn/rss/news',
-            source: 'ESPN',
+            playlistId: process.env.SPORTS_PLAYLIST_ID,
+            query: 'sports highlights',
         },
     },
     {
         id: 'gaming',
         name: 'Gaming',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://feeds.ign.com/ign/all',
-            source: 'IGN',
+            playlistId: process.env.GAMING_PLAYLIST_ID,
+            query: 'video game news',
         },
     },
     {
         id: 'movies',
         name: 'Movies',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://variety.com/feed/',
-            source: 'Variety',
+            playlistId: process.env.MOVIES_PLAYLIST_ID,
+            query: 'movie trailers',
         },
     },
     {
         id: 'music',
         name: 'Music',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://www.billboard.com/feed/',
-            source: 'Billboard',
+            playlistId: process.env.MUSIC_PLAYLIST_ID,
+            query: 'new music videos',
         },
     },
     {
         id: 'tv',
         name: 'TV',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://tvline.com/feed/',
-            source: 'TVLine',
+            playlistId: process.env.TV_PLAYLIST_ID,
+            query: 'tv show clips',
         },
     },
     {
         id: 'books',
         name: 'Books',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://rss.nytimes.com/services/xml/rss/nyt/Books-BestSellers.xml',
-            source: 'NYT Books',
+            playlistId: process.env.BOOKS_PLAYLIST_ID,
+            query: 'book reviews',
         },
     },
     {
         id: 'coding',
         name: 'Coding',
-        source: 'hackernews',
+        source: 'youtube',
         params: {
-            limit: 30,
+            playlistId: process.env.CODING_PLAYLIST_ID,
+            query: 'coding tutorials',
         },
     },
     {
@@ -72,7 +73,7 @@ exports.presets = [
         name: 'Cooking',
         source: 'youtube',
         params: {
-            playlistId: process.env.COOKING_PLAYLIST_ID || 'PLUoqX-s3I6kJ_M2i_zK713A3M3sW_M4b9', // Bon Appétit
+            playlistId: process.env.COOKING_PLAYLIST_ID,
             query: 'cooking recipes',
         },
     },
@@ -81,44 +82,44 @@ exports.presets = [
         name: 'Travel',
         source: 'youtube',
         params: {
-            playlistId: process.env.TRAVEL_PLAYLIST_ID || 'PLgJ4KxAso640j_a8M_2A043v4g0E1s3G-', // Kara and Nate
+            playlistId: process.env.TRAVEL_PLAYLIST_ID,
             query: 'travel vlogs',
         },
     },
     {
         id: 'celebrities',
         name: 'Celebrities',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://people.com/feed/',
-            source: 'People',
+            playlistId: process.env.CELEBRITIES_PLAYLIST_ID,
+            query: 'celebrity interviews',
         },
     },
     {
         id: 'finance',
         name: 'Finance',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'http://feeds.reuters.com/reuters/businessNews',
-            source: 'Reuters',
+            playlistId: process.env.FINANCE_PLAYLIST_ID,
+            query: 'finance news',
         },
     },
     {
         id: 'science',
         name: 'Science',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'https://www.sciencedaily.com/rss/all.xml',
-            source: 'ScienceDaily',
+            playlistId: process.env.SCIENCE_PLAYLIST_ID,
+            query: 'science videos',
         },
     },
     {
         id: 'world',
         name: 'World',
-        source: 'rss',
+        source: 'youtube',
         params: {
-            url: 'http://feeds.reuters.com/Reuters/worldNews',
-            source: 'Reuters',
+            playlistId: process.env.WORLD_PLAYLIST_ID,
+            query: 'world news',
         },
     },
 ];
