@@ -549,6 +549,29 @@ body {
 	color: var(--text-color);
 }
 
+.item-source {
+	display: none;
+}
+
+.item-description {
+	/* Line clamping is now handled by JavaScript */
+}
+
+.more-button {
+	background: none;
+	border: none;
+	color: var(--text-color);
+	cursor: pointer;
+	font-weight: bold;
+	padding: 0;
+	display: inline;
+	margin-left: 4px;
+}
+
+.more-button:hover {
+	text-decoration: underline;
+}
+
 /* --- Notification Toast --- */
 .notification-container {
 	position: fixed;

@@ -106,8 +106,81 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 	if (item.description) {
 		const description = document.createElement('p');
 		description.className = 'item-description';
-		description.textContent = item.description;
+		const fullText = item.description;
 		card.appendChild(description);
+
+		setTimeout(() => {
+			const measureElement = description.cloneNode() as HTMLElement;
+			measureElement.style.position = 'absolute';
+			measureElement.style.visibility = 'hidden';
+			measureElement.style.height = 'auto';
+			measureElement.style.width = description.clientWidth + 'px';
+			document.body.appendChild(measureElement);
+
+			const style = window.getComputedStyle(description);
+			let lineHeight = parseFloat(style.lineHeight);
+			if (isNaN(lineHeight)) {
+				const fontSize = parseFloat(style.fontSize) || 16;
+				lineHeight = fontSize * 1.2;
+			}
+			const maxHeight = lineHeight * 3;
+
+			measureElement.textContent = fullText;
+
+			if (measureElement.scrollHeight > maxHeight) {
+				let truncatedText = fullText;
+				const tempMoreButton = document.createElement('button');
+				tempMoreButton.className = 'more-button';
+				tempMoreButton.textContent = 'More';
+				
+				while (truncatedText.length > 0) {
+					measureElement.textContent = truncatedText + '... ';
+					measureElement.appendChild(tempMoreButton);
+
+					if (measureElement.scrollHeight <= maxHeight) {
+						break;
+					}
+					
+					const lastSpace = truncatedText.lastIndexOf(' ');
+					if (lastSpace === -1) {
+						truncatedText = '';
+						break;
+					}
+					truncatedText = truncatedText.substring(0, lastSpace);
+				}
+
+				const finalTruncatedText = truncatedText + '...';
+
+				const moreButton = document.createElement('button');
+				moreButton.className = 'more-button';
+				moreButton.textContent = 'More';
+
+				const lessButton = document.createElement('button');
+				lessButton.className = 'more-button';
+				lessButton.textContent = 'Less';
+
+				const expand = (e: MouseEvent) => {
+					e.stopPropagation();
+					description.textContent = fullText + ' ';
+					description.appendChild(lessButton);
+				};
+
+				const collapse = (e?: MouseEvent) => {
+					if (e) e.stopPropagation();
+					description.textContent = finalTruncatedText + ' ';
+					description.appendChild(moreButton);
+				};
+
+				moreButton.addEventListener('click', expand);
+				lessButton.addEventListener('click', collapse);
+
+				collapse();
+			} else {
+				description.textContent = fullText;
+			}
+
+			document.body.removeChild(measureElement);
+		}, 0);
 	}
 
 	if (item.publishedAt) {
