@@ -10,25 +10,9 @@ export class TrendingPanel {
 
 	constructor(containerId: string) {
 		this.container = document.getElementById(containerId) as HTMLElement;
-		if (this.container) {
-			this.renderPreloadedData();
-		}
 	}
 
-	private renderPreloadedData() {
-		const dataElement = document.getElementById('trending-data');
-		if (dataElement) {
-			try {
-				const data = JSON.parse(dataElement.textContent || '{}');
-				this.render(data);
-			} catch (error) {
-				console.error('Failed to parse trending data:', error);
-				this.container.innerHTML = '<p>Could not load trending topics.</p>';
-			}
-		}
-	}
-
-	private render(data: TrendingData) {
+	public render(data: TrendingData) {
 		this.container.innerHTML = ''; // Clear existing content
 		for (const sectionTitle in data) {
 			const section = document.createElement('div');

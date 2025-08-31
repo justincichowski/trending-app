@@ -8,6 +8,7 @@
  */
 
 import type { NormalizedItem, Preset } from '../types';
+import type { TopTrendsData, TrendingData } from '../types';
 
 // The base URL for the API, read from environment variables
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -69,4 +70,21 @@ export function getCategoryItems(id: string, page = 0, limit?: number, excludedI
 		url += `&query=${encodeURIComponent(query)}`;
 	}
 	return get<NormalizedItem[]>(url);
+}
+/**
+ * Fetches the top trends data.
+ *
+ * @returns {Promise<TopTrendsData>} A promise that resolves to the top trends data.
+ */
+export function getTopTrends(): Promise<TopTrendsData> {
+	return get<TopTrendsData>(`${API_BASE_URL}/toptrends`);
+}
+
+/**
+ * Fetches the trending data.
+ *
+ * @returns {Promise<TrendingData>} A promise that resolves to the trending data.
+ */
+export function getTrending(): Promise<TrendingData> {
+	return get<TrendingData>(`${API_BASE_URL}/trending`);
 }

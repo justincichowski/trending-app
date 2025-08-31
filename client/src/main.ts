@@ -3,7 +3,7 @@ import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
-import { getCategoryItems, getCategories, getAllItems } from './api';
+import { getCategoryItems, getCategories, getAllItems, getTopTrends, getTrending } from './api';
 import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
 import { showPageLoader, hidePageLoader } from './components/PageLoader';
@@ -537,8 +537,17 @@ async function initializeApp() {
 // Start the application once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
 	initializeApp();
-	new TrendingPanel('trending-panel');
-	new TopTrendsPanel('top-trends-panel');
+	const trendingPanel = new TrendingPanel('trending-panel');
+	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
+
+	getTrending().then(data => {
+		trendingPanel.render(data);
+	});
+
+	getTopTrends().then(data => {
+		topTrendsPanel.render(data);
+	});
+
 	if (stateManager.getState().showTrending) {
 		document.body.classList.add('show-trending');
 	}

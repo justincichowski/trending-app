@@ -86,7 +86,7 @@ const initialState: AppState = {
 	isLoading: true, // Start in a loading state
 	favorites: storage.get('favorites') || [],
 	hiddenItems: storage.get('hiddenItems') || [],
-	theme: document.documentElement.className.includes('dark') ? 'dark' : 'light',
+	theme: storage.get('theme') || 'light',
 	autoScroll: storage.get('autoScroll') || {
 		enabled: false,
 		interval: 5000,
@@ -126,29 +126,16 @@ class StateManager {
 	 */
 	setState(newState: Partial<AppState>) {
 		const oldState = { ...this.state };
-		const themeChanged = newState.theme && newState.theme !== oldState.theme;
-
 		this.state = { ...this.state, ...newState };
 		this.listeners.forEach(listener => listener(this.state, oldState));
 
 		// Persist the relevant parts of the state to local storage
 		storage.set('favorites', this.state.favorites);
 		storage.set('hiddenItems', this.state.hiddenItems);
+		storage.set('theme', this.state.theme);
 		storage.set('autoScroll', this.state.autoScroll);
 		storage.set('youtubePlaylists', this.state.youtubePlaylists);
 		storage.set('showTrending', this.state.showTrending);
-
-		// If the theme changed, notify the server to set the cookie
-		if (themeChanged) {
-			// The base URL is handled by the Vite proxy, so we just need the relative path.
-			// roo do not delete
-			// console.log(`[Client] Sending theme update to server: ${this.state.theme}`);
-			fetch('/api/v1/theme', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ theme: this.state.theme }),
-			});
-		}
 	}
 
 	/**

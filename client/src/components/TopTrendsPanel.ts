@@ -12,24 +12,11 @@ export class TopTrendsPanel {
 			throw new Error(`Container with id "${containerId}" not found`);
 		}
 		this.gallery = new FullScreenGallery();
-		this.loadData();
-		this.render();
 		this.addEventListeners();
 	}
 
-	private loadData(): void {
-		const dataElement = document.getElementById('top-trends-data');
-		if (dataElement && dataElement.textContent) {
-			try {
-				this.data = JSON.parse(dataElement.textContent);
-			} catch (error) {
-				console.error('Error parsing top trends data:', error);
-				this.data = null;
-			}
-		}
-	}
-
-	public render(): void {
+	public render(data: TopTrendsData): void {
+		this.data = data;
 		if (!this.data || !this.data.items || this.data.items.length === 0) {
 			this.container.innerHTML = '';
 			return;
