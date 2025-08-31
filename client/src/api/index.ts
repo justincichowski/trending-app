@@ -18,7 +18,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
  * @param {string} url - The URL to fetch.
  * @returns {Promise<T>} A promise that resolves to the fetched data.
  */
-async function get<T>(url: string): Promise<T> {
+export async function get<T>(url: string): Promise<T> {
 	const response = await fetch(url);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch from ${url}: ${response.statusText}`);

@@ -39,6 +39,7 @@ export interface NormalizedItem {
 	 */
 	publishedAt?: string;
 	viewCount?: number;
+	secondsAgo?: number;
 }
 
 /**

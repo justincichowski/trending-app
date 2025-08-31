@@ -70,6 +70,7 @@
 			<nav id="category-nav" class="category-nav"></nav>
 			<div class="main-content-wrapper">
 				<main id="main-content" class="main-content"></main>
+				<aside id="trending-panel" class="trending-panel"></aside>
 				<button id="back-to-top" class="icon-button" data-tooltip="Back to top" hidden>
 					<svg viewBox="0 0 24 24">
 						<path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
@@ -79,6 +80,9 @@
 			<div id="notification-container"></div>
 			<div id="settings-panel" class="settings-panel" hidden></div>
 		</div>
+		<script id="trending-data" type="application/json">
+			<%- trendingData %>
+		</script>
 		<script type="module" src="/src/main.ts"></script>
 		<script src="https://www.youtube.com/iframe_api"></script>
 	</body>

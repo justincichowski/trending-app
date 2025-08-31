@@ -13,6 +13,7 @@ import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { ContextMenu } from './components/ContextMenu';
 import { Tooltip } from './components/Tooltip';
 import { Autocomplete } from './components/Autocomplete';
+import { TrendingPanel } from './components/TrendingPanel';
 
 /**
  * -----------------------------------------------------------------------------
@@ -76,7 +77,7 @@ export async function categoryView(params: Record<string, string>) {
 	const { id } = params;
 	if (!id) return;
 
-	const { currentCategory, scrollPositions, favorites, categories } = stateManager.getState();
+	const { favorites, categories } = stateManager.getState();
 
 
 	// Find the new category first
@@ -453,6 +454,7 @@ async function initializeApp() {
 // Start the application once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
 	initializeApp();
+	new TrendingPanel('trending-panel');
 	contextMenu = new ContextMenu('app');
 
 	const backToTopButton = document.getElementById('back-to-top');

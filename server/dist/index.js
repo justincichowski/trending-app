@@ -71,7 +71,46 @@ const main = async () => {
 				}
 			</style>
 		`;
-        return reply.view('index.html', { theme, criticalCss });
+        const TRENDING_FEEDS = [
+            {
+                title: 'Sports',
+                source: 'ESPN',
+                url: 'https://www.espn.com/espn/rss/news',
+            },
+            {
+                title: 'Movies',
+                source: 'The New York Times',
+                url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml',
+            },
+            {
+                title: 'Sales',
+                source: 'Slickdeals',
+                url: 'https://slickdeals.net/rss/frontpage.php',
+            },
+            {
+                title: 'Websites',
+                source: 'TechCrunch',
+                url: 'http://feeds.feedburner.com/TechCrunch/',
+            },
+            {
+                title: 'Books',
+                source: 'NPR',
+                url: 'https://www.npr.org/rss/rss.php?id=1032',
+            },
+        ];
+        const fetchPromises = TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 }));
+        const results = await Promise.allSettled(fetchPromises);
+        const trendingData = results.reduce((acc, result, index) => {
+            const feed = TRENDING_FEEDS[index];
+            if (result.status === 'fulfilled') {
+                acc[feed.title] = result.value;
+            }
+            else {
+                server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+            }
+            return acc;
+        }, {});
+        return reply.view('index.html', { theme, criticalCss, trendingData: JSON.stringify(trendingData) });
     });
     /**
         * A health check endpoint that responds with an "ok" status.
@@ -211,24 +250,6 @@ const main = async () => {
             server.log.error(error, 'Failed to fetch the "All" feed');
             reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
         }
-    });
-    // Add a catch-all route to serve the main index.html file for client-side routing.
-    server.setNotFoundHandler(async (request, reply) => {
-        const { theme: themeCookie } = request.cookies;
-        const theme = themeCookie === 'dark' ? 'dark' : 'light';
-        const criticalCss = `
-			<style>
-				:root {
-					--background-color: #ffffff;
-					--text-color: #333333;
-				}
-				html.dark-theme {
-					--background-color: #121212;
-					--text-color: #ffffff;
-				}
-			</style>
-		`;
-        return reply.view('index.html', { theme, criticalCss });
     });
     /**
      * Starts the Fastify server on port 3000.

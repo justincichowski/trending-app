@@ -47,6 +47,7 @@ async function getItem(id: number): Promise<HackerNewsItem> {
  * @returns {NormalizedItem} The normalized item.
  */
 function normalizeItem(item: HackerNewsItem): NormalizedItem {
+	const publishedAt = new Date(item.time * 1000).toISOString();
 	return {
 		id: `hn-${item.id}`,
 		title: item.title,
@@ -54,6 +55,8 @@ function normalizeItem(item: HackerNewsItem): NormalizedItem {
 		source: 'Hacker News',
 		description: `${item.score} points by ${item.by} | ${item.descendants} comments`,
 		image: undefined,
+		publishedAt: publishedAt,
+		secondsAgo: Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)),
 	};
 }
 

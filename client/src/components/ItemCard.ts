@@ -70,7 +70,7 @@ export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElem
 			meta.appendChild(separator);
 		}
 		const time = document.createElement('span');
-		time.textContent = timeAgo(item.publishedAt);
+		time.textContent = timeAgo(item.secondsAgo);
 		meta.appendChild(time);
 	}
 

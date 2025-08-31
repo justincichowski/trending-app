@@ -28,6 +28,7 @@ function normalizeItem(item) {
     if (!videoId || !item.snippet.title) {
         return null;
     }
+    const publishedAt = item.snippet.publishedAt;
     return {
         id: `yt-${videoId}`,
         title: item.snippet.title,
@@ -35,8 +36,9 @@ function normalizeItem(item) {
         source: 'YouTube',
         description: item.snippet.description,
         image: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-        publishedAt: item.snippet.publishedAt,
+        publishedAt: publishedAt,
         viewCount: item.statistics ? parseInt(item.statistics.viewCount, 10) : undefined,
+        secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
     };
 }
 /**

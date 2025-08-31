@@ -1098,3 +1098,124 @@ body {
 	height: 100%;
 	border: 0;
 }
+
+.trending-panel {
+	width: 300px;
+	flex-shrink: 0;
+	margin-left: 1rem;
+	position: sticky;
+	top: 1rem;
+	height: calc(100vh - 155px);
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+.trending-panel.is-collapsing {
+	width: 0;
+	margin-left: 0;
+	opacity: 0;
+}
+
+.trending-panel::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, and Opera */
+}
+
+.trending-section {
+	margin-bottom: 1rem;
+	background-color: var(--card-background-color);
+	border-radius: 8px;
+	padding: 1rem;
+	border: 1px solid var(--border-color);
+}
+
+.trending-title {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 1rem;
+	color: var(--item-title-color);
+	cursor: default;
+}
+
+.trending-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.trending-item {
+	margin-bottom: 0.75rem;
+}
+
+.trending-item a {
+	color: var(--text-color);
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+
+.trending-item a:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 550px) {
+	.trending-panel {
+		display: none;
+	}
+    .main-content-wrapper {
+        justify-content: center;
+    }
+}
+
+.trending-section-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.trending-section .close-button {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	line-height: 1;
+	color: var(--text-color);
+	opacity: 0.5;
+	transition: opacity 0.2s;
+	position: relative;
+	top: -10px;
+}
+
+.trending-section .close-button:hover {
+	opacity: 1;
+}
+
+.trending-section {
+	transition: all 0.3s ease-in-out;
+	overflow: hidden;
+}
+
+.trending-section.is-collapsing {
+	max-height: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	opacity: 0;
+	border-width: 0;
+}
+
+.trending-item-title {
+	font-weight: bold;
+	margin-bottom: 0.25rem;
+}
+
+.trending-item-meta {
+	font-size: 0.8rem;
+	opacity: 0.7;
+	cursor: default;
+}
+
+.trending-item a:hover .trending-item-meta {
+	text-decoration: none;
+}

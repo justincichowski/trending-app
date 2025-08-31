@@ -20,32 +20,23 @@ export function formatNumber(num: number): string {
  * @param {string} dateString - The ISO date string.
  * @returns {string} The relative time string.
  */
-export function timeAgo(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
+export function timeAgo(seconds?: number): string {
+	if (seconds === undefined) return '';
+	if (seconds < 2) return 'Just Now';
+	if (seconds < 60) return `${seconds} Seconds Ago`;
 
-    const pluralize = (value: number, unit: string) => {
-        return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
-    };
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${minutes} Minute${minutes > 1 ? 's' : ''} Ago`;
 
-    if (seconds < 60) return pluralize(seconds, 'second');
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours} Hour${hours > 1 ? 's' : ''} Ago`;
 
-    const minutes = Math.round(seconds / 60);
-    if (minutes < 60) return pluralize(minutes, 'minute');
+	const days = Math.floor(hours / 24);
+	if (days < 30) return `${days} Day${days > 1 ? 's' : ''} Ago`;
 
-    const hours = Math.round(minutes / 60);
-    if (hours < 24) return pluralize(hours, 'hour');
+	const months = Math.floor(days / 30);
+	if (months < 12) return `${months} Month${months > 1 ? 's' : ''} Ago`;
 
-    const days = Math.round(hours / 24);
-    if (days < 7) return pluralize(days, 'day');
-
-    const weeks = Math.round(days / 7);
-    if (weeks < 4) return pluralize(weeks, 'week');
-
-    const months = Math.round(days / 30);
-    if (months < 12) return pluralize(months, 'month');
-
-    const years = Math.round(days / 365);
-    return pluralize(years, 'year');
+	const years = Math.floor(days / 365);
+	return `${years} Year${years > 1 ? 's' : ''} Ago`;
 }

@@ -69,23 +69,14 @@ async function normalizeItem(item, source) {
     if (!item.title || !item.link) {
         return null;
     }
-    let imageUrl = undefined;
-    // Strategy 1: Use the 'enclosure' tag if it's valid and not a generic image.
-    if (item.enclosure?.url && !isGenericGoogleImage(item.enclosure.url)) {
-        imageUrl = item.enclosure.url;
-    }
-    // Strategy 2: If no image yet, try to extract it from the 'content' field.
-    if (!imageUrl) {
-        const contentImage = extractImageFromContent(item.content || '');
-        if (contentImage && !isGenericGoogleImage(contentImage)) {
-            imageUrl = contentImage;
-        }
-    }
-    // Strategy 3: As a last resort, scrape the page for an Open Graph image.
-    if (!imageUrl) {
-        const scrapedUrl = await getOpenGraphImage(item.link);
-        if (scrapedUrl && !isGenericGoogleImage(scrapedUrl)) {
-            imageUrl = scrapedUrl;
+    let publishedAt = item.isoDate;
+    if (publishedAt) {
+        const itemDate = new Date(publishedAt);
+        const now = new Date();
+        if (itemDate > now) {
+            // roo do not delete
+            console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
+            publishedAt = now.toISOString();
         }
     }
     return {
@@ -94,8 +85,9 @@ async function normalizeItem(item, source) {
         url: item.link,
         source: source,
         description: item.contentSnippet,
-        publishedAt: item.isoDate,
-        image: imageUrl,
+        publishedAt: publishedAt,
+        image: undefined, // Explicitly disable image scraping
+        secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
     };
 }
 /**
@@ -132,7 +124,8 @@ async function getRssFeed(options) {
     }
     const feed = await parser.parseURL(feedUrl);
     // --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
-    console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+    // roo do not delete
+    // console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
     /*
     // --- Previous debug log for inspecting a single raw item ---
     if (feed.items.length > 0) {

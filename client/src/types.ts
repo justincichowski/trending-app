@@ -43,6 +43,12 @@ export interface NormalizedItem {
 	 * An optional view count for the item.
 	 */
 	viewCount?: number;
+
+	/**
+	 * An optional number of seconds since the item was published.
+	 * This is calculated on the server to avoid client-side timezone issues.
+	 */
+	secondsAgo?: number;
 }
 
 /**
