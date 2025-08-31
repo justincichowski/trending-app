@@ -36,55 +36,55 @@ export const presets: Preset[] = [
 	{
 		id: 'sports',
 		name: 'Sports',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			url: 'https://sports.espn.go.com/espn/rss/news',
-			source: 'ESPN',
+			playlistId: process.env.SPORTS_PLAYLIST_ID,
+			query: 'sports highlights',
 		},
 	},
 	{
 		id: 'gaming',
 		name: 'Gaming',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'gaming OR "video games"',
-			source: 'Google News',
+			playlistId: process.env.GAMING_PLAYLIST_ID,
+			query: 'gaming news',
 		},
 	},
 	{
 		id: 'movies',
 		name: 'Movies',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'movies OR "film trailers" OR "box office"',
-			source: 'Google News',
+			playlistId: process.env.MOVIES_PLAYLIST_ID,
+			query: 'movie trailers',
 		},
 	},
 	{
 		id: 'music',
 		name: 'Music',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'music OR songs OR artists OR concerts',
-			source: 'Google News',
+			playlistId: process.env.MUSIC_PLAYLIST_ID,
+			query: 'new music',
 		},
 	},
 	{
 		id: 'tv',
 		name: 'TV',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'tv shows OR "streaming series" OR television',
-			source: 'Google News',
+			playlistId: process.env.TV_PLAYLIST_ID,
+			query: 'tv show clips',
 		},
 	},
 	{
 		id: 'books',
 		name: 'Books',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'books OR literature',
-			source: 'Google News',
+			playlistId: process.env.BOOKS_PLAYLIST_ID,
+			query: 'book reviews',
 		},
 	},
 	{
@@ -117,37 +117,37 @@ export const presets: Preset[] = [
 	{
 		id: 'celebrities',
 		name: 'Celebrities',
-		source: 'rss',
+		source: 'youtube',
 		params: {
+			playlistId: process.env.CELEBRITIES_PLAYLIST_ID,
 			query: 'celebrity news',
-			source: 'Google News',
 		},
 	},
 	{
 		id: 'finance',
 		name: 'Finance',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'finance OR markets OR stocks',
-			source: 'Google News',
+			playlistId: process.env.FINANCE_PLAYLIST_ID,
+			query: 'finance news',
 		},
 	},
 	{
 		id: 'science',
 		name: 'Science',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'science OR research',
-			source: 'Google News',
+			playlistId: process.env.SCIENCE_PLAYLIST_ID,
+			query: 'science news',
 		},
 	},
 	{
 		id: 'world',
 		name: 'World',
-		source: 'rss',
+		source: 'youtube',
 		params: {
-			query: 'world news OR international news',
-			source: 'Google News',
+			playlistId: process.env.WORLD_PLAYLIST_ID,
+			query: 'world news',
 		},
 	},
 ];

@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
   "main": "index.js",
-  "scripts": {
+   "scripts": {
     "start": "npm run dev",
     "dev": "concurrently \"npm:dev:*\"",
     "dev:server": "cd server && tsc && node dist/index.js",
     "dev:client": "npm --prefix client run dev",
-    "build": "npm --prefix client build",
+    "build": "npm --prefix client run build",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildv": "npm --prefix client run build",
