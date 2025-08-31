@@ -109,6 +109,11 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 		const fullText = item.description;
 		card.appendChild(description);
 
+		const linkify = (text: string) => {
+			const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+			return text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+		};
+
 		setTimeout(() => {
 			const measureElement = description.cloneNode() as HTMLElement;
 			measureElement.style.position = 'absolute';
@@ -125,7 +130,7 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 			}
 			const maxHeight = lineHeight * 3;
 
-			measureElement.textContent = fullText;
+			measureElement.innerHTML = linkify(fullText);
 
 			if (measureElement.scrollHeight > maxHeight) {
 				let truncatedText = fullText;
@@ -134,7 +139,7 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 				tempMoreButton.textContent = 'More';
 				
 				while (truncatedText.length > 0) {
-					measureElement.textContent = truncatedText + '... ';
+					measureElement.innerHTML = linkify(truncatedText + '...') + ' ';
 					measureElement.appendChild(tempMoreButton);
 
 					if (measureElement.scrollHeight <= maxHeight) {
@@ -149,7 +154,7 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 					truncatedText = truncatedText.substring(0, lastSpace);
 				}
 
-				const finalTruncatedText = truncatedText + '...';
+				const finalTruncatedHTML = linkify(truncatedText + '...');
 
 				const moreButton = document.createElement('button');
 				moreButton.className = 'more-button';
@@ -161,13 +166,13 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 
 				const expand = (e: MouseEvent) => {
 					e.stopPropagation();
-					description.textContent = fullText + ' ';
+					description.innerHTML = linkify(fullText) + ' ';
 					description.appendChild(lessButton);
 				};
 
 				const collapse = (e?: MouseEvent) => {
 					if (e) e.stopPropagation();
-					description.textContent = finalTruncatedText + ' ';
+					description.innerHTML = finalTruncatedHTML + ' ';
 					description.appendChild(moreButton);
 				};
 
@@ -176,7 +181,7 @@ export function createItemCard(item: NormalizedItem): HTMLElement {
 
 				collapse();
 			} else {
-				description.textContent = fullText;
+				description.innerHTML = linkify(fullText);
 			}
 
 			document.body.removeChild(measureElement);

@@ -572,6 +572,15 @@ body {
 	text-decoration: underline;
 }
 
+.item-description a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.item-description a:hover {
+	text-decoration: underline;
+}
+
 /* --- Notification Toast --- */
 .notification-container {
 	position: fixed;
