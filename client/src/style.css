@@ -115,8 +115,8 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: var(--background-color); /* This is the mask color */
-	transition: background-color 0.2s; /* Only transition the background */
+	/* background is set per-button below */
+	transition: background-color 0.2s;
 }
 
 /* The actual circular button is the ::after pseudo-element */
@@ -140,26 +140,34 @@ body {
 	border-radius: 50%;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 	transition: background-color 0.2s, transform 0.1s;
+	z-index: 2; /* Ensure the button is on top of the fade */
+	position: relative; /* Needed for z-index to apply */
 }
+
 
 .swiper-button-prev:hover::after,
 .swiper-button-next:hover::after {
 	background-color: var(--back-to-top-hover-bg);
 }
 
-.swiper-button-prev:active::after,
+.swiper-button-prev:active::after {
+	transform: translateX(-3px) scale(0.9);
+}
+
 .swiper-button-next:active::after {
-	transform: scale(0.9);
+	transform: translateX(3px) scale(0.9);
 }
 
 .swiper-button-prev, .swiper-container-rtl .swiper-button-next {
 	left: -0.5px;
 	right: auto;
+	background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
 }
 
 .swiper-button-next, .swiper-container-rtl .swiper-button-prev {
 	right: -0.5px;
 	left: auto;
+	background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
 }
 
 .swiper-button-prev.swiper-button-disabled,
@@ -169,10 +177,12 @@ body {
 
 .swiper-button-prev::after {
 	content: 'prev';
+	transform: translateX(-3px);
 }
 
 .swiper-button-next::after {
 	content: 'next';
+	transform: translateX(3px);
 }
 
 .logo {
