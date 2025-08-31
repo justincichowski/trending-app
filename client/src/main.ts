@@ -540,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const trendingPanel = new TrendingPanel('trending-panel');
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
 
+	
 	getTrending().then(data => {
 		trendingPanel.render(data);
 	});

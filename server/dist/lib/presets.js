@@ -1,6 +1,40 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.presets = void 0;
+const playlists = __importStar(require("./playlists"));
 /**
  * An array of all the preset categories.
  */
@@ -10,7 +44,7 @@ exports.presets = [
         name: 'Sports',
         source: 'youtube',
         params: {
-            playlistId: process.env.SPORTS_PLAYLIST_ID,
+            playlistId: playlists.SPORTS_PLAYLIST_IDS.join(','),
             query: 'sports highlights',
         },
     },
@@ -19,7 +53,7 @@ exports.presets = [
         name: 'Gaming',
         source: 'youtube',
         params: {
-            playlistId: process.env.GAMING_PLAYLIST_ID,
+            playlistId: playlists.GAMING_PLAYLIST_IDS.join(','),
             query: 'video game news',
         },
     },
@@ -28,7 +62,7 @@ exports.presets = [
         name: 'Movies',
         source: 'youtube',
         params: {
-            playlistId: process.env.MOVIES_PLAYLIST_ID,
+            playlistId: playlists.MOVIES_PLAYLIST_IDS.join(','),
             query: 'movie trailers',
         },
     },
@@ -37,7 +71,7 @@ exports.presets = [
         name: 'Music',
         source: 'youtube',
         params: {
-            playlistId: process.env.MUSIC_PLAYLIST_ID,
+            playlistId: playlists.MUSIC_PLAYLIST_IDS.join(','),
             query: 'new music videos',
         },
     },
@@ -46,7 +80,7 @@ exports.presets = [
         name: 'TV',
         source: 'youtube',
         params: {
-            playlistId: process.env.TV_PLAYLIST_ID,
+            playlistId: playlists.TV_PLAYLIST_IDS.join(','),
             query: 'tv show clips',
         },
     },
@@ -55,7 +89,7 @@ exports.presets = [
         name: 'Books',
         source: 'youtube',
         params: {
-            playlistId: process.env.BOOKS_PLAYLIST_ID,
+            playlistId: playlists.BOOKS_PLAYLIST_IDS.join(','),
             query: 'book reviews',
         },
     },
@@ -64,7 +98,7 @@ exports.presets = [
         name: 'Coding',
         source: 'youtube',
         params: {
-            playlistId: process.env.CODING_PLAYLIST_ID,
+            playlistId: playlists.CODING_PLAYLIST_IDS.join(','),
             query: 'coding tutorials',
         },
     },
@@ -73,7 +107,7 @@ exports.presets = [
         name: 'Cooking',
         source: 'youtube',
         params: {
-            playlistId: process.env.COOKING_PLAYLIST_ID,
+            playlistId: playlists.COOKING_PLAYLIST_IDS.join(','),
             query: 'cooking recipes',
         },
     },
@@ -82,7 +116,7 @@ exports.presets = [
         name: 'Travel',
         source: 'youtube',
         params: {
-            playlistId: process.env.TRAVEL_PLAYLIST_ID,
+            playlistId: playlists.TRAVEL_PLAYLIST_IDS.join(','),
             query: 'travel vlogs',
         },
     },
@@ -91,7 +125,7 @@ exports.presets = [
         name: 'Celebrities',
         source: 'youtube',
         params: {
-            playlistId: process.env.CELEBRITIES_PLAYLIST_ID,
+            playlistId: playlists.CELEBRITIES_PLAYLIST_IDS.join(','),
             query: 'celebrity interviews',
         },
     },
@@ -100,7 +134,7 @@ exports.presets = [
         name: 'Finance',
         source: 'youtube',
         params: {
-            playlistId: process.env.FINANCE_PLAYLIST_ID,
+            playlistId: playlists.FINANCE_PLAYLIST_IDS.join(','),
             query: 'finance news',
         },
     },
@@ -109,7 +143,7 @@ exports.presets = [
         name: 'Science',
         source: 'youtube',
         params: {
-            playlistId: process.env.SCIENCE_PLAYLIST_ID,
+            playlistId: playlists.SCIENCE_PLAYLIST_IDS.join(','),
             query: 'science videos',
         },
     },
@@ -118,7 +152,7 @@ exports.presets = [
         name: 'World',
         source: 'youtube',
         params: {
-            playlistId: process.env.WORLD_PLAYLIST_ID,
+            playlistId: playlists.WORLD_PLAYLIST_IDS.join(','),
             query: 'world news',
         },
     },

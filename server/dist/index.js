@@ -16,7 +16,6 @@ const ejs_1 = __importDefault(require("ejs"));
 const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
-const toptrends_1 = require("./lib/toptrends");
 // Simple in-memory cache
 const cache = {
     topTrends: {
@@ -69,13 +68,15 @@ const main = async () => {
         const { theme: themeCookie } = request.cookies;
         const theme = themeCookie === 'dark' ? 'dark' : 'light';
         server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
+        /*
         // Define critical CSS variables for both themes to prevent FOUC.
         const criticalCss = `
-			<style>
-				:root { --background-color: #ffffff; --text-color: #333333; }
-				html.dark-theme { --background-color: #121212; --text-color: #ffffff; }
-			</style>
-		`;
+            <style>
+                :root { --background-color: #ffffff; --text-color: #333333; }
+                html.dark-theme { --background-color: #121212; --text-color: #ffffff; }
+            </style>
+        `;
+
         const TRENDING_FEEDS = [
             { title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
             { title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
@@ -83,37 +84,40 @@ const main = async () => {
             { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
             { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
+
         // NOTE: This is a simple in-memory cache for stateful server environments (e.g., local dev).
         // For a stateless deployment (like Vercel), this will not work as expected.
         // A durable, external cache like Vercel KV would be required for production.
         const now = Date.now();
         const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
         const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
-        let topTrendsData;
+
+        let topTrendsData: TopTrendsData | null;
         if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
             server.log.info('Using in-memory cache for Top Trends.');
             topTrendsData = cache.topTrends.data;
-        }
-        else {
+        } else {
             server.log.info('Fetching new Top Trends data.');
-            topTrendsData = await (0, toptrends_1.fetchTopTrends)();
+            topTrendsData = await fetchTopTrends();
             cache.topTrends.data = topTrendsData;
             cache.topTrends.lastFetched = now;
         }
-        let trendingData;
+
+        let trendingData: Record<string, NormalizedItem[]> | null;
         if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
             server.log.info('Using in-memory cache for Trending data.');
             trendingData = cache.trending.data;
-        }
-        else {
+        } else {
             server.log.info('Fetching new Trending data.');
-            const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 })));
-            trendingData = trendingResults.reduce((acc, result, index) => {
+            const trendingResults = await Promise.allSettled(
+                TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
+            );
+
+            trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
                 const feed = TRENDING_FEEDS[index];
                 if (result.status === 'fulfilled') {
                     acc[feed.title] = result.value;
-                }
-                else {
+                } else {
                     server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
                 }
                 return acc;
@@ -121,12 +125,8 @@ const main = async () => {
             cache.trending.data = trendingData;
             cache.trending.lastFetched = now;
         }
-        return reply.view('index.html', {
-            theme,
-            criticalCss,
-            trendingData: JSON.stringify(trendingData),
-            topTrendsData: JSON.stringify(topTrendsData),
-        });
+        */
+        return reply.view('index.html', {});
     };
     // Use the renderApp function for both the root and catch-all routes
     server.get('/', renderApp);
@@ -214,9 +214,6 @@ const main = async () => {
             let items = [];
             const pageNumber = page ? parseInt(page, 10) : 0;
             switch (preset.source) {
-                case 'rss':
-                    items = await (0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
-                    break;
                 case 'youtube':
                     items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
                     break;
@@ -247,9 +244,6 @@ const main = async () => {
             const remotePresets = presets_1.presets.filter(p => p.source !== 'local');
             for (const preset of remotePresets) {
                 switch (preset.source) {
-                    case 'rss':
-                        fetchPromises.push((0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limitNumber }));
-                        break;
                     case 'youtube':
                         fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limitNumber }));
                         break;

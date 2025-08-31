@@ -1,3 +1,5 @@
+import * as playlists from './playlists';
+
 /**
  * Represents the configuration for a preset category.
  */
@@ -38,7 +40,7 @@ export const presets: Preset[] = [
 		name: 'Sports',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.SPORTS_PLAYLIST_ID,
+			playlistId: playlists.SPORTS_PLAYLIST_IDS.join(','),
 			query: 'sports highlights',
 		},
 	},
@@ -47,7 +49,7 @@ export const presets: Preset[] = [
 		name: 'Gaming',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.GAMING_PLAYLIST_ID,
+			playlistId: playlists.GAMING_PLAYLIST_IDS.join(','),
 			query: 'gaming news',
 		},
 	},
@@ -56,7 +58,7 @@ export const presets: Preset[] = [
 		name: 'Movies',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.MOVIES_PLAYLIST_ID,
+			playlistId: playlists.MOVIES_PLAYLIST_IDS.join(','),
 			query: 'movie trailers',
 		},
 	},
@@ -65,7 +67,7 @@ export const presets: Preset[] = [
 		name: 'Music',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.MUSIC_PLAYLIST_ID,
+			playlistId: playlists.MUSIC_PLAYLIST_IDS.join(','),
 			query: 'new music',
 		},
 	},
@@ -74,7 +76,7 @@ export const presets: Preset[] = [
 		name: 'TV',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.TV_PLAYLIST_ID,
+			playlistId: playlists.TV_PLAYLIST_IDS.join(','),
 			query: 'tv show clips',
 		},
 	},
@@ -83,7 +85,7 @@ export const presets: Preset[] = [
 		name: 'Books',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.BOOKS_PLAYLIST_ID,
+			playlistId: playlists.BOOKS_PLAYLIST_IDS.join(','),
 			query: 'book reviews',
 		},
 	},
@@ -92,7 +94,7 @@ export const presets: Preset[] = [
 		name: 'Coding',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.CODING_PLAYLIST_ID,
+			playlistId: playlists.CODING_PLAYLIST_IDS.join(','),
 			query: 'coding',
 		},
 	},
@@ -101,7 +103,7 @@ export const presets: Preset[] = [
 		name: 'Cooking',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.COOKING_PLAYLIST_ID,
+			playlistId: playlists.COOKING_PLAYLIST_IDS.join(','),
 			query: 'cooking recipes',
 		},
 	},
@@ -110,7 +112,7 @@ export const presets: Preset[] = [
 		name: 'Travel',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.TRAVEL_PLAYLIST_ID,
+			playlistId: playlists.TRAVEL_PLAYLIST_IDS.join(','),
 			query: 'travel vlogs',
 		},
 	},
@@ -119,7 +121,7 @@ export const presets: Preset[] = [
 		name: 'Celebrities',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.CELEBRITIES_PLAYLIST_ID,
+			playlistId: playlists.CELEBRITIES_PLAYLIST_IDS.join(','),
 			query: 'celebrity news',
 		},
 	},
@@ -128,7 +130,7 @@ export const presets: Preset[] = [
 		name: 'Finance',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.FINANCE_PLAYLIST_ID,
+			playlistId: playlists.FINANCE_PLAYLIST_IDS.join(','),
 			query: 'finance news',
 		},
 	},
@@ -137,7 +139,7 @@ export const presets: Preset[] = [
 		name: 'Science',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.SCIENCE_PLAYLIST_ID,
+			playlistId: playlists.SCIENCE_PLAYLIST_IDS.join(','),
 			query: 'science news',
 		},
 	},
@@ -146,7 +148,7 @@ export const presets: Preset[] = [
 		name: 'World',
 		source: 'youtube',
 		params: {
-			playlistId: process.env.WORLD_PLAYLIST_ID,
+			playlistId: playlists.WORLD_PLAYLIST_IDS.join(','),
 			query: 'world news',
 		},
 	},

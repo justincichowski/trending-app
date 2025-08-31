@@ -38,4 +38,55 @@ export interface NormalizedItem {
 	 * This is a string in ISO 8601 format.
 	 */
 	publishedAt?: string;
+	viewCount?: number;
+	secondsAgo?: number;
+}
+
+/**
+	* Represents the configuration for a preset category.
+	*/
+export interface Preset {
+	/**
+	 * A unique identifier for the preset.
+	 */
+	id: string;
+
+	/**
+	 * The display name of the category.
+	 */
+	name: string;
+
+	/**
+	 * The data source to use for this category.
+	 */
+	source: 'rss' | 'youtube' | 'local';
+
+	/**
+	 * The parameters to pass to the data source service.
+	 */
+	params: {
+		url?: string;
+		query?: string;
+		playlistId?: string;
+		source?: string;
+		limit?: number;
+	};
+}
+
+/**
+ * Represents a single trending topic for the left panel.
+ */
+export interface TopTrendItem {
+	title: string;
+	url: string;
+	fullItem: NormalizedItem;
+}
+
+/**
+ * Represents the complete data structure for the top trends panel.
+ */
+export interface TopTrendsData {
+	items: TopTrendItem[];
+	source: string;
+	fetchedAt: string; // ISO string
 }

@@ -6,9 +6,9 @@
    "scripts": {
     "start": "npm run dev",
     "dev": "concurrently \"npm:dev:*\"",
-    "dev:server": "cd server && tsc && node dist/index.js",
+    "dev:server": "cd server && tsc-watch --onSuccess \"node dist/index.js\"",
     "dev:client": "npm --prefix client run dev",
-    "build": "npm --prefix client run build",
+    "build": "tsc --project api/tsconfig.json && npm --prefix client run build",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildv": "npm --prefix client run build",
@@ -26,6 +26,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
+    "tsc-watch": "^6.2.0",
     "typescript": "^5.9.2"
   },
   "dependencies": {

@@ -74,6 +74,7 @@ const main = async () => {
 		const theme = themeCookie === 'dark' ? 'dark' : 'light';
 		server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
 
+		/*
 		// Define critical CSS variables for both themes to prevent FOUC.
 		const criticalCss = `
 			<style>
@@ -130,13 +131,9 @@ const main = async () => {
 			cache.trending.data = trendingData;
 			cache.trending.lastFetched = now;
 		}
+		*/
 
-		return reply.view('index.html', {
-			theme,
-			criticalCss,
-			trendingData: JSON.stringify(trendingData),
-			topTrendsData: JSON.stringify(topTrendsData),
-		});
+		return reply.view('index.html', {});
 	};
 
 	// Use the renderApp function for both the root and catch-all routes
@@ -243,9 +240,6 @@ const main = async () => {
 			const pageNumber = page ? parseInt(page, 10) : 0;
 
 			switch (preset.source) {
-				case 'rss':
-					items = await getRssFeed({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
-					break;
 				case 'youtube':
 					items = await getYouTubeVideos({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
 					break;
@@ -281,9 +275,6 @@ const main = async () => {
 
 			for (const preset of remotePresets) {
 				switch (preset.source) {
-					case 'rss':
-						fetchPromises.push(getRssFeed({ ...preset.params, page: pageNumber, limit: limitNumber }));
-						break;
 					case 'youtube':
 						fetchPromises.push(getYouTubeVideos({ ...preset.params, page: pageNumber, limit: limitNumber }));
 						break;

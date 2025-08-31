@@ -1,8 +1,60 @@
 import Parser from 'rss-parser';
+import axios from 'axios';
 import type { NormalizedItem } from './types';
 
 // Create a new RSS parser instance
 const parser = new Parser();
+
+/**
+ * Fetches the HTML of a page and extracts the Open Graph image URL.
+ *
+ * @param {string} url - The URL of the page to fetch.
+ * @returns {Promise<string | null>} The image URL, or null if not found.
+ */
+async function getOpenGraphImage(url: string): Promise<string | null> {
+	try {
+		const { data: html } = await axios.get(url, {
+			timeout: 3000, // Increased timeout
+			headers: {
+				// Use a common user-agent to avoid being blocked
+				'User-Agent':
+					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+			},
+		});
+		const match = html.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/);
+		if (match && match[1]) {
+			// console.log(`Scraped og:image: ${match[1]}`);
+			return match[1];
+		}
+		return null;
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+		console.warn(`Could not scrape Open Graph image for ${url}. Reason: ${errorMessage}`);
+		return null;
+	}
+}
+
+/**
+ * Extracts the first image URL from an HTML string.
+ *
+ * @param {string} html - The HTML content to parse.
+ * @returns {string | null} The image URL, or null if not found.
+ */
+function extractImageFromContent(html: string): string | null {
+	if (!html) return null;
+	const match = html.match(/<img[^>]+src="([^"]+)"/);
+	return match ? match[1] : null;
+}
+
+/**
+ * A utility function to check if a URL is a generic Google News placeholder.
+ *
+ * @param {string | null | undefined} url - The URL to check.
+ * @returns {boolean} True if the URL is a generic placeholder.
+ */
+function isGenericGoogleImage(url: string | null | undefined): boolean {
+	return !!url && url.includes('googleusercontent.com');
+}
 
 /**
  * Normalizes a raw RSS item into the common `NormalizedItem` shape.
@@ -10,12 +62,23 @@ const parser = new Parser();
  *
  * @param {Parser.Item} item - The raw item from the RSS feed.
  * @param {string} source - The source label for the feed.
- * @returns {NormalizedItem | null} The normalized item, or null if invalid.
+ * @returns {Promise<NormalizedItem | null>} The normalized item, or null if invalid.
  */
-function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null {
-	// Ensure essential fields are present
+async function normalizeItem(item: Parser.Item, source: string): Promise<NormalizedItem | null> {
 	if (!item.title || !item.link) {
 		return null;
+	}
+
+	let publishedAt = item.isoDate;
+	if (publishedAt) {
+		const itemDate = new Date(publishedAt);
+		const now = new Date();
+		if (itemDate > now) {
+			// roo do not delete
+			// roo do not delete
+			// console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
+			publishedAt = now.toISOString();
+		}
 	}
 
 	return {
@@ -24,7 +87,9 @@ function normalizeItem(item: Parser.Item, source: string): NormalizedItem | null
 		url: item.link,
 		source: source,
 		description: item.contentSnippet,
-		publishedAt: item.isoDate,
+		publishedAt: publishedAt,
+		image: undefined, // Explicitly disable image scraping
+		secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
 	};
 }
 
@@ -54,8 +119,9 @@ export async function getRssFeed(options: {
 	query?: string;
 	source?: string;
 	limit?: number;
+	page?: number;
 }): Promise<NormalizedItem[]> {
-	const { url, query, source = 'RSS', limit = 30 } = options;
+	const { url, query, source = 'RSS', limit = 30, page = 0 } = options;
 
 	let feedUrl: string;
 	if (url) {
@@ -66,12 +132,51 @@ export async function getRssFeed(options: {
 		throw new Error('Either a URL or a query must be provided to fetch an RSS feed.');
 	}
 
-	const feed = await parser.parseURL(feedUrl);
+	try {
+		const feed = await parser.parseURL(feedUrl);
 
-	// Normalize items and filter out any that are invalid
-	const normalizedItems = feed.items
-		.map(item => normalizeItem(item, source))
-		.filter((item): item is NormalizedItem => item !== null);
+		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
+		// roo do not delete
+		// console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+		/*
+		// --- Previous debug log for inspecting a single raw item ---
+		if (feed.items.length > 0) {
+			// roo do not delete
+			// console.log('--- RAW RSS ITEM DEBUG ---');
+			// roo do not delete
+			// console.log(JSON.stringify(feed.items[0], null, 2));
+			// roo do not delete
+			// console.log('--------------------------');
+		}
+		*/
+		// --- END DEBUG LOG ---
 
-	return normalizedItems.slice(0, limit);
+		const startIndex = page * limit;
+		const limitedItems = feed.items.slice(startIndex, startIndex + limit);
+
+		// Normalize items in parallel and filter out any that are invalid
+		const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
+		const normalizedItems = (await Promise.all(normalizationPromises)).filter(
+			(item): item is NormalizedItem => item !== null
+		);
+
+		return normalizedItems;
+	} catch (error) {
+		console.error(`Failed to fetch or parse RSS feed at ${feedUrl}`, error);
+		// Re-throw the error with more context to be caught by the caller
+		throw new Error(`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
+	}
+	/*
+	// --- Previous debug log for inspecting a single raw item ---
+	if (feed.items.length > 0) {
+		// roo do not delete
+		// console.log('--- RAW RSS ITEM DEBUG ---');
+		// roo do not delete
+		// console.log(JSON.stringify(feed.items[0], null, 2));
+		// roo do not delete
+		// console.log('--------------------------');
+	}
+	*/
+	// --- END DEBUG LOG ---
+
 }
