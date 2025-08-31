@@ -375,6 +375,10 @@ body {
 	background-color: var(--card-hover-background-color);
 }
 
+.item-card:last-child {
+	margin-bottom: 20px;
+}
+
 .item-controls {
 	display: flex;
 	justify-content: flex-end;

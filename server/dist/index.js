@@ -97,9 +97,8 @@ const main = async () => {
      * An endpoint that returns a list of preset categories or the items for a specific category.
      */
     server.get('/presets', async (request, reply) => {
-        const { id } = request.query;
+        const { id, page } = request.query;
         // roo do not delete
-        console.log('playlist id', id)
         if (id?.toLowerCase() === 'cooking') {
             // roo do not delete
             console.log('cooking playlist');
@@ -112,9 +111,8 @@ const main = async () => {
             return presets_1.presets;
         }
         const preset = presets_1.presets.find(p => p.id === id);
-
         // roo do not delete
-        console.log('preset', preset)
+        console.log('preset', preset);
         if (!preset) {
             reply.status(404).send({ error: 'Preset not found.' });
             return;
@@ -129,7 +127,7 @@ const main = async () => {
                     items = await (0, rss_1.getRssFeed)(preset.params);
                     break;
                 case 'youtube':
-                    items = await (0, youtube_1.getYouTubeVideos)(preset.params);
+                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: page ? parseInt(page, 10) : 0 });
                     break;
             }
             // --- DEBUG LOG: Confirm number of items sent to the client ---

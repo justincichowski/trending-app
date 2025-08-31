@@ -59,6 +59,21 @@ function isPlaylistItem(item: YouTubeVideo | YouTubePlaylistItem): item is YouTu
  * @returns {NormalizedItem | null} The normalized item, or null if invalid.
  */
 function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem | null {
+	const image = item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url;
+	const title = item.snippet.title?.toLowerCase() || '';
+	const description = item.snippet.description?.toLowerCase() || '';
+
+	// Filter out videos that are genuinely unavailable or lack essential content.
+	// Comparisons are case-insensitive and check if the string starts with the given text.
+	if (
+		!image || // Must have an image
+		title.indexOf('private video') === 0 ||
+		description.indexOf('this video is unavailable') === 0 ||
+		(title.indexOf('deleted video') === 0 && !item.snippet.description)
+	) {
+		return null;
+	}
+
 	let videoId: string;
 	if (isPlaylistItem(item)) {
 		videoId = item.snippet.resourceId.videoId;
