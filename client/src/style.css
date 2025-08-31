@@ -1338,6 +1338,17 @@ body:not(.show-trending) .trending-panel {
 	align-items: center;
 }
 
+.gallery-swiper .swiper-slide .item-card {
+	max-width: 750px;
+	width: 90%;
+	height: auto;
+	max-height: 90vh;
+	overflow-y: auto;
+	background-color: var(--card-background-color);
+	border-radius: 8px;
+}
+
+
 .gallery-close-button {
 	position: absolute;
 	top: 20px;
@@ -1351,6 +1362,50 @@ body:not(.show-trending) .trending-panel {
 	line-height: 1;
 }
 
-.gallery-nav-button {
-	color: white;
+/* --- Gallery Navigation Arrows (Copied and adapted from #category-nav) --- */
+.fullscreen-gallery .swiper-button-prev,
+.fullscreen-gallery .swiper-button-next {
+	position: absolute;
+	top: 50%;
+	width: 40px;
+	height: 40px;
+	margin-top: -20px;
+	z-index: 10;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fullscreen-gallery .swiper-button-prev::after,
+.fullscreen-gallery .swiper-button-next::after {
+	font-family: swiper-icons;
+	font-size: 44px; /* Larger arrows */
+	color: var(--text-color); /* Use theme font color */
+	text-transform: none !important;
+	letter-spacing: 0;
+	font-variant: initial;
+	line-height: 1;
+	transition: transform 0.2s;
+	background-color: transparent; /* Explicitly remove background */
+}
+
+.fullscreen-gallery .swiper-button-prev:hover::after,
+.fullscreen-gallery .swiper-button-next:hover::after {
+	transform: none; /* Disable hover effect */
+}
+
+.fullscreen-gallery .swiper-button-prev {
+	left: 10px !important;
+}
+
+.fullscreen-gallery .swiper-button-next {
+	right: 10px !important;
+}
+
+.fullscreen-gallery .swiper-button-prev.swiper-button-disabled,
+.fullscreen-gallery .swiper-button-next.swiper-button-disabled {
+	opacity: 0.3;
+	cursor: auto;
+	pointer-events: none;
 }

@@ -32,8 +32,8 @@ export class FullScreenGallery {
 						</div>
 					`).join('')}
 				</div>
-				<div class="swiper-button-prev gallery-nav-button"></div>
-				<div class="swiper-button-next gallery-nav-button"></div>
+				<div class="swiper-button-prev"></div>
+				<div class="swiper-button-next"></div>
 			</div>
 		`;
 
@@ -47,8 +47,8 @@ export class FullScreenGallery {
 			modules: [Navigation],
 			initialSlide: startIndex,
 			navigation: {
-				nextEl: '.gallery-swiper .swiper-button-next',
-				prevEl: '.gallery-swiper .swiper-button-prev',
+				nextEl: '.fullscreen-gallery .swiper-button-next',
+				prevEl: '.fullscreen-gallery .swiper-button-prev',
 			},
 		});
 	}
