@@ -28,43 +28,48 @@ async function fetchTopTrends() {
         console.error('No YouTube playlist IDs found in environment variables.');
         return { items: [], source: 'YouTube (Error)', fetchedAt: new Date().toISOString() };
     }
-    const randomPlaylistId = allPlaylistIds[Math.floor(Math.random() * allPlaylistIds.length)];
-    try {
-        // Fetch more items to ensure we can find 25 unique topics after deduplication.
-        const rawItems = await (0, youtube_1.getYouTubeVideos)({ playlistId: randomPlaylistId, limit: 50 });
-        const uniqueItems = [];
-        const seenTitles = new Set();
-        for (const item of rawItems) {
-            const title = extractKeyword(item.title);
-            const lowerCaseTitle = title.toLowerCase();
-            // Add the item only if the title is valid and we haven't seen it before.
-            if (title && !seenTitles.has(lowerCaseTitle)) {
-                seenTitles.add(lowerCaseTitle);
-                uniqueItems.push({
-                    title,
-                    url: item.url,
-                });
-            }
-            // Stop once we have collected 25 unique items.
-            if (uniqueItems.length >= 25) {
-                break;
+    const uniqueItems = [];
+    const seenTitles = new Set();
+    const triedPlaylists = new Set();
+    // Keep trying until we have 25 unique items or run out of playlists
+    while (uniqueItems.length < 25 && triedPlaylists.size < allPlaylistIds.length) {
+        let randomPlaylistId;
+        // Find a playlist we haven't tried yet
+        do {
+            randomPlaylistId = allPlaylistIds[Math.floor(Math.random() * allPlaylistIds.length)];
+        } while (triedPlaylists.has(randomPlaylistId));
+        triedPlaylists.add(randomPlaylistId);
+        console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
+        try {
+            const rawItems = await (0, youtube_1.getYouTubeVideos)({ playlistId: randomPlaylistId, limit: 50 });
+            for (const item of rawItems) {
+                const title = extractKeyword(item.title);
+                const lowerCaseTitle = title.toLowerCase();
+                if (title && !seenTitles.has(lowerCaseTitle)) {
+                    seenTitles.add(lowerCaseTitle);
+                    uniqueItems.push({
+                        title,
+                        url: item.url,
+                        fullItem: item,
+                    });
+                }
+                if (uniqueItems.length >= 25) {
+                    break; // Exit the inner loop once we have enough items
+                }
             }
         }
-        const data = {
-            items: uniqueItems,
-            source: `YouTube Playlist: ${randomPlaylistId}`,
-            fetchedAt: new Date().toISOString(),
-        };
-        return data;
+        catch (error) {
+            console.error(`Failed to fetch or process YouTube playlist ${randomPlaylistId}:`, error);
+            // Continue to the next playlist if one fails
+        }
     }
-    catch (error) {
-        console.error(`Failed to fetch YouTube playlist ${randomPlaylistId}:`, error);
-        return {
-            items: [],
-            source: 'YouTube (Error)',
-            fetchedAt: new Date().toISOString(),
-        };
-    }
+    console.log(`Successfully compiled ${uniqueItems.length} unique trending items.`);
+    const data = {
+        items: uniqueItems,
+        source: 'YouTube Trending',
+        fetchedAt: new Date().toISOString(),
+    };
+    return data;
 }
 /**
     * A list of common English stop words and YouTube-specific jargon.
@@ -105,29 +110,29 @@ const STOP_WORDS = new Set([
 function extractKeyword(title) {
     if (!title)
         return '';
-    // Clean the title from bracketed/parenthesized content first
     const cleanedTitle = title.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
-    // 1. Prioritize multi-word capitalized phrases (potential proper nouns)
-    // This regex finds sequences of 2 or more capitalized words.
+    // 1. Prioritize multi-word capitalized phrases
     const capitalizedPhrases = cleanedTitle.match(/([A-Z][a-z']*\s){1,}[A-Z][a-z']*/g);
     if (capitalizedPhrases) {
         for (const phrase of capitalizedPhrases) {
-            // Return the first valid capitalized phrase found
             const trimmedPhrase = phrase.trim();
             if (trimmedPhrase)
                 return trimmedPhrase;
         }
     }
-    // 2. If no phrases, fall back to single significant words
-    const words = cleanedTitle
-        .toLowerCase()
-        .replace(/[^\w\s]/g, '') // Remove punctuation
-        .split(/\s+/);
+    // 2. Fall back to single significant words
+    const words = cleanedTitle.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
     for (const word of words) {
         if (word && !STOP_WORDS.has(word)) {
             return word;
         }
     }
-    // 3. As a final fallback, return the first word of the original title
-    return title.split(/\s+/)[0] || '';
+    // 3. As a final fallback, find the first word of the original title that isn't a stop word
+    const originalWords = title.split(/\s+/);
+    for (const word of originalWords) {
+        if (word && !STOP_WORDS.has(word.toLowerCase())) {
+            return word.replace(/[^\w\s]/g, ''); // return cleaned version
+        }
+    }
+    return ''; // Return empty if no suitable word is found
 }

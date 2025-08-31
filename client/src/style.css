@@ -108,8 +108,8 @@ body {
 
 /* Gradient edges for scroll indication, controlled by Swiper events */
 /* --- Swiper Navigation Arrows --- */
-.swiper-button-prev,
-.swiper-button-next {
+#category-nav .swiper-button-prev,
+#category-nav .swiper-button-next {
 	position: absolute;
 	top: 50%;
 	width: 40px; /* Wider to act as a mask */
@@ -125,8 +125,8 @@ body {
 }
 
 /* The actual circular button is the ::after pseudo-element */
-.swiper-button-prev::after,
-.swiper-button-next::after {
+#category-nav .swiper-button-prev::after,
+#category-nav .swiper-button-next::after {
 	font-family: swiper-icons;
 	font-size: 18px;
 	color: var(--text-color);
@@ -150,33 +150,33 @@ body {
 }
 
 
-.swiper-button-prev:hover::after,
-.swiper-button-next:hover::after {
+#category-nav .swiper-button-prev:hover::after,
+#category-nav .swiper-button-next:hover::after {
 	background-color: var(--back-to-top-hover-bg);
 }
 
-.swiper-button-prev:active::after {
+#category-nav .swiper-button-prev:active::after {
 	transform: translateX(-3px) scale(0.9);
 }
 
-.swiper-button-next:active::after {
+#category-nav .swiper-button-next:active::after {
 	transform: translateX(3px) scale(0.9);
 }
 
-.swiper-button-prev, .swiper-container-rtl .swiper-button-next {
+#category-nav .swiper-button-prev, #category-nav .swiper-container-rtl .swiper-button-next {
 	left: -0.5px;
 	right: auto;
 	background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
 }
 
-.swiper-button-next, .swiper-container-rtl .swiper-button-prev {
+#category-nav .swiper-button-next, #category-nav .swiper-container-rtl .swiper-button-prev {
 	right: -0.5px;
 	left: auto;
 	background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
 }
 
-.swiper-button-prev.swiper-button-disabled,
-.swiper-button-next.swiper-button-disabled {
+#category-nav .swiper-button-prev.swiper-button-disabled,
+#category-nav .swiper-button-next.swiper-button-disabled {
 	display: none;
 }
 
@@ -1302,4 +1302,55 @@ body:not(.show-trending) .trending-panel {
 	.top-trends-panel {
 		display: none;
 	}
+}
+
+/* --- Fullscreen Gallery --- */
+.fullscreen-gallery {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.gallery-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.gallery-swiper {
+	width: 90%;
+	height: 90%;
+	max-width: 1200px;
+}
+
+.gallery-swiper .swiper-slide {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.gallery-close-button {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background: none;
+	border: none;
+	font-size: 3rem;
+	color: white;
+	cursor: pointer;
+	z-index: 1001;
+	line-height: 1;
+}
+
+.gallery-nav-button {
+	color: white;
 }

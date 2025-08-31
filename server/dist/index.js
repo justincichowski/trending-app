@@ -18,6 +18,17 @@ const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
 const toptrends_1 = require("./lib/toptrends");
+// Simple in-memory cache
+const cache = {
+    topTrends: {
+        data: null,
+        lastFetched: 0,
+    },
+    trending: {
+        data: null,
+        lastFetched: 0,
+    },
+};
 // Create a new Fastify server instance
 const server = (0, fastify_1.default)({
     logger: true,
@@ -56,7 +67,7 @@ const main = async () => {
      * to support client-side routing.
      */
     const renderApp = async (request, reply) => {
-        const { theme: themeCookie, top_trends: topTrendsCookie } = request.cookies;
+        const { theme: themeCookie } = request.cookies;
         const theme = themeCookie === 'dark' ? 'dark' : 'light';
         server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
         // Define critical CSS variables for both themes to prevent FOUC.
@@ -73,30 +84,43 @@ const main = async () => {
             { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
             { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
-        // For development: clear the cookie on every request to test keyword extraction
-        reply.clearCookie('top_trends');
-        server.log.info('Cleared top_trends cookie for development.');
         let topTrendsData;
-        // The cookie logic is temporarily bypassed. We will always fetch.
-        server.log.info('Fetching new Top Trends data for development.');
-        topTrendsData = await (0, toptrends_1.fetchTopTrends)();
-        reply.setCookie('top_trends', JSON.stringify(topTrendsData), {
-            path: '/',
-            httpOnly: true,
-            maxAge: 3600, // 1 hour in seconds
-        });
-        // Fetch right-hand panel data
-        const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 })));
-        const trendingData = trendingResults.reduce((acc, result, index) => {
-            const feed = TRENDING_FEEDS[index];
-            if (result.status === 'fulfilled') {
-                acc[feed.title] = result.value;
-            }
-            else {
-                server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
-            }
-            return acc;
-        }, {});
+        const now = Date.now();
+        const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
+        const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+        // Check cache for Top Trends data
+        if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
+            server.log.info('Using cached Top Trends data.');
+            topTrendsData = cache.topTrends.data;
+        }
+        else {
+            server.log.info('Fetching new Top Trends data.');
+            topTrendsData = await (0, toptrends_1.fetchTopTrends)();
+            cache.topTrends.data = topTrendsData;
+            cache.topTrends.lastFetched = now;
+        }
+        let trendingData;
+        // Check cache for Trending data
+        if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
+            server.log.info('Using cached Trending data.');
+            trendingData = cache.trending.data;
+        }
+        else {
+            server.log.info('Fetching new Trending data.');
+            const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, source: feed.source, limit: 3 })));
+            trendingData = trendingResults.reduce((acc, result, index) => {
+                const feed = TRENDING_FEEDS[index];
+                if (result.status === 'fulfilled') {
+                    acc[feed.title] = result.value;
+                }
+                else {
+                    server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+                }
+                return acc;
+            }, {});
+            cache.trending.data = trendingData;
+            cache.trending.lastFetched = now;
+        }
         return reply.view('index.html', {
             theme,
             criticalCss,

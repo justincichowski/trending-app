@@ -88,6 +88,7 @@ export interface Preset {
 export interface TopTrendItem {
 	title: string;
 	url: string;
+	fullItem: NormalizedItem;
 }
 
 /**

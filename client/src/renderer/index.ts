@@ -12,6 +12,7 @@ import { VirtualList } from '../components/VirtualList';
 import { stateManager } from '../state';
 import { loadMoreItems } from '../main';
 import { Tooltip } from '../components/Tooltip';
+import { createItemCard } from '../components/ItemCard';
 
 const mainContent = document.getElementById('main-content');
 let virtualList: VirtualList | null = null;

@@ -131,11 +131,37 @@ export async function getRssFeed(options: {
 		throw new Error('Either a URL or a query must be provided to fetch an RSS feed.');
 	}
 
-	const feed = await parser.parseURL(feedUrl);
+	try {
+		const feed = await parser.parseURL(feedUrl);
 
-	// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
-	// roo do not delete
-    // console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
+		// roo do not delete
+		// console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+		/*
+		// --- Previous debug log for inspecting a single raw item ---
+		if (feed.items.length > 0) {
+			console.log('--- RAW RSS ITEM DEBUG ---');
+			console.log(JSON.stringify(feed.items[0], null, 2));
+			console.log('--------------------------');
+		}
+		*/
+		// --- END DEBUG LOG ---
+
+		const startIndex = page * limit;
+		const limitedItems = feed.items.slice(startIndex, startIndex + limit);
+
+		// Normalize items in parallel and filter out any that are invalid
+		const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
+		const normalizedItems = (await Promise.all(normalizationPromises)).filter(
+			(item): item is NormalizedItem => item !== null
+		);
+
+		return normalizedItems;
+	} catch (error) {
+		console.error(`Failed to fetch or parse RSS feed at ${feedUrl}`, error);
+		// Re-throw the error with more context to be caught by the caller
+		throw new Error(`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
+	}
 	/*
 	// --- Previous debug log for inspecting a single raw item ---
 	if (feed.items.length > 0) {
@@ -146,14 +172,4 @@ export async function getRssFeed(options: {
 	*/
 	// --- END DEBUG LOG ---
 
-	const startIndex = page * limit;
-	const limitedItems = feed.items.slice(startIndex, startIndex + limit);
-
-	// Normalize items in parallel and filter out any that are invalid
-	const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
-	const normalizedItems = (await Promise.all(normalizationPromises)).filter(
-		(item): item is NormalizedItem => item !== null
-	);
-
-	return normalizedItems;
 }

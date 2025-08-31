@@ -16,6 +16,18 @@ import { presets } from './lib/presets';
 import { fetchTopTrends } from './lib/toptrends';
 import type { NormalizedItem, TopTrendsData } from './lib/types';
 
+// Simple in-memory cache
+const cache = {
+	topTrends: {
+		data: null as TopTrendsData | null,
+		lastFetched: 0,
+	},
+	trending: {
+		data: null as Record<string, NormalizedItem[]> | null,
+		lastFetched: 0,
+	},
+};
+
 // Create a new Fastify server instance
 const server = fastify({
 	logger: true,
@@ -59,7 +71,7 @@ const main = async () => {
 	 * to support client-side routing.
 	 */
 	const renderApp = async (request: FastifyRequest, reply: FastifyReply) => {
-		const { theme: themeCookie, top_trends: topTrendsCookie } = request.cookies;
+		const { theme: themeCookie } = request.cookies;
 		const theme = themeCookie === 'dark' ? 'dark' : 'light';
 		server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
 
@@ -79,36 +91,46 @@ const main = async () => {
 			{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 		];
 
-		// For development: clear the cookie on every request to test keyword extraction
-		reply.clearCookie('top_trends');
-		server.log.info('Cleared top_trends cookie for development.');
+		let topTrendsData: TopTrendsData | null;
+		const now = Date.now();
+		const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
+		const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
 
-		let topTrendsData: TopTrendsData;
+		// Check cache for Top Trends data
+		if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
+			server.log.info('Using cached Top Trends data.');
+			topTrendsData = cache.topTrends.data;
+		} else {
+			server.log.info('Fetching new Top Trends data.');
+			topTrendsData = await fetchTopTrends();
+			cache.topTrends.data = topTrendsData;
+			cache.topTrends.lastFetched = now;
+		}
 
-		// The cookie logic is temporarily bypassed. We will always fetch.
-		server.log.info('Fetching new Top Trends data for development.');
-		topTrendsData = await fetchTopTrends();
-		reply.setCookie('top_trends', JSON.stringify(topTrendsData), {
-			path: '/',
-			httpOnly: true,
-			maxAge: 3600, // 1 hour in seconds
-		});
+		let trendingData: Record<string, NormalizedItem[]> | null;
 
+		// Check cache for Trending data
+		if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
+			server.log.info('Using cached Trending data.');
+			trendingData = cache.trending.data;
+		} else {
+			server.log.info('Fetching new Trending data.');
+			const trendingResults = await Promise.allSettled(
+				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
+			);
 
-		// Fetch right-hand panel data
-		const trendingResults = await Promise.allSettled(
-			TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
-		);
-
-		const trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
-			const feed = TRENDING_FEEDS[index];
-			if (result.status === 'fulfilled') {
-				acc[feed.title] = result.value;
-			} else {
-				server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
-			}
-			return acc;
-		}, {});
+			trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
+				const feed = TRENDING_FEEDS[index];
+				if (result.status === 'fulfilled') {
+					acc[feed.title] = result.value;
+				} else {
+					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+				}
+				return acc;
+			}, {});
+			cache.trending.data = trendingData;
+			cache.trending.lastFetched = now;
+		}
 
 		return reply.view('index.html', {
 			theme,
