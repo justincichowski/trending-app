@@ -80,10 +80,10 @@ const STOP_WORDS = new Set([
     'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by',
     'can', 'could',
     'did', 'do', 'does', 'doing', 'down', 'during',
-    'each',
+    'each', 'end',
     'few', 'for', 'from', 'further',
     'had', 'has', 'have', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how',
-    'i', 'if', 'in', 'into', 'is', 'it', 'its', 'itself',
+    'i', 'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'isnt',
     'just',
     'me', 'more', 'most', 'my', 'myself',
     'no', 'nor', 'not', 'now',
@@ -99,8 +99,8 @@ const STOP_WORDS = new Set([
     'performance', 'cover', 'remix', 'ft', 'feat', 'featuring', 'prod', 'by',
     'episode', 'part', 'clip', 'scene', 'highlight', 'highlights',
     'gameplay', 'walkthrough', 'review', 'unboxing', 'tutorial', 'guide', 'how',
-    'new', 'exclusive', 'full', 'album', 'movie', 'show', 'series',
-    'vs', 'vs.',
+    'new', 'exclusive', 'full', 'album', 'movie', 'show', 'series', 'today', 'tonight', 'tomorrow', 'day', 'week', 'month', 'year',
+    'vs', 'vs.', 'the', 'and', 'with', 'for', 'of', 'in', 'on', 'at', 'to', 'a', 'an',
 ]);
 /**
     * Extracts an intelligent keyword from a video title.

@@ -104,6 +104,15 @@ export function createItemCard(
 		favoriteItem(item);
 	});
 
+	// Add tooltip listeners only for non-gallery cards
+	if (!options?.isGallery) {
+		favoriteButton.addEventListener('mouseover', () => {
+			const isFavorited = favoriteButton.classList.contains('is-favorited');
+			tooltip.show(favoriteButton, isFavorited ? 'Unfavorite' : 'Favorite');
+		});
+		favoriteButton.addEventListener('mouseout', () => tooltip.hide());
+	}
+
 	actions.appendChild(favoriteButton);
 
 	// Only show the hide button if not in the favorites category

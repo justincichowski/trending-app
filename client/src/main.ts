@@ -254,10 +254,12 @@ export function favoriteItem(item: NormalizedItem) {
 			// If not in favorites view, remove immediately from the state.
 			const newFavorites = favorites.filter(f => f.id !== item.id);
 			stateManager.setState({ favorites: newFavorites });
+			notification?.show('Removed from favorites.');
 		}
 	} else {
 		// --- Favoriting ---
 		stateManager.setState({ favorites: [...favorites, item] });
+		notification?.show('Added to favorites.');
 	}
 }
 
