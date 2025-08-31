@@ -1054,6 +1054,7 @@ body {
 	max-height: 300px;
 	overflow-y: auto;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+	display: none; /* Hidden by default to prevent initial render glitch */
 }
 
 .autocomplete-container ul {
