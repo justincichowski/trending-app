@@ -13,7 +13,6 @@ const cookie_1 = __importDefault(require("@fastify/cookie"));
 const static_1 = __importDefault(require("@fastify/static"));
 const view_1 = __importDefault(require("@fastify/view"));
 const ejs_1 = __importDefault(require("ejs"));
-const hackernews_1 = require("./lib/hackernews");
 const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
@@ -157,19 +156,6 @@ const main = async () => {
         reply.status(400).send({ error: 'Invalid theme' });
     });
     /**
-     * An endpoint that returns the top Hacker News stories.
-     */
-    server.get('/hackernews', async (request, reply) => {
-        try {
-            const stories = await (0, hackernews_1.getHackerNewsStories)({ limit: 30 });
-            return stories;
-        }
-        catch (error) {
-            server.log.error(error);
-            reply.status(500).send({ error: 'Failed to fetch Hacker News stories.' });
-        }
-    });
-    /**
      * An endpoint that fetches and normalizes an RSS feed.
      */
     server.get('/rss', async (request, reply) => {
@@ -228,9 +214,6 @@ const main = async () => {
             let items = [];
             const pageNumber = page ? parseInt(page, 10) : 0;
             switch (preset.source) {
-                case 'hackernews':
-                    items = await (0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
-                    break;
                 case 'rss':
                     items = await (0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
                     break;
@@ -264,9 +247,6 @@ const main = async () => {
             const remotePresets = presets_1.presets.filter(p => p.source !== 'local');
             for (const preset of remotePresets) {
                 switch (preset.source) {
-                    case 'hackernews':
-                        fetchPromises.push((0, hackernews_1.getHackerNewsStories)({ ...preset.params, page: pageNumber, limit: limitNumber }));
-                        break;
                     case 'rss':
                         fetchPromises.push((0, rss_1.getRssFeed)({ ...preset.params, page: pageNumber, limit: limitNumber }));
                         break;

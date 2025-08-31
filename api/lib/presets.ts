@@ -15,17 +15,17 @@ export interface Preset {
 	/**
 	 * The data source to use for this category.
 	 */
-	source: 'hackernews' | 'rss' | 'youtube';
+	source: 'rss' | 'youtube';
 
 	/**
 	 * The parameters to pass to the data source service.
 	 */
 	params: {
-	 url?: string;
-	 query?: string;
-	 playlistId?: string;
-	 source?: string;
-	 limit?: number;
+		url?: string;
+		query?: string;
+		playlistId?: string;
+		source?: string;
+		limit?: number;
 	};
 }
 
@@ -90,9 +90,10 @@ export const presets: Preset[] = [
 	{
 		id: 'coding',
 		name: 'Coding',
-		source: 'hackernews',
+		source: 'youtube',
 		params: {
-			limit: 30,
+			playlistId: process.env.CODING_PLAYLIST_ID,
+			query: 'coding',
 		},
 	},
 	{

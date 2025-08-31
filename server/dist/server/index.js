@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const cors_1 = __importDefault(require("@fastify/cors"));
-const hackernews_1 = require("../api/lib/hackernews");
 const rss_1 = require("../api/lib/rss");
 const youtube_1 = require("../api/lib/youtube");
 const presets_1 = require("../api/lib/presets");
@@ -33,19 +32,6 @@ const main = async () => {
      */
     server.get('/health', async (request, reply) => {
         return { status: 'ok' };
-    });
-    /**
-     * An endpoint that returns the top Hacker News stories.
-     */
-    server.get('/hackernews', async (request, reply) => {
-        try {
-            const stories = await (0, hackernews_1.getHackerNewsStories)({ limit: 30 });
-            return stories;
-        }
-        catch (error) {
-            server.log.error(error);
-            reply.status(500).send({ error: 'Failed to fetch Hacker News stories.' });
-        }
     });
     /**
      * An endpoint that fetches and normalizes an RSS feed.
@@ -86,9 +72,6 @@ const main = async () => {
         try {
             let items = [];
             switch (preset.source) {
-                case 'hackernews':
-                    items = await (0, hackernews_1.getHackerNewsStories)(preset.params);
-                    break;
                 case 'rss':
                     items = await (0, rss_1.getRssFeed)(preset.params);
                     break;

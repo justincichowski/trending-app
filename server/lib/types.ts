@@ -59,7 +59,7 @@ export interface Preset {
 	/**
 	 * The data source to use for this category.
 	 */
-	source: 'hackernews' | 'rss' | 'youtube' | 'local';
+	source: 'rss' | 'youtube' | 'local';
 
 	/**
 	 * The parameters to pass to the data source service.

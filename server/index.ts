@@ -9,7 +9,6 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import ejs from 'ejs';
-import { getHackerNewsStories } from './lib/hackernews';
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
 import { presets } from './lib/presets';
@@ -171,18 +170,6 @@ const main = async () => {
 		reply.status(400).send({ error: 'Invalid theme' });
 	});
 
-	/**
-	 * An endpoint that returns the top Hacker News stories.
-	 */
-	server.get('/hackernews', async (request, reply) => {
-		try {
-			const stories = await getHackerNewsStories({ limit: 30 });
-			return stories;
-		} catch (error) {
-			server.log.error(error);
-			reply.status(500).send({ error: 'Failed to fetch Hacker News stories.' });
-		}
-	});
 
 	/**
 	 * An endpoint that fetches and normalizes an RSS feed.
@@ -256,9 +243,6 @@ const main = async () => {
 			const pageNumber = page ? parseInt(page, 10) : 0;
 
 			switch (preset.source) {
-				case 'hackernews':
-					items = await getHackerNewsStories({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
-					break;
 				case 'rss':
 					items = await getRssFeed({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
 					break;
@@ -297,9 +281,6 @@ const main = async () => {
 
 			for (const preset of remotePresets) {
 				switch (preset.source) {
-					case 'hackernews':
-						fetchPromises.push(getHackerNewsStories({ ...preset.params, page: pageNumber, limit: limitNumber }));
-						break;
 					case 'rss':
 						fetchPromises.push(getRssFeed({ ...preset.params, page: pageNumber, limit: limitNumber }));
 						break;

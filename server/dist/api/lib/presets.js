@@ -62,9 +62,10 @@ exports.presets = [
     {
         id: 'coding',
         name: 'Coding',
-        source: 'hackernews',
+        source: 'youtube',
         params: {
-            limit: 30,
+            playlistId: process.env.CODING_PLAYLIST_ID,
+            query: 'coding',
         },
     },
     {
