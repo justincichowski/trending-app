@@ -132,19 +132,21 @@ if (settingsButton) {
  * @param {Record<string, string>} params - The route parameters.
  */
 export async function categoryView(params: Record<string, string>) {
-	const { id } = params;
+	const { id, q: query } = params;
 	if (!id) return;
 
 	const { favorites, categories } = stateManager.getState();
 
-
 	// Find the new category first
-	let newCurrentCategory = categories.find(c => c.id === id) || null;
+	let newCurrentCategory: Preset | null = categories.find(c => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
 		newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
 	} else if (id === '/' && !newCurrentCategory) {
 		newCurrentCategory = { id: '/', name: 'All', source: 'local', params: {} };
+	} else if (id === 'search' && query) {
+		newCurrentCategory = { id: 'search', name: `Search: "${query}"`, source: 'youtube', params: { query } };
 	}
+
 
 	// Set the new category and loading state immediately for instant UI feedback
 	stateManager.setState({
@@ -158,6 +160,8 @@ export async function categoryView(params: Record<string, string>) {
 			items = [...favorites].reverse().slice(0, PAGE_SIZE);
 		} else if (id === '/') {
 			items = await getAllItems(0, [], PAGE_SIZE); // Use the new dedicated endpoint
+		} else if (id === 'search' && query) {
+			items = await getCategoryItems(id, 0, PAGE_SIZE, [], query);
 		} else {
 			items = await getCategoryItems(id, 0, PAGE_SIZE); // Fetch first page for a regular category
 		}
@@ -197,6 +201,8 @@ export async function loadMoreItems() {
 			const excludedIds = items.map(item => item.id);
 			if (currentCategory.id === '/') {
 				newItems = await getAllItems(nextPage, excludedIds, PAGE_SIZE);
+			} else if (currentCategory.id === 'search' && currentCategory.params.query) {
+				newItems = await getCategoryItems(currentCategory.id, nextPage, PAGE_SIZE, excludedIds, currentCategory.params.query);
 			} else {
 				newItems = await getCategoryItems(currentCategory.id, nextPage, PAGE_SIZE, excludedIds);
 			}
@@ -310,6 +316,7 @@ function hiddenItemsView() {
 
 // Set up the application routes
 router.addRoute('/:id', categoryView);
+router.addRoute('/search', (params) => categoryView({ ...params, id: 'search' }));
 router.addRoute('/hidden', hiddenItemsView);
 
 
@@ -365,12 +372,19 @@ if (logo) {
 }
 
 if (searchInput) {
+	const performSearch = (term: string) => {
+		if (!term.trim()) return;
+		autocomplete?.addSearchTerm(term);
+		router.navigate(`/search?q=${encodeURIComponent(term)}`);
+		(searchInput as HTMLInputElement).blur(); // Remove focus
+		autocomplete?.hide();
+	};
+
 	autocomplete = new Autocomplete(searchInput as HTMLInputElement, (selectedValue) => {
 		// When a value is selected from the autocomplete list
 		(searchInput as HTMLInputElement).value = selectedValue;
 		searchBarWrapper?.classList.add('has-text');
-		autocomplete?.addSearchTerm(selectedValue);
-		renderItems(tooltip);
+		performSearch(selectedValue);
 	});
 
 	searchInput.addEventListener('input', (e) => {
@@ -382,13 +396,13 @@ if (searchInput) {
 		}
 		// The autocomplete's own input listener will handle showing suggestions.
 		// We just need to trigger the re-render of the items.
-		renderItems(tooltip);
+		// renderItems(tooltip); // This is no longer needed as search triggers a re-render
 	});
 
 	searchInput.addEventListener('keydown', (e) => {
 		if (e.key === 'Enter') {
 			const searchTerm = (e.target as HTMLInputElement).value;
-			autocomplete?.addSearchTerm(searchTerm);
+			performSearch(searchTerm);
 		}
 	});
 }

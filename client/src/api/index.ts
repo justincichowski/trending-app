@@ -57,13 +57,16 @@ export function getAllItems(page = 0, excludedIds: string[] = [], limit?: number
  * @param {string} id - The ID of the preset to fetch.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getCategoryItems(id: string, page = 0, limit?: number, excludedIds: string[] = []): Promise<NormalizedItem[]> {
+export function getCategoryItems(id: string, page = 0, limit?: number, excludedIds: string[] = [], query?: string): Promise<NormalizedItem[]> {
 	let url = `${API_BASE_URL}/presets?id=${id}&page=${page}`;
 	if (limit) {
 		url += `&limit=${limit}`;
 	}
 	if (excludedIds.length > 0) {
 		url += `&excludedIds=${excludedIds.join(',')}`;
+	}
+	if (query) {
+		url += `&query=${encodeURIComponent(query)}`;
 	}
 	return get<NormalizedItem[]>(url);
 }

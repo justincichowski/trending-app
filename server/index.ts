@@ -217,12 +217,31 @@ const main = async () => {
 	 * An endpoint that returns a list of preset categories or the items for a specific category.
 	 */
 	server.get('/presets', async (request, reply) => {
-		const { id, page, excludedIds: excludedIdsQuery, limit } = request.query as { id?: string; page?: string, excludedIds?: string, limit?: string };
+		const { id, page, excludedIds: excludedIdsQuery, limit, query } = request.query as { id?: string; page?: string, excludedIds?: string, limit?: string, query?: string };
 		const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
 
 		if (!id) {
 			return presets;
 		}
+
+		// Handle dynamic YouTube search
+		if (id === 'search') {
+			if (!query) {
+				reply.status(400).send({ error: 'A `query` parameter must be provided for search.' });
+				return;
+			}
+			try {
+				const pageNumber = page ? parseInt(page, 10) : 0;
+				const items = await getYouTubeVideos({ query, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
+				const filteredItems = items.filter(item => !excludedIds.includes(item.id));
+				return filteredItems;
+			} catch (error) {
+				server.log.error(error);
+				reply.status(500).send({ error: `Failed to fetch data for search query: ${query}.` });
+			}
+			return;
+		}
+
 
 		const preset = presets.find(p => p.id === id);
 
