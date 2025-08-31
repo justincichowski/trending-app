@@ -15,6 +15,7 @@ import { Tooltip } from './components/Tooltip';
 import { Autocomplete } from './components/Autocomplete';
 import { TrendingPanel } from './components/TrendingPanel';
 import { TopTrendsPanel } from './components/TopTrendsPanel';
+import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandler';
 
 /**
  * -----------------------------------------------------------------------------
@@ -175,7 +176,7 @@ export async function categoryView(params: Record<string, string>) {
 		});
 	} catch (error) {
 		console.error(`Failed to fetch items for category ${id}:`, error);
-		stateManager.setState({ items: [], isLoading: false });
+		showPersistentError();
 	}
 }
 
@@ -529,9 +530,7 @@ async function initializeApp() {
 		}
 	} catch (error) {
 		console.error('Failed to initialize the application:', error);
-		if (mainContent) {
-			mainContent.innerHTML = '<p>Application failed to load. Please try again later.</p>';
-		}
+		showLoaderAndRetryOnce();
 	}
 }
 
