@@ -46,6 +46,7 @@ let settingsPanel: SettingsPanel | null = null;
 let contextMenu: ContextMenu | null = null;
 const tooltip = new Tooltip();
 let autocomplete: Autocomplete | null = null;
+let currentPlayer: YT.Player | null = null;
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
@@ -450,11 +451,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	mainContent?.addEventListener('click', (event) => {
 		const target = event.target as HTMLElement;
+
+		// Handle inline video playback
 		if (target.classList.contains('item-image')) {
 			const itemCard = target.closest('.item-card');
-			const titleLink = itemCard?.querySelector('.item-title a') as HTMLAnchorElement | null;
-			if (titleLink?.href) {
-				window.open(titleLink.href, '_blank');
+			const imageContainer = target.closest('.item-image-container');
+			const itemId = itemCard?.getAttribute('data-id');
+
+			if (itemCard && itemId && imageContainer) {
+				// Destroy the previous player if it exists
+				if (currentPlayer) {
+					currentPlayer.destroy();
+					currentPlayer = null;
+				}
+
+				// The raw YouTube video ID is our item.id without the 'yt-' prefix
+				const videoId = itemId.replace(/^yt-/, '');
+				const playerContainer = document.createElement('div');
+				// The YouTube API requires a unique ID for each player instance
+				const playerId = `yt-player-${videoId}`;
+				playerContainer.id = playerId;
+
+				imageContainer.innerHTML = ''; // Clear the container
+				imageContainer.appendChild(playerContainer);
+
+				// Create the new player using the YouTube IFrame Player API
+				currentPlayer = new YT.Player(playerId, {
+					height: '100%',
+					width: '100%',
+					videoId: videoId,
+					playerVars: {
+						autoplay: 1,
+						rel: 0, // Don't show related videos
+						modestbranding: 1, // Hide YouTube logo
+					},
+					events: {
+						onReady: (e: YT.PlayerEvent) => {
+							e.target.playVideo();
+						},
+					},
+				});
 			}
 		}
 	});

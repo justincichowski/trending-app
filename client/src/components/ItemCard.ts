@@ -28,6 +28,9 @@ export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElem
 	 * Creates an image element for the card. If the item has an image, it
 	 * is used; otherwise, a placeholder is used.
 	 */
+	const imageContainer = document.createElement('div');
+	imageContainer.className = 'item-image-container';
+
 	const image = document.createElement('img');
 	image.className = 'item-image';
 	image.alt = item.title;
@@ -43,7 +46,8 @@ export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElem
 		}
 	};
 
-	card.appendChild(image);
+	imageContainer.appendChild(image);
+	card.appendChild(imageContainer);
 
 	const controls = document.createElement('div');
 	controls.className = 'item-controls';
