@@ -94,12 +94,13 @@ export async function categoryView(params: Record<string, string>) {
 		if (id === 'favorites') {
 			items = favorites; // Load from state
 		} else {
-			items = await getCategoryItems(id); // Fetch from API
+			items = await getCategoryItems(id, 0); // Fetch first page
 		}
 
 		// Update the state with the new items and turn off loading
 		stateManager.setState({
 			items,
+			pages: { ...stateManager.getState().pages, [id]: 0 }, // Reset page number
 			lastUpdated: Date.now(),
 			isLoading: false,
 		});
@@ -113,12 +114,17 @@ export async function categoryView(params: Record<string, string>) {
  * Loads more items for the current category.
  */
 export async function loadMoreItems() {
-	const { currentCategory, items } = stateManager.getState();
+	const { currentCategory, items, pages } = stateManager.getState();
 	if (!currentCategory) return;
 
+	const nextPage = (pages[currentCategory.id] || 0) + 1;
+
 	try {
-		const newItems = await getCategoryItems(currentCategory.id);
-		stateManager.setState({ items: [...items, ...newItems] });
+		const newItems = await getCategoryItems(currentCategory.id, nextPage);
+		stateManager.setState({
+			items: [...items, ...newItems],
+			pages: { ...pages, [currentCategory.id]: nextPage },
+		});
 	} catch (error) {
 		console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
 	}

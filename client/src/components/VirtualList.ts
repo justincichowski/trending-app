@@ -44,20 +44,20 @@ export class VirtualList {
 	 * @param {NormalizedItem[]} items - The items to render.
 	 */
 	render(items: NormalizedItem[]) {
-	 this.items = items;
-	 this.element.innerHTML = ''; // Clear existing content
-	 this.observer.disconnect();
+		this.items = items;
+		this.element.innerHTML = ''; // Clear existing content
+		this.observer.disconnect();
 
-	 this.items.forEach((item, index) => {
-	 	const card = createItemCard(item);
-	 	card.dataset.virtualized = 'true';
-	 	this.element.appendChild(card);
+		this.items.forEach((item, index) => {
+			const card = createItemCard(item);
+			card.dataset.virtualized = 'true';
+			this.element.appendChild(card);
 
-	 	// Observe the last item to trigger infinite scroll
-	 	if (index === this.items.length - 1) {
-	 		this.observer.observe(card);
-	 	}
-	 });
+			// Observe the last item to trigger infinite scroll
+			if (index === this.items.length - 1) {
+				this.observer.observe(card);
+			}
+		});
 	}
 
 	/**

@@ -52,45 +52,38 @@ function normalizeItem(item) {
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
 async function getYouTubeVideos(options) {
-    const { playlistId, query, limit = 15 } = options;
+    const { playlistId, query, limit = 15, page = 0 } = options;
     const apiKey = process.env.YOUTUBE_API_KEY;
     if (!apiKey) {
         console.warn('YouTube API key is missing. YouTube category will be empty.');
         return [];
     }
-    let allItems = [];
-    // 1. Attempt to fetch from all provided playlists
+    // 1. Attempt to fetch from a shuffled playlist
     if (playlistId) {
         const playlistIds = playlistId.split(',').map(id => id.trim());
-        console.log(`Attempting to fetch YouTube playlists: ${playlistIds.join(', ')}`);
-        const playlistPromises = playlistIds.map(id => axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-            params: { part: 'snippet', playlistId: id, maxResults: limit, key: apiKey },
-            timeout: 5000,
-        }));
-        const results = await Promise.allSettled(playlistPromises);
-        results.forEach((result, index) => {
-            if (result.status === 'fulfilled') {
-                const normalized = result.value.data.items
-                    .map(normalizeItem)
-                    .filter((item) => item !== null);
-                allItems.push(...normalized);
-                console.log(`Successfully fetched ${normalized.length} items from playlist ${playlistIds[index]}.`);
-            }
-            else {
-                const errorMessage = result.reason instanceof Error ? result.reason.message : 'An unknown error occurred';
-                console.error(`Failed to fetch YouTube playlist ${playlistIds[index]}. Reason: ${errorMessage}`);
-            }
-        });
-        // If we got any items from playlists, shuffle and return them
-        if (allItems.length > 0) {
-            // Simple shuffle algorithm
-            for (let i = allItems.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [allItems[i], allItems[j]] = [allItems[j], allItems[i]];
-            }
-            return allItems.slice(0, limit); // Return the final limited number of items
+        // Shuffle the playlist IDs to get a random one each time
+        for (let i = playlistIds.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [playlistIds[i], playlistIds[j]] = [playlistIds[j], playlistIds[i]];
         }
-        console.log('All playlist fetches failed or returned empty. Falling back to search query.');
+        // Use the page number to cycle through the shuffled playlists
+        const playlistToFetch = playlistIds[page % playlistIds.length];
+        console.log(`Attempting to fetch YouTube playlist: ${playlistToFetch}`);
+        try {
+            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+                params: { part: 'snippet', playlistId: playlistToFetch, maxResults: limit, key: apiKey },
+                timeout: 5000,
+            });
+            const normalizedItems = response.data.items
+                .map(normalizeItem)
+                .filter((item) => item !== null);
+            console.log(`Successfully fetched ${normalizedItems.length} items from playlist ${playlistToFetch}.`);
+            return normalizedItems;
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            console.error(`Failed to fetch YouTube playlist ${playlistToFetch}. Reason: ${errorMessage}`);
+        }
     }
     // 2. Fallback to search query if all playlists failed or none were provided
     if (query) {

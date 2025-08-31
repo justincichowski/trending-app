@@ -41,6 +41,6 @@ export function getCategories(): Promise<Preset[]> {
  * @param {string} id - The ID of the preset to fetch.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getCategoryItems(id: string): Promise<NormalizedItem[]> {
-	return get<NormalizedItem[]>(`${API_BASE_URL}/presets?id=${id}`);
+export function getCategoryItems(id: string, page = 0): Promise<NormalizedItem[]> {
+	return get<NormalizedItem[]>(`${API_BASE_URL}/presets?id=${id}&page=${page}`);
 }

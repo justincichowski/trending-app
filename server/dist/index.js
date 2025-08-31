@@ -97,7 +97,7 @@ const main = async () => {
      * An endpoint that returns a list of preset categories or the items for a specific category.
      */
     server.get('/presets', async (request, reply) => {
-        const { id } = request.query;
+        const { id, page } = request.query;
         // roo do not delete
         if (id?.toLowerCase() === 'cooking') {
             // roo do not delete
@@ -127,7 +127,7 @@ const main = async () => {
                     items = await (0, rss_1.getRssFeed)(preset.params);
                     break;
                 case 'youtube':
-                    items = await (0, youtube_1.getYouTubeVideos)(preset.params);
+                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: page ? parseInt(page, 10) : 0 });
                     break;
             }
             // --- DEBUG LOG: Confirm number of items sent to the client ---

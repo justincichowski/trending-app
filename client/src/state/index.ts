@@ -26,6 +26,11 @@ export interface AppState {
 	scrollPositions: Record<string, number>;
 
 	/**
+	 * A map of category IDs to the current page number for pagination.
+	 */
+	pages: Record<string, number>;
+
+	/**
 	 * The items for the currently selected category.
 	 */
 	items: NormalizedItem[];
@@ -75,6 +80,7 @@ const initialState: AppState = {
 	currentCategory: null,
 	lastUpdated: null,
 	scrollPositions: {},
+	pages: {},
 	items: [],
 	isLoading: true, // Start in a loading state
 	favorites: storage.get('favorites') || [],
