@@ -12,6 +12,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { ContextMenu } from './components/ContextMenu';
 import { Tooltip } from './components/Tooltip';
+import { Autocomplete } from './components/Autocomplete';
 
 /**
  * -----------------------------------------------------------------------------
@@ -44,6 +45,7 @@ const notification = new Notification('notification-container');
 let settingsPanel: SettingsPanel | null = null;
 let contextMenu: ContextMenu | null = null;
 const tooltip = new Tooltip();
+let autocomplete: Autocomplete | null = null;
 
 if (settingsPanelContainer) {
 	settingsPanel = new SettingsPanel(settingsPanelContainer);
@@ -285,6 +287,14 @@ if (logo) {
 }
 
 if (searchInput) {
+	autocomplete = new Autocomplete(searchInput as HTMLInputElement, (selectedValue) => {
+		// When a value is selected from the autocomplete list
+		(searchInput as HTMLInputElement).value = selectedValue;
+		searchBarWrapper?.classList.add('has-text');
+		autocomplete?.addSearchTerm(selectedValue);
+		renderItems(tooltip);
+	});
+
 	searchInput.addEventListener('input', (e) => {
 		const target = e.target as HTMLInputElement;
 		if (target.value.length > 0) {
@@ -292,7 +302,16 @@ if (searchInput) {
 		} else {
 			searchBarWrapper?.classList.remove('has-text');
 		}
+		// The autocomplete's own input listener will handle showing suggestions.
+		// We just need to trigger the re-render of the items.
 		renderItems(tooltip);
+	});
+
+	searchInput.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') {
+			const searchTerm = (e.target as HTMLInputElement).value;
+			autocomplete?.addSearchTerm(searchTerm);
+		}
 	});
 }
 
@@ -300,6 +319,7 @@ if (clearSearchButton && searchInput) {
 	clearSearchButton.addEventListener('click', () => {
 		(searchInput as HTMLInputElement).value = '';
 		searchBarWrapper?.classList.remove('has-text');
+		autocomplete?.hide();
 		renderItems(tooltip);
 		searchInput.focus();
 	});

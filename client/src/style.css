@@ -316,7 +316,7 @@ body {
 	 */
 	max-width: 550px;
 	width: 100%; /* Ensure it takes up available space up to its max-width */
-	height: calc(100vh - 120px); /* Example height, adjust as needed */
+	height: calc(100vh - 140px); /* Example height, adjust as needed */
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 }
@@ -1024,4 +1024,56 @@ body {
     top: auto;
     bottom: 125%;
     transform: translateX(calc(-50% - 15px));
+}
+
+/* --- Autocomplete --- */
+.autocomplete-container {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background-color: var(--card-background-color);
+	border: 1px solid var(--border-color);
+	border-top: none;
+	border-radius: 0 0 8px 8px;
+	z-index: 100;
+	max-height: 300px;
+	overflow-y: auto;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.autocomplete-container ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.autocomplete-container li {
+	padding: 0.75rem 1rem;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: background-color 0.2s;
+}
+
+.autocomplete-container li:hover {
+	background-color: var(--category-button-background);
+	color: var(--category-button-text);
+}
+
+.delete-suggestion {
+	background: none;
+	border: none;
+	color: var(--text-color);
+	opacity: 0.5;
+	cursor: pointer;
+	font-size: 1.2rem;
+	line-height: 1;
+	padding: 0 0.5rem;
+	transition: opacity 0.2s;
+}
+
+.delete-suggestion:hover {
+	opacity: 1;
 }
