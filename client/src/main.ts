@@ -369,9 +369,14 @@ stateManager.subscribe((newState, oldState) => {
 	const themeChanged = newState.theme !== oldState.theme;
 	const itemsChanged = newState.items !== oldState.items;
 	const categoryChanged = newState.currentCategory?.id !== oldState.currentCategory?.id;
+	const showTrendingChanged = newState.showTrending !== oldState.showTrending;
 
 	if (categoryChanged && mainContent) {
 		mainContent.scrollTop = 0;
+	}
+
+	if (showTrendingChanged) {
+		document.body.classList.toggle('show-trending', newState.showTrending);
 	}
 
 	// If only the theme or favorites have changed, we can do a partial update.
@@ -455,6 +460,9 @@ async function initializeApp() {
 document.addEventListener('DOMContentLoaded', () => {
 	initializeApp();
 	new TrendingPanel('trending-panel');
+	if (stateManager.getState().showTrending) {
+		document.body.classList.add('show-trending');
+	}
 	contextMenu = new ContextMenu('app');
 
 	const backToTopButton = document.getElementById('back-to-top');
@@ -561,4 +569,8 @@ document.addEventListener('contextmenu', (event) => {
 
 	// If no link was found, prevent the context menu
 	event.preventDefault();
+});
+
+window.addEventListener('load', () => {
+	document.body.classList.remove('preload');
 });

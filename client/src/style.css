@@ -51,6 +51,10 @@ body {
 	
 }
 
+.preload * {
+	transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	* {
 		animation-duration: 0.01ms !important;
@@ -1109,6 +1113,26 @@ body {
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 	transition: all 0.3s ease-in-out;
+}
+
+.trending-panel {
+	width: 300px;
+	flex-shrink: 0;
+	margin-left: 1rem;
+	position: sticky;
+	top: 1rem;
+	height: calc(100vh - 155px);
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+body:not(.show-trending) .trending-panel {
+	width: 0;
+	margin-left: 0;
+	opacity: 0;
+	padding: 0;
+	border: 0;
 }
 
 .trending-panel.is-collapsing {

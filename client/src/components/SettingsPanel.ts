@@ -52,6 +52,10 @@ export class SettingsPanel {
 					<button class="close-button">&times;</button>
 				</div>
 				<div class="setting">
+					<label for="show-trending-toggle">Show Trending Topics:</label>
+					<input type="checkbox" id="show-trending-toggle" />
+				</div>
+				<div class="setting">
 					<label for="reduced-motion-toggle">Reduced Motion:</label>
 					<input type="checkbox" id="reduced-motion-toggle" />
 				</div>
@@ -113,13 +117,19 @@ export class SettingsPanel {
 			});
 		}
 
+		const showTrendingToggle = this.element.querySelector('#show-trending-toggle') as HTMLInputElement;
+		if (showTrendingToggle) {
+			showTrendingToggle.addEventListener('change', () => {
+				stateManager.setState({ showTrending: showTrendingToggle.checked });
+			});
+		}
 	}
 
 	/**
 		* Updates the UI controls based on the current state.
 		*/
 	updateUIFromState() {
-		const { theme, autoScroll } = stateManager.getState();
+		const { theme, autoScroll, showTrending } = stateManager.getState();
 		document.documentElement.className = `${theme}-theme`;
 
 		const reducedMotionToggle = this.element.querySelector('#reduced-motion-toggle') as HTMLInputElement;
@@ -137,5 +147,9 @@ export class SettingsPanel {
 			autoScrollInterval.value = autoScroll.interval.toString();
 		}
 
+		const showTrendingToggle = this.element.querySelector('#show-trending-toggle') as HTMLInputElement;
+		if (showTrendingToggle) {
+			showTrendingToggle.checked = showTrending;
+		}
 	}
 }

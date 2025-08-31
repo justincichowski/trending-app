@@ -70,6 +70,7 @@ export interface AppState {
 		* Whether the application is currently fetching items.
 		*/
 	isLoading: boolean;
+	showTrending: boolean;
 }
 
 /**
@@ -94,6 +95,7 @@ const initialState: AppState = {
 		cooking: '',
 		travel: '',
 	},
+	showTrending: storage.get('showTrending') ?? true,
 };
 
 /**
@@ -134,6 +136,7 @@ class StateManager {
 		storage.set('hiddenItems', this.state.hiddenItems);
 		storage.set('autoScroll', this.state.autoScroll);
 		storage.set('youtubePlaylists', this.state.youtubePlaylists);
+		storage.set('showTrending', this.state.showTrending);
 
 		// If the theme changed, notify the server to set the cookie
 		if (themeChanged) {
