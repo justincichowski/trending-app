@@ -116,22 +116,27 @@ function extractKeyword(title) {
     if (capitalizedPhrases) {
         for (const phrase of capitalizedPhrases) {
             const trimmedPhrase = phrase.trim();
-            if (trimmedPhrase)
-                return trimmedPhrase;
+            // Ensure multi-word phrases don't consist of single letters (e.g., "A B")
+            const wordsInPhrase = trimmedPhrase.split(' ');
+            if (wordsInPhrase.length > 1 && wordsInPhrase.every(w => w.length > 1)) {
+                if (trimmedPhrase)
+                    return trimmedPhrase;
+            }
         }
     }
     // 2. Fall back to single significant words
     const words = cleanedTitle.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
     for (const word of words) {
-        if (word && !STOP_WORDS.has(word)) {
+        if (word && word.length > 1 && !STOP_WORDS.has(word)) {
             return word;
         }
     }
     // 3. As a final fallback, find the first word of the original title that isn't a stop word
     const originalWords = title.split(/\s+/);
     for (const word of originalWords) {
-        if (word && !STOP_WORDS.has(word.toLowerCase())) {
-            return word.replace(/[^\w\s]/g, ''); // return cleaned version
+        const cleanedWord = word.replace(/[^\w\s]/g, '');
+        if (cleanedWord && cleanedWord.length > 1 && !STOP_WORDS.has(cleanedWord.toLowerCase())) {
+            return cleanedWord; // return cleaned version
         }
     }
     return ''; // Return empty if no suitable word is found

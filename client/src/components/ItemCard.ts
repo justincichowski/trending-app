@@ -19,7 +19,11 @@ import { Tooltip } from './Tooltip';
  * @param {NormalizedItem} item - The item to render.
  * @returns {HTMLElement} The card element.
  */
-export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElement {
+export function createItemCard(
+	item: NormalizedItem,
+	tooltip: Tooltip,
+	options?: { isGallery?: boolean }
+): HTMLElement {
 	const card = document.createElement('div');
 	card.className = 'item-card';
 	card.setAttribute('data-id', item.id);
@@ -100,16 +104,11 @@ export function createItemCard(item: NormalizedItem, tooltip: Tooltip): HTMLElem
 		favoriteItem(item);
 	});
 
-	favoriteButton.addEventListener('mouseover', () => {
-		const isFavorited = favoriteButton.classList.contains('is-favorited');
-		tooltip.show(favoriteButton, isFavorited ? 'Unfavorite' : 'Favorite');
-	});
-	favoriteButton.addEventListener('mouseout', () => tooltip.hide());
-
 	actions.appendChild(favoriteButton);
 
 	// Only show the hide button if not in the favorites category
-	if (stateManager.getState().currentCategory?.id !== 'favorites') {
+	// Only show the hide button if not in the favorites category AND not in the gallery
+	if (stateManager.getState().currentCategory?.id !== 'favorites' && !options?.isGallery) {
 		const hideButton = document.createElement('button');
 		hideButton.className = 'icon-button hide-button';
 		hideButton.innerHTML = `

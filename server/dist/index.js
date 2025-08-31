@@ -84,13 +84,15 @@ const main = async () => {
             { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
             { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
-        let topTrendsData;
+        // NOTE: This is a simple in-memory cache for stateful server environments (e.g., local dev).
+        // For a stateless deployment (like Vercel), this will not work as expected.
+        // A durable, external cache like Vercel KV would be required for production.
         const now = Date.now();
         const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
         const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
-        // Check cache for Top Trends data
+        let topTrendsData;
         if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
-            server.log.info('Using cached Top Trends data.');
+            server.log.info('Using in-memory cache for Top Trends.');
             topTrendsData = cache.topTrends.data;
         }
         else {
@@ -100,9 +102,8 @@ const main = async () => {
             cache.topTrends.lastFetched = now;
         }
         let trendingData;
-        // Check cache for Trending data
         if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
-            server.log.info('Using cached Trending data.');
+            server.log.info('Using in-memory cache for Trending data.');
             trendingData = cache.trending.data;
         }
         else {
