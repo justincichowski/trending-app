@@ -66,6 +66,10 @@ body {
 	z-index: 5;       /* Position below the header */
 }
 
+.category-nav .swiper-wrapper {
+	margin: 5px 0;
+}
+
 .category-nav .swiper-slide {
 	width: auto; /* Allow slides to have their natural width */
 	margin-right: 7.5px; /* Add spacing between buttons */
@@ -98,35 +102,77 @@ body {
 }
 
 /* Gradient edges for scroll indication, controlled by Swiper events */
-.category-nav::before,
-.category-nav::after {
-	content: '';
+/* --- Swiper Navigation Arrows --- */
+.swiper-button-prev,
+.swiper-button-next {
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	width: 2rem;
-	pointer-events: none;
-	z-index: 2;
-	transition: opacity 0.3s;
+	top: 50%;
+	width: 40px; /* Wider to act as a mask */
+	height: 40px;
+	margin-top: -20px;
+	z-index: 10;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--background-color); /* This is the mask color */
+	transition: background-color 0.2s; /* Only transition the background */
 }
 
-.category-nav::before {
-	left: 0;
-	background: linear-gradient(to right, var(--background-color), transparent);
+/* The actual circular button is the ::after pseudo-element */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+	font-family: swiper-icons;
+	font-size: 18px;
+	color: var(--text-color);
+	text-transform: none !important;
+	letter-spacing: 0;
+	font-variant: initial;
+	line-height: 1;
+
+	/* Styling for the circular button */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 31px;
+	height: 31px;
+	background-color: var(--category-button-background);
+	border-radius: 50%;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+	transition: background-color 0.2s, transform 0.1s;
 }
 
-.category-nav::after {
-	right: 0;
-	background: linear-gradient(to left, var(--background-color), transparent);
+.swiper-button-prev:hover::after,
+.swiper-button-next:hover::after {
+	background-color: var(--back-to-top-hover-bg);
 }
 
-/* Hide the gradients when the slider is at the corresponding edge */
-.category-nav.is-beginning::before {
-	opacity: 0;
+.swiper-button-prev:active::after,
+.swiper-button-next:active::after {
+	transform: scale(0.9);
 }
 
-.category-nav.is-end::after {
-	opacity: 0;
+.swiper-button-prev, .swiper-container-rtl .swiper-button-next {
+	left: 0.5px;
+	right: auto;
+}
+
+.swiper-button-next, .swiper-container-rtl .swiper-button-prev {
+	right: 0.5px;
+	left: auto;
+}
+
+.swiper-button-prev.swiper-button-disabled,
+.swiper-button-next.swiper-button-disabled {
+	display: none;
+}
+
+.swiper-button-prev::after {
+	content: 'prev';
+}
+
+.swiper-button-next::after {
+	content: 'next';
 }
 
 .logo {
@@ -551,10 +597,6 @@ body {
 
 .item-source {
 	display: none;
-}
-
-.item-description {
-	/* Line clamping is now handled by JavaScript */
 }
 
 .more-button {

@@ -11,13 +11,15 @@ import { stateManager } from '../state';
 import { categoryView } from '../main';
 import type { Preset } from '../types';
 import Swiper from 'swiper';
-import { Mousewheel } from 'swiper/modules';
+import { Mousewheel, Navigation } from 'swiper/modules';
 
 /**
  * Creates and manages the category navigation bar.
  */
 export class CategoryNav {
 	private element: HTMLElement;
+	private swiper: Swiper | null = null;
+	private isInitialLoad = true;
 
 	constructor(container: HTMLElement) {
 		// The main container will be the Swiper instance
@@ -85,26 +87,26 @@ export class CategoryNav {
 
 		this.element.appendChild(swiperWrapper);
 
+		// Add navigation buttons for Swiper
+		const prevButton = document.createElement('div');
+		prevButton.className = 'swiper-button-prev';
+		this.element.appendChild(prevButton);
+
+		const nextButton = document.createElement('div');
+		nextButton.className = 'swiper-button-next';
+		this.element.appendChild(nextButton);
+
 		// Initialize Swiper
-		new Swiper(this.element, {
-			modules: [Mousewheel],
+		this.swiper = new Swiper(this.element, {
+			modules: [Mousewheel, Navigation],
 			slidesPerView: 'auto',
-			freeMode: true,
+			// freeMode is not compatible with slidesPerGroup, so we disable it.
+			// freeMode: true,
 			mousewheel: true,
-			on: {
-				// Use Swiper's built-in events to toggle classes for the fade effect
-				init: swiper => {
-					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
-					swiper.el.classList.toggle('is-end', swiper.isEnd);
-				},
-				fromEdge: swiper => {
-					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
-					swiper.el.classList.toggle('is-end', swiper.isEnd);
-				},
-				toEdge: swiper => {
-					swiper.el.classList.toggle('is-beginning', swiper.isBeginning);
-					swiper.el.classList.toggle('is-end', swiper.isEnd);
-				},
+			slidesPerGroup: 4, // Move 4 slides at a time on button click.
+			navigation: {
+				nextEl: '.swiper-button-next',
+				prevEl: '.swiper-button-prev',
 			},
 		});
 	}
@@ -132,6 +134,14 @@ export class CategoryNav {
 
 			if (isActive) {
 				linkElement.classList.add('active');
+				if (this.swiper && this.isInitialLoad) {
+					const activeSlide = linkElement.closest('.swiper-slide') as HTMLElement;
+					if (activeSlide) {
+						const slideIndex = Array.from(this.swiper.slides).indexOf(activeSlide);
+						this.swiper.slideTo(slideIndex, 0, false);
+						this.isInitialLoad = false;
+					}
+				}
 			} else {
 				linkElement.classList.remove('active');
 			}
