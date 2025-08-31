@@ -1182,7 +1182,7 @@ body:not(.show-trending) .trending-panel {
 	text-decoration: underline;
 }
 
-@media (max-width: 550px) {
+@media (max-width: 750px) {
 	.trending-panel {
 		display: none;
 	}
