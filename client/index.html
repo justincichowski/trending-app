@@ -1,6 +1,30 @@
 <!doctype html>
 <html lang="en">
 	<head>
+<style>
+  /* Anti-FOUC background (default dark). Do not remove. */
+  html, body { background: #0B0F17; }
+</style>
+<script>
+// Anti-FOUC script (default dark, honor saved theme). Do not remove.
+(function () {
+  try {
+    var saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
+    if (saved === 'light') {
+      // User previously chose light: paint light background ASAP
+      var root = document.documentElement;
+      root.style.backgroundColor = '#FFFFFF';
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.style.backgroundColor = '#FFFFFF';
+      });
+    }
+    // If saved is 'dark' or null, we keep the default dark background (#0B0F17).
+  } catch (e) {}
+})();
+</script>
+
+<meta name="color-scheme" content="dark light" />
+
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
