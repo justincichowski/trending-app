@@ -8,14 +8,21 @@ import { fetchTopTrends } from './api/lib/toptrends';
 
 const app = Fastify({ logger: true });
 
+const hasYouTubeKey = !!process.env.YOUTUBE_API_KEY;
+if (!hasYouTubeKey) {
+  // Do not print the key; just warn once.
+  app.log.warn('YOUTUBE_API_KEY is not set. YouTube presets will be skipped in /api/all and /api/presets.');
+}
+
+
 async function main() {
   await app.register(cors, { origin: true });
 
   // Health
   app.get('/api/health', async (_req, reply) => {
-    reply.header('cache-control', 'public, max-age=30');
-    return { ok: true };
-  });
+  reply.header('cache-control', 'public, max-age=30');
+  return { ok: true, hasYouTubeKey: !!process.env.YOUTUBE_API_KEY };
+});
 
   // Root (safety net)
   app.get('/', async (_req, reply) => {
