@@ -83,13 +83,19 @@ function normalizeItem(item: YouTubeVideo | YouTubePlaylistItem): NormalizedItem
  * @param {number} [options.limit=15] - The number of videos to return.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export async function getYouTubeVideos(options: { playlistId?: string; query?: string; limit?: number; }): Promise<NormalizedItem[]> {
-  const { playlistId, query, limit = 15 } = options;
-  const apiKey = process.env.YOUTUBE_API_KEY;
-  if (!apiKey) { throw new Error('YouTube API key is missing.'); }
-  let response;
-  // Support multiple playlist IDs (comma-separated)
-  const playlistIds = playlistId ? playlistId.split(',').map(s => s.trim()).filter(Boolean) : [];
+export async function getYouTubeVideos(options: {
+	playlistId?: string;
+	query?: string;
+	limit?: number;
+}): Promise<NormalizedItem[]> {
+	const { playlistId, query, limit = 15 } = options;
+	const apiKey = process.env.YOUTUBE_API_KEY;
+
+	if (!apiKey) {
+		throw new Error('YouTube API key is missing.');
+	}
+
+	let response;
 	if (playlistId) {
 		// Fetch videos from a playlist
 		response = await axios.get<{ items: YouTubePlaylistItem[] }>(`${YOUTUBE_API_BASE_URL}/playlistItems`, {

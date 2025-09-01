@@ -51,14 +51,32 @@ async function main() {
       let items: any[] = [];
       if (preset.source === 'rss') {
         items = await getRssFeed(preset.params.url, preset.params.limit || lim);
-      } else if (preset.source === 'youtube') {
-        if (!process.env.YOUTUBE_API_KEY) {
-          req.log.warn({ preset: preset.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
-          items = [];
-        } else {
-          items = await getYouTubeVideos({ ...preset.params, limit: preset.params.limit || lim, query });
+      } 
+else if (preset.source === 'youtube') {
+  if (!process.env.YOUTUBE_API_KEY) {
+    req.log.warn({ preset: preset.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
+    items = [];
+  } else {
+    const pid = String(preset.params?.playlistId || '');
+    const ids = pid ? pid.split(',').map(s => s.trim()).filter(Boolean) : [];
+    if (ids.length > 1) {
+      req.log.info({ preset: preset.id, idsCount: ids.length }, 'Fetching multiple YouTube playlists');
+      const merged:any[] = [];
+      for (const one of ids) {
+        try {
+          const r = await getYouTubeVideos({ ...preset.params, playlistId: one, limit: Math.max(1, Math.ceil(lim / ids.length)), query });
+          merged.push(...r);
+        } catch (e:any) {
+          req.log.warn({ preset: preset.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
         }
       }
+      items = merged.slice(0, lim);
+    } else {
+      items = await getYouTubeVideos({ ...preset.params, limit: preset.params.limit || lim, query });
+    }
+  }
+}
+
 
       // Filter exclusions & paginate
       const seen = new Set<string>();
@@ -132,13 +150,31 @@ async function main() {
           let items: any[] = [];
           if (p.source === 'rss') {
             items = await getRssFeed(p.params.url, p.params.limit || 20);
-          } else if (p.source === 'youtube') {
-            if (!process.env.YOUTUBE_API_KEY) {
-              req.log.warn({ preset: p.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
-              continue;
-            }
-            items = await getYouTubeVideos({ ...p.params, limit: p.params.limit || 20 });
-          }
+          } 
+else if (p.source === 'youtube') {
+  if (!process.env.YOUTUBE_API_KEY) {
+    req.log.warn({ preset: p.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
+    continue;
+  }
+  const pid = String(p.params?.playlistId || '');
+  const ids = pid ? pid.split(',').map(s => s.trim()).filter(Boolean) : [];
+  if (ids.length > 1) {
+    const merged:any[] = [];
+    const each = Math.max(1, Math.ceil((p.params.limit || 20) / ids.length));
+    for (const one of ids) {
+      try {
+        const r = await getYouTubeVideos({ ...p.params, playlistId: one, limit: each });
+        merged.push(...r);
+      } catch (e:any) {
+        req.log.warn({ preset: p.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
+      }
+    }
+    items = merged;
+  } else {
+    items = await getYouTubeVideos({ ...p.params, limit: p.params.limit || 20 });
+  }
+}
+
           if (Array.isArray(items) && items.length) chunks.push(items);
         } catch (e:any) {
           req.log.warn({ preset: p.id, err: e?.message }, 'Preset fetch failed — skipping');
