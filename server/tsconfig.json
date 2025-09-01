@@ -1,12 +1,18 @@
 {
-	"compilerOptions": {
-		"target": "es2020",
-		"module": "commonjs",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"outDir": "dist"
-	},
-	"include": ["index.ts", "lib/**/*.ts"]
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "index.ts",
+    "lib/**/*.ts"
+  ]
 }

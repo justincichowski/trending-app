@@ -226,7 +226,7 @@ const main = async () => {
 			}
 			try {
 				const pageNumber = page ? parseInt(page, 10) : 0;
-				const items = await getYouTubeVideos({ query, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
+				const items = await getYouTubeVideos({ query,max: limit ? parseInt(limit, 10) : undefined });
 				const filteredItems = items.filter(item => !excludedIds.includes(item.id));
 				return filteredItems;
 			} catch (error) {
@@ -251,7 +251,7 @@ const main = async () => {
 
 			switch (preset.source) {
 				case 'youtube':
-					items = await getYouTubeVideos({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
+					items = await getYouTubeVideos({ ...preset.params,max: limit ? parseInt(limit, 10) : undefined });
 					break;
 			}
 
@@ -288,7 +288,7 @@ const main = async () => {
 			for (const preset of remotePresets) {
 				switch (preset.source) {
 					case 'youtube':
-						fetchPromises.push(getYouTubeVideos({ ...preset.params, page: pageNumber, limit: limitNumber }));
+						fetchPromises.push(getYouTubeVideos({ ...preset.params,max: limitNumber }));
 						break;
 				}
 			}
@@ -399,7 +399,10 @@ const main = async () => {
 	 */
 	try {
 		await server.listen({ port: 3000 });
-	} catch (err) {
+	} catch (err: any) {
+  console.error('YT ERROR status', err?.response?.status);
+  try { console.error('YT ERROR data', JSON.stringify(err?.response?.data, null, 2)); } catch {}
+
 // DO NOT DELETE LOG — required for future debugging
 // 		server.log.error(err);
 		process.exit(1);

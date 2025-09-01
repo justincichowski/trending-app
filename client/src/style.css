@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+/* First-paint theme variables to avoid white flash */
+:root { --bg:#FFFFFF; --fg:#0B0F17; background: var(--bg); color: var(--fg); }
+.dark { --bg:#0B0F17; --fg:#FFFFFF; }
+html, body { background: var(--bg); color: var(--fg); min-height: 100%; }
+
+
 
 :root {
 	--background-color: #ffffff;

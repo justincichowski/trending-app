@@ -36,7 +36,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
 				items = await getRssFeed(preset.params);
 				break;
 			case 'youtube':
-				items = await getYouTubeVideos(preset.params);
+				items = await getYouTubeVideos({ ...(preset.params as any), max: 15 });
 				break;
 		}
 

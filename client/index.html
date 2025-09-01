@@ -1,29 +1,29 @@
 <!doctype html>
 <html lang="en">
 	<head>
-<style>
-  /* Anti-FOUC background (default dark). Do not remove. */
-  html, body { background: #0B0F17; }
-</style>
+<!-- Prevent theme flash: run before CSS/JS -->
+<meta name="color-scheme" content="dark light" />
 <script>
-// Anti-FOUC script (default dark, honor saved theme). Do not remove.
 (function () {
   try {
     var saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
-    if (saved === 'light') {
-      // User previously chose light: paint light background ASAP
-      var root = document.documentElement;
-      root.style.backgroundColor = '#FFFFFF';
-      document.addEventListener('DOMContentLoaded', function(){
-        document.body.style.backgroundColor = '#FFFFFF';
-      });
-    }
-    // If saved is 'dark' or null, we keep the default dark background (#0B0F17).
+    var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
+    var root = document.documentElement;
+    if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+    root.setAttribute('data-theme', theme);
+    var bg = theme === 'dark' ? '#0B0F17' : '#FFFFFF';
+    var fg = theme === 'dark' ? '#FFFFFF' : '#0B0F17';
+    root.style.setProperty('--bg', bg);
+    root.style.setProperty('--fg', fg);
+    root.style.backgroundColor = 'var(--bg)';
+    document.addEventListener('DOMContentLoaded', function(){
+      document.body.style.backgroundColor = 'var(--bg)';
+      document.body.style.color = 'var(--fg)';
+    });
   } catch (e) {}
 })();
 </script>
-
-<meta name="color-scheme" content="dark light" />
 
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
@@ -31,6 +31,9 @@
 		<title>Trending App</title>
 		<link rel="preload" href="/src/style.css" as="style" />
 		<link rel="stylesheet" href="/src/style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 	</head>
 	<body class="preload">
 		<div id="app">

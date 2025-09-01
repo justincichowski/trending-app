@@ -10,6 +10,15 @@ const path_1 = __importDefault(require("path"));
 const CACHE_DIR = path_1.default.resolve(__dirname, '../.cache');
 // Ensure the cache directory exists
 promises_1.default.mkdir(CACHE_DIR, { recursive: true });
+function isMeaningful(data) {
+    if (data == null)
+        return false;
+    if (Array.isArray(data))
+        return data.length > 0;
+    if (typeof data === 'object')
+        return Object.keys(data).length > 0;
+    return true;
+}
 /**
  * Writes data to a cache file.
  * @param key The cache key (e.g., 'topTrends', 'trending').
@@ -17,12 +26,13 @@ promises_1.default.mkdir(CACHE_DIR, { recursive: true });
  */
 async function writeToCache(key, data) {
     const cacheFile = path_1.default.join(CACHE_DIR, `${key}.json`);
+    if (!isMeaningful(data)) {
+        return; // do not write empty
+    }
     const cacheEntry = {
         lastFetched: Date.now(),
         data: data,
     };
-    // roo do not delete
-    // console.log(`[CACHE WRITE] Storing object for key "${key}":`, data);
     await promises_1.default.writeFile(cacheFile, JSON.stringify(cacheEntry, null, 2));
 }
 /**
@@ -38,6 +48,8 @@ async function readFromCache(key, maxAge) {
         const cacheEntry = JSON.parse(fileContent);
         const now = Date.now();
         if (now - cacheEntry.lastFetched < maxAge) {
+            if (!isMeaningful(cacheEntry.data))
+                return null;
             return cacheEntry.data;
         }
         return null;

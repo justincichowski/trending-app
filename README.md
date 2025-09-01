@@ -131,3 +131,46 @@ Not needed for normal local development.
 - Server logs: Fastify route logs on `/api/trending` — do not remove.
 
 - Logs are now **commented out by default**. Uncomment individual lines as needed during debugging.
+
+
+
+## YouTube API configuration
+
+For public playlist reads, the app now calls YouTube **from the client** using a referrer‑restricted key.
+
+1. Create/rotate a YouTube Data API v3 key and restrict it to these referrers:
+   - `http://localhost:5173/*` (Vite dev)
+   - Your Vercel preview URLs (e.g. `https://*.vercel.app/*`)
+   - Your production domain (if any)
+
+2. Add the key to your environment:
+   - Locally: create `.env` in the repo root and set `VITE_YOUTUBE_API_KEY=...`
+   - Vercel: Project Settings → Environment Variables → add `VITE_YOUTUBE_API_KEY`
+
+3. If you need **private** playlists, switch to OAuth on a server route; API keys cannot access private data.
+
+
+## YouTube API pagination
+
+The backend YouTube fetcher now:
+- Uses a default `limit = 15` for playlist/video requests (instead of 50).
+- Respects the YouTube Data API max page size of 50, but paginates with `nextPageToken` until it has up to `limit` items.
+- If you request more than 15, it will keep looping until `limit` items or the playlist ends.
+
+This avoids the hard 50‑item stop and ensures consistent behavior with your `limit` setting.
+
+
+
+### YouTube request size
+`playlistItems.maxResults` is now **capped at 15** by default across API/server paths. We also page under the hood and slice to 15 so responses are consistent. Configure via `params.max` if needed (1–50).
+
+
+
+## YouTube via API (serverless)
+
+- The app now uses the **API (serverless)** path for YouTube by default.
+- Set `YOUTUBE_API_KEY` in Vercel → Project → Settings → Environment Variables.
+- For serverless calls, use **no Application restriction** (only API restriction to "YouTube Data API v3") to avoid 403 from missing referrer/IP.
+- Regular preset sections request **max=15** items each; **TopTrends** requests **max=50**.
+- Pagination is handled on the server and sliced to your requested max.
+

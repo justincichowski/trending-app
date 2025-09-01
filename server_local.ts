@@ -65,7 +65,7 @@ async function main() {
 
       let items: any[] = [];
       if (preset.source === 'rss') {
-        items = await getRssFeed(preset.params.url, preset.params.limit || lim);
+        items = await getRssFeed({ url: preset.params.url, limit: preset.params.limit || lim });
       } 
 else if (preset.source === 'youtube') {
   if (!process.env.YOUTUBE_API_KEY) {
@@ -81,7 +81,7 @@ else if (preset.source === 'youtube') {
       const merged:any[] = [];
       for (const one of ids) {
         try {
-          const r = await getYouTubeVideos({ ...preset.params, playlistId: one, limit: Math.max(1, Math.ceil(lim / ids.length)), query });
+          const r = await getYouTubeVideos({ ...preset.params, playlistId: one, max: Math.max(1, Math.ceil(lim / ids.length)), query });
           merged.push(...r);
         } catch (e:any) {
 // DO NOT DELETE LOG — required for future debugging
@@ -90,7 +90,7 @@ else if (preset.source === 'youtube') {
       }
       items = merged.slice(0, lim);
     } else {
-      items = await getYouTubeVideos({ ...preset.params, limit: preset.params.limit || lim, query });
+      items = await getYouTubeVideos({ ...preset.params, max: preset.params.limit || lim, query });
     }
   }
 }
@@ -189,7 +189,7 @@ app.get('/api/trending', async (req, reply) => {
         try {
           let items: any[] = [];
           if (p.source === 'rss') {
-            items = await getRssFeed(p.params.url, p.params.limit || 20);
+            items = await getRssFeed({ url: p.params.url, limit: p.params.limit || 20 });
           } 
 else if (p.source === 'youtube') {
   if (!process.env.YOUTUBE_API_KEY) {
@@ -204,7 +204,7 @@ else if (p.source === 'youtube') {
     const each = Math.max(1, Math.ceil((p.params.limit || 20) / ids.length));
     for (const one of ids) {
       try {
-        const r = await getYouTubeVideos({ ...p.params, playlistId: one, limit: each });
+        const r = await getYouTubeVideos({ ...p.params, playlistId: one, max: each });
         merged.push(...r);
       } catch (e:any) {
 // DO NOT DELETE LOG — required for future debugging
@@ -213,7 +213,7 @@ else if (p.source === 'youtube') {
     }
     items = merged;
   } else {
-    items = await getYouTubeVideos({ ...p.params, limit: p.params.limit || 20 });
+    items = await getYouTubeVideos({ ...p.params, max: p.params.limit || 20 });
   }
 }
 

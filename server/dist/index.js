@@ -17,6 +17,12 @@ const cookie_1 = __importDefault(require("@fastify/cookie"));
 const static_1 = __importDefault(require("@fastify/static"));
 const view_1 = __importDefault(require("@fastify/view"));
 const ejs_1 = __importDefault(require("ejs"));
+// RIGHT PANEL POLICY:
+// - Limit per section = 3 items.
+// - 15 min server cache; never write empty.
+// - Return 204 when all feeds empty.
+const RIGHT_PANEL_LIMIT = 3;
+const RIGHT_PANEL_TTL_MS = 15 * 60 * 1000;
 const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
@@ -62,7 +68,8 @@ const main = async () => {
     const renderApp = async (request, reply) => {
         const { theme: themeCookie } = request.cookies;
         const theme = themeCookie === 'dark' ? 'dark' : 'light';
-        server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
+        // DO NOT DELETE LOG — required for future debugging
+        // 		server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
         /*
         // Define critical CSS variables for both themes to prevent FOUC.
         const criticalCss = `
@@ -76,7 +83,7 @@ const main = async () => {
             { title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
             { title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
             { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
-            { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+            { title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
             { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
 
@@ -85,14 +92,16 @@ const main = async () => {
         // A durable, external cache like Vercel KV would be required for production.
         const now = Date.now();
         const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
-        const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+        const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
 
         let topTrendsData: TopTrendsData | null;
         if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
-            server.log.info('Using in-memory cache for Top Trends.');
+// DO NOT DELETE LOG — required for future debugging
+// 			server.log.info('Using in-memory cache for Top Trends.');
             topTrendsData = cache.topTrends.data;
         } else {
-            server.log.info('Fetching new Top Trends data.');
+// DO NOT DELETE LOG — required for future debugging
+// 			server.log.info('Fetching new Top Trends data.');
             topTrendsData = await fetchTopTrends();
             cache.topTrends.data = topTrendsData;
             cache.topTrends.lastFetched = now;
@@ -100,12 +109,14 @@ const main = async () => {
 
         let trendingData: Record<string, NormalizedItem[]> | null;
         if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
-            server.log.info('Using in-memory cache for Trending data.');
+// DO NOT DELETE LOG — required for future debugging
+// 			server.log.info('Using in-memory cache for Trending data.');
             trendingData = cache.trending.data;
         } else {
-            server.log.info('Fetching new Trending data.');
+// DO NOT DELETE LOG — required for future debugging
+// 			server.log.info('Fetching new Trending data.');
             const trendingResults = await Promise.allSettled(
-                TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
+                TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: RIGHT_PANEL_LIMIT }))
             );
 
             trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
@@ -113,7 +124,8 @@ const main = async () => {
                 if (result.status === 'fulfilled') {
                     acc[feed.title] = result.value;
                 } else {
-                    server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+// DO NOT DELETE LOG — required for future debugging
+// 					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
                 }
                 return acc;
             }, {});
@@ -138,7 +150,8 @@ const main = async () => {
     server.post('/api/v1/theme', async (request, reply) => {
         const { theme } = request.body;
         // roo do not delete
-        // console.log(`[Server] Received theme update request: ${theme}`);
+        //// DO NOT DELETE LOG — required for future debugging
+        //  console.log(`[Server] Received theme update request: ${theme}`);
         if (theme === 'light' || theme === 'dark') {
             reply.setCookie('theme', theme, {
                 path: '/',
@@ -169,7 +182,8 @@ const main = async () => {
             return feed;
         }
         catch (error) {
-            server.log.error(error);
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.error(error);
             reply.status(500).send({ error: 'Failed to fetch RSS feed.' });
         }
     });
@@ -190,12 +204,13 @@ const main = async () => {
             }
             try {
                 const pageNumber = page ? parseInt(page, 10) : 0;
-                const items = await (0, youtube_1.getYouTubeVideos)({ query, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
+                const items = await (0, youtube_1.getYouTubeVideos)({ query, max: limit ? parseInt(limit, 10) : undefined });
                 const filteredItems = items.filter(item => !excludedIds.includes(item.id));
                 return filteredItems;
             }
             catch (error) {
-                server.log.error(error);
+                // DO NOT DELETE LOG — required for future debugging
+                // 				server.log.error(error);
                 reply.status(500).send({ error: `Failed to fetch data for search query: ${query}.` });
             }
             return;
@@ -210,17 +225,19 @@ const main = async () => {
             const pageNumber = page ? parseInt(page, 10) : 0;
             switch (preset.source) {
                 case 'youtube':
-                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limit ? parseInt(limit, 10) : undefined });
+                    items = await (0, youtube_1.getYouTubeVideos)({ ...preset.params, max: limit ? parseInt(limit, 10) : undefined });
                     break;
             }
             // Filter out excluded IDs
             const filteredItems = items.filter(item => !excludedIds.includes(item.id));
             // roo do not delete
-            // console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
+            //// DO NOT DELETE LOG — required for future debugging
+            //  console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
             return filteredItems;
         }
         catch (error) {
-            server.log.error(error);
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.error(error);
             reply.status(500).send({ error: `Failed to fetch data for preset: ${preset.name}.` });
         }
     });
@@ -240,7 +257,7 @@ const main = async () => {
             for (const preset of remotePresets) {
                 switch (preset.source) {
                     case 'youtube':
-                        fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, page: pageNumber, limit: limitNumber }));
+                        fetchPromises.push((0, youtube_1.getYouTubeVideos)({ ...preset.params, max: limitNumber }));
                         break;
                 }
             }
@@ -256,62 +273,81 @@ const main = async () => {
             return filteredItems;
         }
         catch (error) {
-            server.log.error(error, 'Failed to fetch the "All" feed');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.error(error, 'Failed to fetch the "All" feed');
             reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
         }
     });
     server.get('/api/trending', async (request, reply) => {
-        const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+        // DO NOT DELETE LOG — required for future debugging
+        // 		server.log.info('[/api/trending] request received');
+        const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
         const cachedData = await (0, cache_1.readFromCache)('trending', trendingCacheDuration);
-        if (cachedData) {
+        if (cachedData && Object.keys(cachedData).some(k => Array.isArray(cachedData[k]) && cachedData[k].length > 0)) {
             // roo do not delete
-            server.log.info('Using file cache for Trending data.');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.info('Using file cache for Trending data.');
             return cachedData;
         }
         const TRENDING_FEEDS = [
             { title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
             { title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
-            { title: 'Sales', source: 'Google News', query: 'product deals' },
-            { title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+            { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
+            { title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
             { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
         ];
         try {
-            server.log.info('Fetching new Trending data.');
-            const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, query: feed.query, source: feed.source, limit: 3 })));
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.info('Fetching new Trending data.');
+            const trendingResults = await Promise.allSettled(TRENDING_FEEDS.map(feed => (0, rss_1.getRssFeed)({ url: feed.url, query: feed.query, source: feed.source, limit: RIGHT_PANEL_LIMIT })));
             const trendingData = trendingResults.reduce((acc, result, index) => {
                 const feed = TRENDING_FEEDS[index];
                 if (result.status === 'fulfilled') {
                     acc[feed.title] = result.value;
                 }
                 else {
-                    server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+                    // DO NOT DELETE LOG — required for future debugging
+                    // 					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
                 }
                 return acc;
             }, {});
+            const keys = Object.keys(trendingData).filter(k => Array.isArray(trendingData[k]) && trendingData[k].length > 0);
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.info({ keys }, 'Trending sections ready');
+            if (keys.length === 0) {
+                // DO NOT DELETE LOG — required for future debugging
+                // 				server.log.warn('Trending empty after fetch; sending 204 and not caching');
+                reply.status(204).send();
+                return;
+            }
             await (0, cache_1.writeToCache)('trending', trendingData);
             return trendingData;
         }
         catch (error) {
-            server.log.error(error, 'Failed to fetch trending data');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.error(error, 'Failed to fetch trending data');
             reply.status(500).send({ error: 'Failed to fetch trending data' });
         }
     });
     server.get('/api/toptrends', async (request, reply) => {
         const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
         const cachedData = await (0, cache_1.readFromCache)('toptrends', topTrendsCacheDuration);
-        if (cachedData) {
+        if (cachedData && Object.keys(cachedData).some(k => Array.isArray(cachedData[k]) && cachedData[k].length > 0)) {
             // roo do not delete
-            server.log.info('Using file cache for Top Trends.');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.info('Using file cache for Top Trends.');
             return cachedData;
         }
         try {
-            server.log.info('Fetching new Top Trends data.');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.info('Fetching new Top Trends data.');
             const topTrendsData = await (0, toptrends_1.fetchTopTrends)();
             await (0, cache_1.writeToCache)('toptrends', topTrendsData);
             return topTrendsData;
         }
         catch (error) {
-            server.log.error(error, 'Failed to fetch top trends');
+            // DO NOT DELETE LOG — required for future debugging
+            // 			server.log.error(error, 'Failed to fetch top trends');
             reply.status(500).send({ error: 'Failed to fetch top trends' });
         }
     });
@@ -322,7 +358,13 @@ const main = async () => {
         await server.listen({ port: 3000 });
     }
     catch (err) {
-        server.log.error(err);
+        console.error('YT ERROR status', err?.response?.status);
+        try {
+            console.error('YT ERROR data', JSON.stringify(err?.response?.data, null, 2));
+        }
+        catch { }
+        // DO NOT DELETE LOG — required for future debugging
+        // 		server.log.error(err);
         process.exit(1);
     }
 };

@@ -5,131 +5,96 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getYouTubeVideos = getYouTubeVideos;
 const axios_1 = __importDefault(require("axios"));
-// Base URL for the YouTube Data API
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
-/**
- * Normalizes a full YouTube video resource into the common `NormalizedItem` shape.
- *
- * @param {YouTubeVideoResource} item - The full video resource from the YouTube API's /videos endpoint.
- * @returns {NormalizedItem | null} The normalized item, or null if invalid.
- */
-function normalizeItem(item) {
-    const image = item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url;
-    const title = item.snippet.title?.toLowerCase() || '';
-    const description = item.snippet.description?.toLowerCase() || '';
-    // Filter out videos that are genuinely unavailable or lack essential content.
-    if (!image ||
-        title.indexOf('private video') === 0 ||
-        description.indexOf('this video is unavailable') === 0 ||
-        (title.indexOf('deleted video') === 0 && !item.snippet.description)) {
+const apiKey = process.env.YOUTUBE_API_KEY;
+if (!apiKey) {
+    console.warn('Missing YOUTUBE_API_KEY in server environment. YouTube requests may fail.');
+}
+// ---- Utility helpers for limits & pagination ----
+function clampMax(n, def, lo = 1, hi = 50) {
+    const x = typeof n === 'number' && !isNaN(n) ? Math.floor(n) : def;
+    return Math.max(lo, Math.min(hi, x));
+}
+function normalizeAny(item) {
+    const videoId = item?.snippet?.resourceId?.videoId ??
+        item?.id?.videoId ??
+        item?.id;
+    const title = item?.snippet?.title;
+    const description = item?.snippet?.description;
+    const thumb = item?.snippet?.thumbnails?.high?.url
+        || item?.snippet?.thumbnails?.default?.url;
+    if (!videoId || !title || !thumb)
         return null;
-    }
-    const videoId = item.id; // The ID is directly on the item for a video resource
-    if (!videoId || !item.snippet.title) {
-        return null;
-    }
-    const publishedAt = item.snippet.publishedAt;
     return {
-        id: `yt-${videoId}`,
-        title: item.snippet.title,
+        id: videoId,
+        title,
         url: `https://www.youtube.com/watch?v=${videoId}`,
-        source: 'YouTube',
-        description: item.snippet.description,
-        image: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-        publishedAt: publishedAt,
-        viewCount: item.statistics ? parseInt(item.statistics.viewCount, 10) : undefined,
-        secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
+        image: thumb,
+        description: description || '',
+        source: 'youtube',
     };
 }
-/**
- * Fetches and normalizes YouTube videos.
- *
- * @param {object} options - Options for fetching videos.
- * @param {string} [options.playlistId] - The ID of the playlist to fetch.
- * @param {string} [options.query] - A query to use for a YouTube search.
- * @param {number} [options.limit=15] - The number of videos to return.
- * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
- */
-async function getYouTubeVideos(options) {
-    const { playlistId, query, limit = 15, page = 0 } = options;
-    const apiKey = process.env.YOUTUBE_API_KEY;
-    if (!apiKey) {
-        console.warn('YouTube API key is missing. YouTube category will be empty.');
+async function getYouTubeVideos(params) {
+    const { playlistId, query, pageToken } = params;
+    const requested = (typeof params.max === 'number' ? params.max : params.limit);
+    const effectiveMax = clampMax(requested, 15);
+    try {
+        if (playlistId) {
+            const items = [];
+            let token = pageToken || undefined;
+            while (items.length < effectiveMax) {
+                const resp = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+                    params: {
+                        part: 'snippet',
+                        playlistId,
+                        maxResults: Math.min(50, effectiveMax - items.length) || effectiveMax,
+                        pageToken: token,
+                        key: apiKey,
+                    },
+                    timeout: 5000,
+                });
+                const raw = resp.data?.items || [];
+                items.push(...raw);
+                token = resp.data?.nextPageToken;
+                if (!token)
+                    break;
+            }
+            const normalized = items
+                .map(normalizeAny)
+                .filter((x) => x !== null)
+                .slice(0, effectiveMax);
+            return normalized;
+        }
+        if (query) {
+            const resp = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
+                params: {
+                    part: 'snippet',
+                    type: 'video',
+                    q: query,
+                    maxResults: effectiveMax,
+                    key: apiKey,
+                },
+                timeout: 5000,
+            });
+            const raw = resp.data?.items || [];
+            const normalized = raw
+                .map(normalizeAny)
+                .filter((x) => x !== null)
+                .slice(0, effectiveMax);
+            return normalized;
+        }
+        console.error('Neither playlistId nor query was provided for YouTube fetch.');
         return [];
     }
-    // 1. Attempt to fetch from a shuffled playlist
-    if (playlistId) {
-        const playlistIds = playlistId.split(',').map(id => id.trim());
-        // Shuffle the playlist IDs to get a random one each time
-        for (let i = playlistIds.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [playlistIds[i], playlistIds[j]] = [playlistIds[j], playlistIds[i]];
-        }
-        // Use the page number to cycle through the shuffled playlists
-        const playlistToFetch = playlistIds[page % playlistIds.length];
-        // roo do not delete
-        // console.log(`Attempting to fetch YouTube playlist: ${playlistToFetch}`);
+    catch (err) {
+        const e = err;
+        const status = e?.response?.status;
+        const data = e?.response?.data;
         try {
-            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-                params: { part: 'snippet', playlistId: playlistToFetch, maxResults: limit, key: apiKey },
-                timeout: 5000,
-            });
-            if (response.data.items.length === 0) {
-                // roo do not delete
-                // console.log(`Playlist ${playlistToFetch} is empty or could not be fetched.`);
-                return [];
-            }
-            const videoIds = response.data.items.map(item => item.snippet.resourceId.videoId).join(',');
-            const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
-                params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
-                timeout: 5000,
-            });
-            const normalizedItems = videoDetailsResponse.data.items
-                .map(normalizeItem)
-                .filter((item) => item !== null);
-            // roo do not delete
-            // console.log(`Successfully fetched ${normalizedItems.length} items from playlist ${playlistToFetch}.`);
-            return normalizedItems;
+            console.error('YT ERROR status', status);
+            console.error('YT ERROR data', JSON.stringify(data, null, 2));
         }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            console.error(`Failed to fetch YouTube playlist ${playlistToFetch}. Reason: ${errorMessage}`);
-        }
+        catch { }
+        throw err;
     }
-    // 2. Fallback to search query if all playlists failed or none were provided
-    if (query) {
-        try {
-            // roo do not delete
-            // console.log(`Attempting to fetch YouTube videos with query: "${query}"`);
-            const response = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/search`, {
-                params: { part: 'snippet', q: query, type: 'video', maxResults: limit, key: apiKey },
-                timeout: 5000,
-            });
-            if (response.data.items.length === 0) {
-                // roo do not delete
-                // console.log(`No search results found for query: "${query}"`);
-                return [];
-            }
-            const videoIds = response.data.items.map(item => item.id.videoId).join(',');
-            const videoDetailsResponse = await axios_1.default.get(`${YOUTUBE_API_BASE_URL}/videos`, {
-                params: { part: 'snippet,statistics', id: videoIds, key: apiKey },
-                timeout: 5000,
-            });
-            const normalizedItems = videoDetailsResponse.data.items
-                .map(normalizeItem)
-                .filter((item) => item !== null);
-            // roo do not delete
-            // console.log(`Successfully fetched ${normalizedItems.length} items from search.`);
-            return normalizedItems;
-        }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            console.error(`Failed to fetch YouTube videos with query "${query}". Error: ${errorMessage}`);
-            return [];
-        }
-    }
-    if (!playlistId && !query) {
-        console.error('Neither playlistId nor query was provided for YouTube fetch.');
-    }
-    return [];
 }

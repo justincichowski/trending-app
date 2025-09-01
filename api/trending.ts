@@ -25,7 +25,7 @@ function isMeaningful(obj: Record<string, NormalizedItem[]>): boolean {
 }
 
 async function fetchAll(): Promise<Record<string, NormalizedItem[]>> {
-  const results = await Promise.allSettled(TRENDING_FEEDS.map(feed => getRssFeed(feed.url, feed.source)));
+  const results = await Promise.allSettled(TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source })));
   const data: Record<string, NormalizedItem[]> = {};
   results.forEach((res, idx) => {
     const title = TRENDING_FEEDS[idx].title;
@@ -61,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('[API /trending] returning sections:', Object.keys(data));
     if (debug) console.log('[API /trending] sample section lengths:', Object.fromEntries(Object.entries(data).map(([k,v]) => [k, v.length])));
     return res.status(200).json(data);
-  } catch (err) {
+  } catch (err: any) {
     console.error('[API /trending] error', err);
     return res.status(500).json({ error: 'Failed to fetch trending data' });
   }

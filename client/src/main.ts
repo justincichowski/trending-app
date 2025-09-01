@@ -36,7 +36,7 @@ async function fetchTrendingWithCache() {
 //   console.log('[Client] Trending still empty after retry');
   return null;
 }
-function isMeaningfulTrending(obj) {
+function isMeaningfulTrending(obj: any) {
   if (!obj) return false;
   return Object.values(obj).some(arr => Array.isArray(arr) && arr.length > 0);
 }
@@ -72,7 +72,7 @@ import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
-import { getCategoryItems, getCategories, getAllItems, getTopTrends, getTrending } from './api';
+import { getCategoryItems, getCategories, getAllItems, getTopTrends } from './api';
 import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
 import { showPageLoader, hidePageLoader } from './components/PageLoader';
@@ -119,7 +119,7 @@ let settingsPanel: SettingsPanel | null = null;
 let contextMenu: ContextMenu | null = null;
 const tooltip = new Tooltip();
 let autocomplete: Autocomplete | null = null;
-let currentPlayer: YT.Player | null = null;
+let currentPlayer: any | null = null;
 
 /**
  * Destroys the currently active YouTube player instance.
@@ -161,7 +161,7 @@ export function playYouTubeVideo(imageContainer: HTMLElement, itemId: string) {
 	imageContainer.appendChild(playerContainer);
 
 	// Create the new player using the YouTube IFrame Player API
-	currentPlayer = new YT.Player(playerId, {
+	currentPlayer = new (window as any).YT.Player(playerId, {
 		height: '100%',
 		width: '100%',
 		videoId: videoId,

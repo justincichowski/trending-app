@@ -76,7 +76,7 @@ async function fetchTopTrends() {
         // roo do not delete
         // console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
         try {
-            const rawItems = await (0, youtube_1.getYouTubeVideos)({ playlistId: randomPlaylistId, limit: 50 });
+            const rawItems = await (0, youtube_1.getYouTubeVideos)({ playlistId: randomPlaylistId, max: 50 });
             for (const item of rawItems) {
                 const title = extractKeyword(item.title);
                 const lowerCaseTitle = title.toLowerCase();
