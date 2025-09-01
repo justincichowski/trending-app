@@ -129,3 +129,5 @@ Not needed for normal local development.
 - Custom logs for Trending are **required** for troubleshooting.
 - Client logs: emitted by `fetchTrendingWithCache` and render path.
 - Server logs: Fastify route logs on `/api/trending` — do not remove.
+
+- Logs are now **commented out by default**. Uncomment individual lines as needed during debugging.

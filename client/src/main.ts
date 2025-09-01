@@ -8,27 +8,32 @@ async function fetchTrendingWithCache() {
     if (cachedRaw) {
       const { t, data } = JSON.parse(cachedRaw);
       if (t && (now - t) < TTL && data && Object.keys(data).length > 0) {
-        console.log('[Client] Trending cache hit');
+// DO NOT DELETE LOG — required for future debugging
+//         console.log('[Client] Trending cache hit');
         return data;
       }
     }
   } catch (e) {
-    console.warn('[Client] Trending cache read error', e);
+// DO NOT DELETE LOG — required for future debugging
+//     console.warn('[Client] Trending cache read error', e);
   }
-  console.log('[Client] Trending cache miss; fetching');
+// DO NOT DELETE LOG — required for future debugging
+//   console.log('[Client] Trending cache miss; fetching');
   const data1 = await fetchTrendingOnce();
   if (isMeaningfulTrending(data1)) {
     try { localStorage.setItem(KEY, JSON.stringify({ t: now, data: data1 })); } catch {}
     return data1;
   }
-  console.log('[Client] Trending empty on first try; retrying in 1500ms');
+// DO NOT DELETE LOG — required for future debugging
+//   console.log('[Client] Trending empty on first try; retrying in 1500ms');
   await new Promise(r => setTimeout(r, 1500));
   const data2 = await fetchTrendingOnce();
   if (isMeaningfulTrending(data2)) {
     try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), data: data2 })); } catch {}
     return data2;
   }
-  console.log('[Client] Trending still empty after retry');
+// DO NOT DELETE LOG — required for future debugging
+//   console.log('[Client] Trending still empty after retry');
   return null;
 }
 function isMeaningfulTrending(obj) {
@@ -38,17 +43,21 @@ function isMeaningfulTrending(obj) {
 async function fetchTrendingOnce() {
   const base = import.meta.env.DEV ? 'http://localhost:3000/api' : ((window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api');
       const u = new URL(base + '/trending', window.location.origin);
-      console.log('[Client] Trending request URL', u.toString());
+// DO NOT DELETE LOG — required for future debugging
+//       console.log('[Client] Trending request URL', u.toString());
       const res = await fetch(u.toString());
-      console.log('[Client] Trending response status', res.status);
+// DO NOT DELETE LOG — required for future debugging
+//       console.log('[Client] Trending response status', res.status);
   if (res.status === 204) return null;
   if (!res.ok) {
-    console.warn('[Client] Trending fetch failed status', res.status);
+// DO NOT DELETE LOG — required for future debugging
+//     console.warn('[Client] Trending fetch failed status', res.status);
     return null;
   }
   try {
     const data = await res.json();
-    console.log('[Client] Trending fetched sections', Object.keys(data));
+// DO NOT DELETE LOG — required for future debugging
+//     console.log('[Client] Trending fetched sections', Object.keys(data));
     return data;
   } catch {
     return null;
@@ -235,7 +244,8 @@ export async function categoryView(params: Record<string, string>) {
 			isLoading: false,
 		});
 	} catch (error) {
-		console.error(`Failed to fetch items for category ${id}:`, error);
+// DO NOT DELETE LOG — required for future debugging
+// 		console.error(`Failed to fetch items for category ${id}:`, error);
 		showPersistentError();
 	}
 }
@@ -276,7 +286,8 @@ export async function loadMoreItems() {
 			});
 		}
 	} catch (error) {
-		console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
+// DO NOT DELETE LOG — required for future debugging
+// 		console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
 	} finally {
 		hidePageLoader();
 	}
@@ -589,7 +600,8 @@ async function initializeApp() {
 			settingsPanel?.show();
 		}
 	} catch (error) {
-		console.error('Failed to initialize the application:', error);
+// DO NOT DELETE LOG — required for future debugging
+// 		console.error('Failed to initialize the application:', error);
 		showLoaderAndRetryOnce();
 	}
 }
@@ -603,14 +615,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 	fetchTrendingWithCache().then(data => {
 		// roo do not delete
-		// console.log('[Client] Received trending data sections:', Object.keys(data).length);
-		console.log('[Client] Rendering Trending with data?', !!data, data && Object.keys(data));
+		//// DO NOT DELETE LOG — required for future debugging
+//  console.log('[Client] Received trending data sections:', Object.keys(data).length);
+// DO NOT DELETE LOG — required for future debugging
+// 		console.log('[Client] Rendering Trending with data?', !!data, data && Object.keys(data));
 		trendingPanel.render(data || {} as any);
 	});
 
 	getTopTrends().then(data => {
 		// roo do not delete
-		// console.log('[Client] Received top trends items:', data.items.length);
+		//// DO NOT DELETE LOG — required for future debugging
+//  console.log('[Client] Received top trends items:', data.items.length);
 		topTrendsPanel.render(data);
 	});
 

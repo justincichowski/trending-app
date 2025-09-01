@@ -25,7 +25,8 @@ const app = Fastify({ logger: true });
 const hasYouTubeKey = !!process.env.YOUTUBE_API_KEY;
 if (!hasYouTubeKey) {
   // Do not print the key; just warn once.
-  app.log.warn('YOUTUBE_API_KEY is not set. YouTube presets will be skipped in /api/all and /api/presets.');
+// DO NOT DELETE LOG — required for future debugging
+//   app.log.warn('YOUTUBE_API_KEY is not set. YouTube presets will be skipped in /api/all and /api/presets.');
 }
 
 
@@ -68,20 +69,23 @@ async function main() {
       } 
 else if (preset.source === 'youtube') {
   if (!process.env.YOUTUBE_API_KEY) {
-    req.log.warn({ preset: preset.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
+// DO NOT DELETE LOG — required for future debugging
+//     req.log.warn({ preset: preset.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
     items = [];
   } else {
     const pid = String(preset.params?.playlistId || '');
     const ids = pid ? pid.split(',').map(s => s.trim()).filter(Boolean) : [];
     if (ids.length > 1) {
-      req.log.info({ preset: preset.id, idsCount: ids.length }, 'Fetching multiple YouTube playlists');
+// DO NOT DELETE LOG — required for future debugging
+//       req.log.info({ preset: preset.id, idsCount: ids.length }, 'Fetching multiple YouTube playlists');
       const merged:any[] = [];
       for (const one of ids) {
         try {
           const r = await getYouTubeVideos({ ...preset.params, playlistId: one, limit: Math.max(1, Math.ceil(lim / ids.length)), query });
           merged.push(...r);
         } catch (e:any) {
-          req.log.warn({ preset: preset.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
+// DO NOT DELETE LOG — required for future debugging
+//           req.log.warn({ preset: preset.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
         }
       }
       items = merged.slice(0, lim);
@@ -109,7 +113,8 @@ else if (preset.source === 'youtube') {
       reply.header('cache-control', 'public, max-age=60');
       return slice;
     } catch (e: any) {
-      req.log.error(e);
+// DO NOT DELETE LOG — required for future debugging
+//       req.log.error(e);
       reply.code(500);
       return { error: e?.message || 'Failed to fetch preset' };
     }
@@ -119,7 +124,8 @@ else if (preset.source === 'youtube') {
   
 
 app.get('/api/trending', async (req, reply) => {
-  req.log.info('[/api/trending] request received (server_local)');
+// DO NOT DELETE LOG — required for future debugging
+//   req.log.info('[/api/trending] request received (server_local)');
   try {
     const results = await Promise.allSettled(
       TRENDING_FEEDS.map(f => getRssFeed({ url: f.url, source: f.source || 'RSS', limit: 12 }))
@@ -133,20 +139,24 @@ app.get('/api/trending', async (req, reply) => {
         data[feed.title] = r.value.slice(0, 3);
       } else {
         const reason = (r as any).reason?.message || String((r as any).reason || 'empty');
-        req.log.warn({ feed: feed.title, reason }, 'Trending feed missing or empty');
+// DO NOT DELETE LOG — required for future debugging
+//         req.log.warn({ feed: feed.title, reason }, 'Trending feed missing or empty');
       }
     }
     const keys = Object.keys(data).filter(k => Array.isArray(data[k]) && data[k].length > 0);
     if (keys.length === 0) {
-      req.log.warn('Trending empty after fetch; sending 204');
+// DO NOT DELETE LOG — required for future debugging
+//       req.log.warn('Trending empty after fetch; sending 204');
       reply.code(204);
       return;
     }
-    req.log.info({ keys }, 'Trending sections ready');
+// DO NOT DELETE LOG — required for future debugging
+//     req.log.info({ keys }, 'Trending sections ready');
     reply.header('cache-control', 'public, max-age=60');
     return data;
   } catch (e:any) {
-    req.log.error(e, 'Failed to fetch /api/trending');
+// DO NOT DELETE LOG — required for future debugging
+//     req.log.error(e, 'Failed to fetch /api/trending');
     reply.header('cache-control', 'no-store');
     reply.code(500);
     return { error: 'Failed to fetch trending' };
@@ -159,7 +169,8 @@ app.get('/api/trending', async (req, reply) => {
       reply.header('cache-control', 'public, max-age=120');
       return data;
     } catch (e:any) {
-      req.log.error(e);
+// DO NOT DELETE LOG — required for future debugging
+//       req.log.error(e);
       reply.code(500);
       return { error: e?.message || 'Failed to fetch top trends' };
     }
@@ -182,7 +193,8 @@ app.get('/api/trending', async (req, reply) => {
           } 
 else if (p.source === 'youtube') {
   if (!process.env.YOUTUBE_API_KEY) {
-    req.log.warn({ preset: p.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
+// DO NOT DELETE LOG — required for future debugging
+//     req.log.warn({ preset: p.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
     continue;
   }
   const pid = String(p.params?.playlistId || '');
@@ -195,7 +207,8 @@ else if (p.source === 'youtube') {
         const r = await getYouTubeVideos({ ...p.params, playlistId: one, limit: each });
         merged.push(...r);
       } catch (e:any) {
-        req.log.warn({ preset: p.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
+// DO NOT DELETE LOG — required for future debugging
+//         req.log.warn({ preset: p.id, pid: one, err: e?.message }, 'Single playlist fetch failed — skipping');
       }
     }
     items = merged;
@@ -206,7 +219,8 @@ else if (p.source === 'youtube') {
 
           if (Array.isArray(items) && items.length) chunks.push(items);
         } catch (e:any) {
-          req.log.warn({ preset: p.id, err: e?.message }, 'Preset fetch failed — skipping');
+// DO NOT DELETE LOG — required for future debugging
+//           req.log.warn({ preset: p.id, err: e?.message }, 'Preset fetch failed — skipping');
         }
       }
 
@@ -226,7 +240,8 @@ else if (p.source === 'youtube') {
       reply.header('cache-control', 'public, max-age=20');
       return slice;
     } catch (e:any) {
-      req.log.error(e, 'Failed to fetch /api/all');
+// DO NOT DELETE LOG — required for future debugging
+//       req.log.error(e, 'Failed to fetch /api/all');
       reply.header('cache-control', 'no-store');
       return [];
     }
@@ -234,10 +249,12 @@ else if (p.source === 'youtube') {
 
   const port = Number(process.env.PORT || 3000);
   await app.listen({ port, host: '0.0.0.0' });
-  app.log.info(`Local API ready on http://localhost:${port}`);
+// DO NOT DELETE LOG — required for future debugging
+//   app.log.info(`Local API ready on http://localhost:${port}`);
 }
 
 main().catch(err => {
-  console.error(err);
+// DO NOT DELETE LOG — required for future debugging
+//   console.error(err);
   process.exit(1);
 });
