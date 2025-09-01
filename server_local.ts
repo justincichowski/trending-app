@@ -59,42 +59,82 @@ app.get('/', async (_req, reply) => {
   });
 
   
+
 app.get('/api/trending', async (req, reply) => {
   try {
-    // Build an object keyed by section titles (as expected by the client)
     const rssPresets = presets.filter(p => p.source === 'rss');
     const result: Record<string, any[]> = {};
     for (const p of rssPresets) {
-      const items = await getRssFeed(p.params.url, p.params.limit || 20);
-      result[p.name] = items;
+      try {
+        const items = await getRssFeed(p.params.url, p.params.limit || 20);
+        result[p.name] = items;
+      } catch (e:any) {
+        req.log.warn({ preset: p.id, err: e?.message }, 'RSS fetch failed — skipping');
+      }
     }
     reply.header('cache-control', 'public, max-age=60');
     return result;
   } catch (e:any) {
-    req.log.error(e);
-    reply.code(500);
-    return { error: e?.message || 'Failed to build trending feed' };
+    req.log.error(e, 'Failed to build /api/trending');
+    reply.header('cache-control', 'no-store');
+    return {};
   }
 });
 
   
 
+
 app.get('/api/all', async (req, reply) => {
   try {
     const { page = 0, limit, excludedIds } = (req.query as any) || {};
     const pageNum = parseInt(String(page)) || 0;
-    const lim = limit ? parseInt(String(limit)) || 30 : 30;
-
-    // Collect items from all presets
+    const lim = limit ? (parseInt(String(limit)) || 30) : 30;
     const idBlacklist = String(excludedIds || '').split(',').filter(Boolean);
-    const chunks: any[][] = [];
 
+    const chunks: any[][] = [];
     for (const p of presets) {
-      let items: any[] = [];
-      if (p.source === 'rss') {
-        items = await getRssFeed(p.params.url, p.params.limit || 20);
-      } else if (p.source === 'youtube') {
-        items = await getYouTubeVideos({ ...p.params, limit: p.params.limit || 20 });
+      try {
+        let items: any[] = [];
+        if (p.source === 'rss') {
+          items = await getRssFeed(p.params.url, p.params.limit || 20);
+        } else if (p.source === 'youtube') {
+          // Gracefully skip YouTube if key missing
+          if (!process.env.YOUTUBE_API_KEY) {
+            req.log.warn({ preset: p.id }, 'Skipping YouTube preset: missing YOUTUBE_API_KEY');
+            continue;
+          }
+          items = await getYouTubeVideos({ ...p.params, limit: p.params.limit || 20 });
+        }
+        if (Array.isArray(items) && items.length) chunks.push(items);
+      } catch (e:any) {
+        req.log.warn({ preset: p.id, err: e?.message }, 'Preset fetch failed — skipping');
+        continue;
+      }
+    }
+
+    // Flatten, dedupe, exclude, paginate
+    const flat = ([] as any[]).concat(...chunks).filter(Boolean);
+    const seen = new Set<string>();
+    const filtered: any[] = [];
+    for (const it of flat) {
+      const id = String(it?.id || '');
+      if (!id) continue;
+      if (idBlacklist.includes(id)) continue;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      filtered.push(it);
+    }
+    const start = pageNum * lim;
+    const slice = filtered.slice(start, start + lim);
+    reply.header('cache-control', 'public, max-age=20');
+    return slice;
+  } catch (e:any) {
+    req.log.error(e, 'Failed to fetch /api/all');
+    // Do NOT 500 the whole page — return empty list so UI still renders
+    reply.header('cache-control', 'no-store');
+    return [];
+  }
+});
       }
       chunks.push(items);
     }
