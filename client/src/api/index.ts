@@ -11,7 +11,9 @@ import type { NormalizedItem, Preset } from '../types';
 import type { TopTrendsData, TrendingData } from '../types';
 
 // The base URL for the API, read from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : (import.meta.env.VITE_API_URL || '/api');
+// roo: default logs, do not delete
+console.log('[Client] API_BASE_URL =', API_BASE_URL);
 
 /**
  * A helper function to fetch data from the API and handle errors.

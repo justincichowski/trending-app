@@ -7,6 +7,10 @@ import { getYouTubeVideos } from './api/lib/youtube';
 import { fetchTopTrends } from './api/lib/toptrends';
 
 // Curated feeds for right-panel "Trending" (matches original server behavior)
+// RIGHT PANEL POLICY:
+// - 3 items per section
+// - 15m cache (client/serverless); local dev does not persist cache
+// - Return 204 when all feeds empty
 const TRENDING_FEEDS = [
   { title: 'Sports',   source: 'ESPN',        url: 'https://www.espn.com/espn/rss/news' },
   { title: 'Movies',   source: 'NYTimes',     url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml' },
@@ -115,50 +119,37 @@ else if (preset.source === 'youtube') {
   
 
 app.get('/api/trending', async (req, reply) => {
+  req.log.info('[/api/trending] request received (server_local)');
   try {
     const results = await Promise.allSettled(
-      TRENDING_FEEDS.map(f => getRssFeed(f.url, 20))
+      TRENDING_FEEDS.map(f => getRssFeed({ url: f.url, source: f.source || 'RSS', limit: 12 }))
     );
     const data: Record<string, any[]> = {};
     for (let i = 0; i < TRENDING_FEEDS.length; i++) {
       const feed = TRENDING_FEEDS[i];
       const r = results[i];
       if (r.status === 'fulfilled' && Array.isArray(r.value) && r.value.length > 0) {
-        data[feed.title] = r.value;
+        // Enforce max 3 per section at server level
+        data[feed.title] = r.value.slice(0, 3);
       } else {
         const reason = (r as any).reason?.message || String((r as any).reason || 'empty');
         req.log.warn({ feed: feed.title, reason }, 'Trending feed missing or empty');
       }
     }
-
-    // Fallback: if curated set produced nothing, try RSS presets
-    if (Object.keys(data).length === 0) {
-      req.log.info('Trending fallback: using RSS presets');
-      try {
-        const { presets } = await import('./api/lib/presets');
-        const rssPresets = presets.filter((p: any) => p.source === 'rss');
-        for (const p of rssPresets) {
-          try {
-            const items = await getRssFeed(p.params.url, p.params.limit || 20);
-            if (Array.isArray(items) && items.length > 0) {
-              data[p.name] = items;
-            }
-          } catch (e:any) {
-            req.log.warn({ preset: p.id, err: e?.message }, 'RSS preset fetch failed');
-          }
-        }
-      } catch (e:any) {
-        req.log.error(e, 'Trending fallback failed');
-      }
+    const keys = Object.keys(data).filter(k => Array.isArray(data[k]) && data[k].length > 0);
+    if (keys.length === 0) {
+      req.log.warn('Trending empty after fetch; sending 204');
+      reply.code(204);
+      return;
     }
-
+    req.log.info({ keys }, 'Trending sections ready');
     reply.header('cache-control', 'public, max-age=60');
-    req.log.info({ sections: Object.keys(data).length }, '/api/trending served');
     return data;
   } catch (e:any) {
-    req.log.error(e, 'Failed to build /api/trending');
+    req.log.error(e, 'Failed to fetch /api/trending');
     reply.header('cache-control', 'no-store');
-    return {};
+    reply.code(500);
+    return { error: 'Failed to fetch trending' };
   }
 });
 // Top trends passthrough

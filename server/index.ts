@@ -13,6 +13,13 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyStatic from '@fastify/static';
 import fastifyView from '@fastify/view';
 import ejs from 'ejs';
+
+// RIGHT PANEL POLICY:
+// - Limit per section = 3 items.
+// - 15 min server cache; never write empty.
+// - Return 204 when all feeds empty.
+const RIGHT_PANEL_LIMIT = 3;
+const RIGHT_PANEL_TTL_MS = 15 * 60 * 1000;
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
 import { presets } from './lib/presets';
@@ -81,7 +88,7 @@ const main = async () => {
 			{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
 			{ title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
 			{ title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
-			{ title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+			{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
 			{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 		];
 
@@ -90,7 +97,7 @@ const main = async () => {
 		// A durable, external cache like Vercel KV would be required for production.
 		const now = Date.now();
 		const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
-		const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+		const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
 
 		let topTrendsData: TopTrendsData | null;
 		if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
@@ -110,7 +117,7 @@ const main = async () => {
 		} else {
 			server.log.info('Fetching new Trending data.');
 			const trendingResults = await Promise.allSettled(
-				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
+				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: RIGHT_PANEL_LIMIT }))
 			);
 
 			trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
@@ -294,10 +301,11 @@ const main = async () => {
 		}
 	});
 	server.get('/api/trending', async (request, reply) => {
-		const trendingCacheDuration = 15 * 60 * 1000; // 15 minutes
+		server.log.info('[/api/trending] request received');
+		const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
 		const cachedData = await readFromCache<Record<string, NormalizedItem[]>>('trending', trendingCacheDuration);
 
-		if (cachedData) {
+		if (cachedData && Object.keys(cachedData).some(k=>Array.isArray((cachedData as any)[k]) && (cachedData as any)[k].length>0)) {
 			// roo do not delete
 			server.log.info('Using file cache for Trending data.');
 			return cachedData;
@@ -306,15 +314,15 @@ const main = async () => {
 		const TRENDING_FEEDS = [
 			{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
 			{ title: 'Movies', source: 'The New York Times', url: 'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/movies/rss.xml' },
-			{ title: 'Sales', source: 'Google News', query: 'product deals' },
-			{ title: 'Websites', source: 'TechCrunch', url: 'http://feeds.feedburner.com/TechCrunch/' },
+			{ title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
+			{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
 			{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 		];
 
 		try {
 			server.log.info('Fetching new Trending data.');
 			const trendingResults = await Promise.allSettled(
-				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, query: (feed as any).query, source: feed.source, limit: 3 }))
+				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, query: (feed as any).query, source: feed.source, limit: RIGHT_PANEL_LIMIT }))
 			);
 
 			const trendingData = trendingResults.reduce((acc: Record<string, NormalizedItem[]>, result, index) => {
@@ -327,6 +335,13 @@ const main = async () => {
 				return acc;
 			}, {});
 			
+			const keys = Object.keys(trendingData).filter(k => Array.isArray(trendingData[k]) && trendingData[k].length>0);
+			server.log.info({ keys }, 'Trending sections ready');
+			if (keys.length === 0) {
+				server.log.warn('Trending empty after fetch; sending 204 and not caching');
+				reply.status(204).send();
+				return;
+			}
 			await writeToCache('trending', trendingData);
 			return trendingData;
 		} catch (error) {
@@ -339,7 +354,7 @@ const main = async () => {
 		const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
 		const cachedData = await readFromCache<TopTrendsData>('toptrends', topTrendsCacheDuration);
 
-		if (cachedData) {
+		if (cachedData && Object.keys(cachedData).some(k=>Array.isArray((cachedData as any)[k]) && (cachedData as any)[k].length>0)) {
 			// roo do not delete
 			server.log.info('Using file cache for Top Trends.');
 			return cachedData;

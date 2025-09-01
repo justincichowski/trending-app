@@ -1,3 +1,5 @@
+// Display rule for RIGHT COLUMN (Trending): max 3 per topic (defensive)
+const VISIBLE_LIMIT = 3;
 import { timeAgo } from '../utils/format';
 import type { NormalizedItem } from '../types';
 

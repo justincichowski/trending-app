@@ -1,3 +1,63 @@
+// ===== Trending (Right Panel) Fetch + Cache with Logging =====
+async function fetchTrendingWithCache() {
+  const KEY = 'trending_cache_v2';
+  const TTL = 15 * 60 * 1000;
+  const now = Date.now();
+  try {
+    const cachedRaw = localStorage.getItem(KEY);
+    if (cachedRaw) {
+      const { t, data } = JSON.parse(cachedRaw);
+      if (t && (now - t) < TTL && data && Object.keys(data).length > 0) {
+        console.log('[Client] Trending cache hit');
+        return data;
+      }
+    }
+  } catch (e) {
+    console.warn('[Client] Trending cache read error', e);
+  }
+  console.log('[Client] Trending cache miss; fetching');
+  const data1 = await fetchTrendingOnce();
+  if (isMeaningfulTrending(data1)) {
+    try { localStorage.setItem(KEY, JSON.stringify({ t: now, data: data1 })); } catch {}
+    return data1;
+  }
+  console.log('[Client] Trending empty on first try; retrying in 1500ms');
+  await new Promise(r => setTimeout(r, 1500));
+  const data2 = await fetchTrendingOnce();
+  if (isMeaningfulTrending(data2)) {
+    try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), data: data2 })); } catch {}
+    return data2;
+  }
+  console.log('[Client] Trending still empty after retry');
+  return null;
+}
+function isMeaningfulTrending(obj) {
+  if (!obj) return false;
+  return Object.values(obj).some(arr => Array.isArray(arr) && arr.length > 0);
+}
+async function fetchTrendingOnce() {
+  const base = import.meta.env.DEV ? 'http://localhost:3000/api' : ((window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api');
+      const u = new URL(base + '/trending', window.location.origin);
+      console.log('[Client] Trending request URL', u.toString());
+      const res = await fetch(u.toString());
+      console.log('[Client] Trending response status', res.status);
+  if (res.status === 204) return null;
+  if (!res.ok) {
+    console.warn('[Client] Trending fetch failed status', res.status);
+    return null;
+  }
+  try {
+    const data = await res.json();
+    console.log('[Client] Trending fetched sections', Object.keys(data));
+    return data;
+  } catch {
+    return null;
+  }
+}
+window.enableTrendingDebug = function(on=true){ sessionStorage.setItem('trending_debug', on?'1':'0'); console.log('[Client] trending debug', on); };
+// ===== End Trending (Right Panel) =====
+// RIGHT PANEL CACHE BEHAVIOR LOGGING
+// Logs: cache hit/miss, empty retry, final outcome.
 import './style.css';
 import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
@@ -541,10 +601,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
 
 	
-	getTrending().then(data => {
+	fetchTrendingWithCache().then(data => {
 		// roo do not delete
 		// console.log('[Client] Received trending data sections:', Object.keys(data).length);
-		trendingPanel.render(data);
+		console.log('[Client] Rendering Trending with data?', !!data, data && Object.keys(data));
+		trendingPanel.render(data || {} as any);
 	});
 
 	getTopTrends().then(data => {

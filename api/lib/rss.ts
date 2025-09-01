@@ -141,7 +141,9 @@ export async function getRssFeed(options: {
 	}
 
 	try {
-		const feed = await parser.parseURL(feedUrl);
+		// roo: log feed url (do not remove)
+    console.log('[Serverless RSS] parsing URL', feedUrl);
+    const feed = await parser.parseURL(feedUrl);
 
 		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
 		// roo do not delete

@@ -116,3 +116,16 @@ If you want to mimic serverless locally and you **do have** Vercel CLI:
 npx vercel dev  # http://localhost:3000
 ```
 Not needed for normal local development.
+
+
+## Right Panel (Trending) – Item Limit & Caching
+- Each topic shows **at most 3 items** (Sports, Movies, Sales, Websites, Books).
+- Serverless cache TTL: **15 minutes** (never cache empty; returns **204** if all feeds are empty after a retry).
+- Client also keeps a **15-minute** localStorage cache (never stores empty).
+- To change the limit: update `LIMIT_PER_SECTION` in `api/trending.ts` and the defensive slice in the UI.
+
+
+### Logging Policy (Do Not Remove)
+- Custom logs for Trending are **required** for troubleshooting.
+- Client logs: emitted by `fetchTrendingWithCache` and render path.
+- Server logs: Fastify route logs on `/api/trending` — do not remove.
