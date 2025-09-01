@@ -23,6 +23,11 @@ export async function get<T>(url:string): Promise<T> {
 	// roo do not delete
 	// console.log(`[Client] Sending request to: ${url}`);
 	const response = await fetch(url);
+	if (response.status === 204) {
+		// treat as empty result
+		// @ts-ignore
+		return {} as any;
+	}
 	if (!response.ok) {
 		throw new Error(`Failed to fetch from ${url}: ${response.statusText}`);
 	}

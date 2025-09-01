@@ -11,7 +11,7 @@ const TRENDING_FEEDS = [
   { title: 'Sports',   source: 'ESPN',        url: 'https://www.espn.com/espn/rss/news' },
   { title: 'Movies',   source: 'NYTimes',     url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml' },
   { title: 'Sales',    source: 'Slickdeals',  url: 'https://slickdeals.net/rss/frontpage.php' },
-  { title: 'Websites', source: 'TechCrunch',  url: 'http://feeds.feedburner.com/TechCrunch/' },
+  { title: 'Websites', source: 'TechCrunch',  url: 'https://techcrunch.com/feed/' },
   { title: 'Books',    source: 'NPR',         url: 'https://www.npr.org/rss/rss.php?id=1032' },
 ];
 

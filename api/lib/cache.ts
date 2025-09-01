@@ -13,8 +13,13 @@ export async function cached<T>(key: string, ttlMs: number, fn: () => Promise<T>
     return hit.value as T;
   }
   const value = await fn();
+  // Only cache if value is "meaningful" (not empty/null)
+const isEmptyObject = value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0;
+const isEmptyArray = Array.isArray(value) && value.length === 0;
+if (value != null && !isEmptyObject && !isEmptyArray) {
   store.set(key, { expires: now + ttlMs, value });
-  return value;
+}
+return value;
 }
 
 // Optional: a way to clear for tests

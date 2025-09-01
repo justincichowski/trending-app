@@ -10,6 +10,13 @@ fs.mkdir(CACHE_DIR, { recursive: true });
 
 type CacheData = TopTrendsData | Record<string, NormalizedItem[]>;
 
+function isMeaningful(data:any):boolean{
+  if (data == null) return false;
+  if (Array.isArray(data)) return data.length>0;
+  if (typeof data === 'object') return Object.keys(data).length>0;
+  return true;
+}
+
 /**
  * Writes data to a cache file.
  * @param key The cache key (e.g., 'topTrends', 'trending').
@@ -17,12 +24,13 @@ type CacheData = TopTrendsData | Record<string, NormalizedItem[]>;
  */
 export async function writeToCache(key: string, data: CacheData): Promise<void> {
     const cacheFile = path.join(CACHE_DIR, `${key}.json`);
+    if (!isMeaningful(data)) {
+        return; // do not write empty
+    }
     const cacheEntry = {
         lastFetched: Date.now(),
         data: data,
     };
-    // roo do not delete
-    // console.log(`[CACHE WRITE] Storing object for key "${key}":`, data);
     await fs.writeFile(cacheFile, JSON.stringify(cacheEntry, null, 2));
 }
 
@@ -40,6 +48,7 @@ export async function readFromCache<T extends CacheData>(key: string, maxAge: nu
         const now = Date.now();
 
         if (now - cacheEntry.lastFetched < maxAge) {
+            if (!isMeaningful(cacheEntry.data)) return null;
             return cacheEntry.data as T;
         }
         return null;

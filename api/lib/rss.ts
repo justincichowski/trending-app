@@ -3,7 +3,15 @@ import axios from 'axios';
 import type { NormalizedItem } from './types';
 
 // Create a new RSS parser instance
-const parser = new Parser();
+const parser = new Parser({
+  requestOptions: {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; TrendingApp/1.0) ',
+      'Accept': 'application/rss+xml, application/xml;q=0.9, */*;q=0.8'
+    },
+    timeout: 10000
+  }
+});
 
 /**
  * Fetches the HTML of a page and extracts the Open Graph image URL.
