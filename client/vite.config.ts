@@ -18,12 +18,6 @@ export default defineConfig({
 				target: 'http://localhost:3000',
 				changeOrigin: true,
 			},
-			// Proxy HTML navigation requests to the backend, but let Vite handle
-			// static assets like JS, CSS, and images.
-			'^(?!/api|/@vite|/@fs|/src|/node_modules|/favicon.svg).*$': {
-				target: 'http://localhost:3000',
-				changeOrigin: true,
-			},
 		},
 	},
 });
