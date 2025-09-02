@@ -1,56 +1,236 @@
-/* First-paint theme variables to avoid white flash */
-/* :root { --bg:#FFFFFF; --fg:#0B0F17; background: var(--bg); color: var(--fg); }
-.dark { --bg:#0B0F17; --fg:#FFFFFF; }
-html, body { background: var(--bg); color: var(--fg); min-height: 100%; }
- */
 
+/* colors only variable elements */
 
-:root {
-	--background-color: #ffffff;
-	--background-color-input: rgba(255, 255, 255, 0.5);
-	--text-color: #333333;
-	--accent-color: #007bff;
-	--card-background-color: #f8f9fa;
-	--border-color: #dee2e6;
-	--card-hover-background-color: #f1f3f5;
-	--item-title-color: #555555;
-	--category-button-background: #e9ecef;
-	--category-button-text: #495057;
-	--category-button-active-background: #343a40; /* Dark background for light theme */
-	--category-button-active-text: #f8f9fa; /* Light text for light theme */
-	--context-menu-highlight-bg: #007bff;
-	--context-menu-highlight-text: #ffffff;
-	--context-menu-active-bg: #0056b3;
-	--back-to-top-hover-bg: #d3d9df;
-}
+	@media (max-width: 550px) {
 
-html.dark-theme {
-	--background-color: #121212;
-	--background-color-input: rgba(0, 0, 0, 0.5);
-	--text-color: #ffffff;
-	--accent-color: #bb86fc;
-	--card-background-color: #1e1e1e;
-	--border-color: #333333;
-	--card-hover-background-color: #252525;
-	--item-title-color: #bbbbbb;
-	--category-button-background: #343a40;
-	--category-button-text: #e9ecef;
-	--category-button-active-background: #e9ecef; /* Light background for dark theme */
-	--category-button-active-text: #121212; /* Dark text for dark theme */
-	--context-menu-highlight-bg: #bb86fc;
-	--context-menu-highlight-text: #121212;
-	--context-menu-active-bg: #9857e7;
-	--back-to-top-hover-bg: #4a4a4a;
-}
+		.controls.active {
+			background-color: var(--background-color);
+			border-bottom: 1px solid var(--border-color);
+		}
+
+	}
+
+	body {
+		background-color: var(--background-color);
+		color: var(--text-color);
+	}
+	.category-link {
+		background-color: var(--category-button-background);
+		color: var(--category-button-text);
+	}
+	.category-link.active {
+		background-color: var(--category-button-active-background);
+		color: var(--category-button-active-text);
+	}
+	#category-nav .swiper-button-prev::after,
+	#category-nav .swiper-button-next::after {
+		color: var(--text-color);
+		background-color: var(--category-button-background);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+	}
+	#category-nav .swiper-button-prev:hover::after,
+	#category-nav .swiper-button-next:hover::after {
+		background-color: var(--back-to-top-hover-bg);
+	}
+	#category-nav .swiper-button-prev, #category-nav .swiper-container-rtl .swiper-button-next {
+		background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
+	}
+	#category-nav .swiper-button-next, #category-nav .swiper-container-rtl .swiper-button-prev {
+		background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
+	}
+	.logo-letter {
+		fill: var(--text-color);
+	}
+	.global-tooltip {
+		background-color: var(--card-background-color);
+		color: var(--text-color);
+		border: 1px solid var(--accent-color);
+	}
+	.loader-path {
+		stroke: var(--category-button-text);
+	}
+	.item-card {
+		border: 1px solid var(--border-color);
+		background-color: var(--card-background-color);
+	}
+	.item-card:hover {
+		background-color: var(--card-hover-background-color);
+	}
+	.item-controls {
+		color: var(--text-color);
+	}
+	.icon-button svg {
+		stroke: var(--text-color);
+	}
+	.favorite-button.is-favorited .icon-heart path {
+		fill: var(--accent-color);
+		stroke: var(--accent-color);
+	}
+	#theme-toggle-button,
+	#settings-button {
+		fill: var(--text-color);
+	}
+	.icon-theme-toggle .icon-sun,
+	.icon-theme-toggle .icon-moon {
+		fill: var(--text-color);
+	}
+	.item-title a {
+		color: var(--item-title-color);
+	}
+	.item-title a:hover,
+	.item-title a:active {
+		color: var(--text-color);
+	}
+	.more-button {
+		color: var(--text-color);
+	}
+	.notification {
+		background-color: var(--card-background-color);
+		color: var(--text-color);
+		border: 1px solid var(--border-color);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+	.undo-button {
+		color: var(--accent-color);
+	}
+	.search-bar-wrapper,
+	.select-wrapper {
+		background-color: var(--category-button-background);
+		border: 1px solid transparent;
+	}
+	.search-bar-wrapper:focus-within,
+	.select-wrapper:focus-within {
+		background-color: var(--card-background-color);
+		border-color: var(--accent-color);
+	}
+	.search-bar-wrapper:focus-within #search-input,
+	.select-wrapper:focus-within #sort-select {
+		background-color: var(--card-background-color);
+	}
+	.setting > input,
+	#search-input,
+	#sort-select {
+		color: var(--text-color);
+		background-color: var(--category-button-background);
+	}
+	#sort-select option {
+		background-color: var(--background-color);
+		color: var(--text-color);
+	}
+	#search-input::placeholder {
+		color: var(--text-color);
+	}
+	.select-wrapper::after {
+		color: var(--text-color);
+	}
+	.clear-button svg {
+		fill: var(--text-color);
+	}
+	.search-toggle-button svg {
+		stroke: var(--text-color);
+	}
+	@media (max-width: 550px) {
+		.controls.active {
+		background-color: var(--background-color);
+		border-bottom: 1px solid var(--border-color);
+		}
+	}
+	.settings-panel {
+		background-color: var(--background-color-input);
+	}
+	.settings-panel-content {
+		background-color: var(--background-color);
+		border: 1px solid var(--border-color);
+	}
+	.close-button {
+		color: var(--text-color);
+	}
+	.context-menu {
+		background-color: var(--card-background-color);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+		outline: 1px solid rgba(128, 128, 128, 0.2);
+	}
+	.context-menu ul li {
+		color: var(--text-color);
+	}
+	.context-menu ul li:hover {
+		background-color: var(--context-menu-highlight-bg);
+		color: var(--context-menu-highlight-text);
+	}
+	.context-menu ul li:active {
+		background-color: var(--context-menu-active-bg);
+		color: var(--context-menu-highlight-text);
+	}
+	#back-to-top {
+		background-color: var(--category-button-background);
+		transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+	#back-to-top:hover {
+		background-color: var(--back-to-top-hover-bg);
+	}
+	#back-to-top svg {
+		fill: var(--category-button-active-text);
+	}
+	.autocomplete-container {
+		background-color: var(--card-background-color);
+		border: 1px solid var(--border-color);
+		box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+	}
+	.autocomplete-container li:hover {
+		background-color: var(--category-button-background);
+		color: var(--category-button-text);
+	}
+	.delete-suggestion {
+		background: none;
+		border: none;
+		color: var(--text-color);
+	}
+	.trending-section {
+		background-color: var(--card-background-color);
+		border: 1px solid var(--border-color);
+	}
+	.trending-title {
+		color: var(--item-title-color);
+	}
+	.trending-item a {
+		color: var(--text-color);
+	}
+	.trending-section .close-button {
+		color: var(--text-color);
+	}
+	.top-trends-section {
+		background-color: var(--card-background-color);
+		border: 1px solid var(--border-color);
+	}
+	.top-trends-title {
+		color: var(--item-title-color);
+	}
+	.top-trends-item a {
+		color: var(--item-title-color);
+	}
+	.top-trends-item a:hover {
+		color: var(--text-color);
+	}
+	.gallery-swiper .swiper-slide .item-card {
+		background-color: var(--card-background-color);
+	}
+	.fullscreen-gallery .swiper-button-prev::after,
+	.fullscreen-gallery .swiper-button-next::after {
+		color: var(--text-color);
+	}
+	.panel-loader .loader-path {
+		stroke: var(--text-color);
+	}
+
+/* end colors elements*/
 
 body, html{
 	max-height: 100%;
 	overflow: hidden;
 }
+
 body {
-	background-color: var(--background-color);
-	color: var(--text-color);
-	transition: background-color 0.3s, color 0.3s;
 	margin-top: 8px;
 	margin-left: 8px;
 	margin-right: 8px;
@@ -108,8 +288,6 @@ body {
 	padding: 0.3rem 0.8rem; /* Further reduced padding */
 	text-decoration: none;
 	border-radius: 10px;
-	background-color: var(--category-button-background);
-	color: var(--category-button-text);
 	transition: background-color 0.2s, color 0.2s;
 	border: none; /* Remove the old border */
 	white-space: nowrap; /* Prevent text wrapping */
@@ -117,8 +295,6 @@ body {
 
 
 .category-link.active {
-	background-color: var(--category-button-active-background);
-	color: var(--category-button-active-text);
 	font-weight: bold;
 }
 
@@ -146,7 +322,6 @@ body {
 #category-nav .swiper-button-next::after {
 	font-family: swiper-icons;
 	font-size: 18px;
-	color: var(--text-color);
 	text-transform: none !important;
 	letter-spacing: 0;
 	font-variant: initial;
@@ -158,19 +333,12 @@ body {
 	justify-content: center;
 	width: 31px;
 	height: 31px;
-	background-color: var(--category-button-background);
 	border-radius: 50%;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 	transition: background-color 0.2s, transform 0.1s;
 	z-index: 2; /* Ensure the button is on top of the fade */
 	position: relative; /* Needed for z-index to apply */
 }
 
-
-#category-nav .swiper-button-prev:hover::after,
-#category-nav .swiper-button-next:hover::after {
-	background-color: var(--back-to-top-hover-bg);
-}
 
 #category-nav .swiper-button-prev:active::after {
 	transform: translateX(-3px) scale(0.9);
@@ -183,13 +351,11 @@ body {
 #category-nav .swiper-button-prev, #category-nav .swiper-container-rtl .swiper-button-next {
 	left: -0.5px;
 	right: auto;
-	background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
 }
 
 #category-nav .swiper-button-next, #category-nav .swiper-container-rtl .swiper-button-prev {
 	right: -0.5px;
 	left: auto;
-	background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
 }
 
 #category-nav .swiper-button-prev.swiper-button-disabled,
@@ -230,7 +396,6 @@ body {
 	font-family: 'Bangers', cursive;
 	font-size: 40px;
 	font-weight: normal; /* The font is already bold */
-	fill: var(--text-color);
 	transition: transform 0.3s ease-out; /* Handles the smooth return */
 }
 
@@ -288,11 +453,8 @@ body {
 /* --- Global Tooltip --- */
 .global-tooltip {
 	position: fixed;
-	background-color: var(--card-background-color);
-	color: var(--text-color);
 	padding: 0.5rem;
 	border-radius: 4px;
-	border: 1px solid var(--accent-color);
 	z-index: 10003; /* Ensure it's above all other UI */
 	opacity: 0;
 	transition: opacity 0.2s;
@@ -372,7 +534,6 @@ body {
 }
 
 .loader-path {
-	stroke: var(--category-button-text);
 	stroke-linecap: round;
 	animation: dash 1.5s ease-in-out infinite;
 }
@@ -400,16 +561,10 @@ body {
 
 .item-card {
 	/* The item card itself no longer needs a max-width, as its parent (.main-content) now controls it. */
-	border: 1px solid var(--border-color);
 	padding: 1rem;
 	margin-bottom: 1rem;
 	border-radius: 8px;
-	background-color: var(--card-background-color);
 	transition: background-color 0.2s ease-in-out;
-}
-
-.item-card:hover {
-	background-color: var(--card-hover-background-color);
 }
 
 .item-card.is-removing {
@@ -437,7 +592,6 @@ body {
 	gap: 0.5rem;
 	margin-top: 12.5px;
 	margin-bottom: 12.5px;
-	color: var(--text-color);
 	opacity: 0.8;
 	font-size: 0.9rem;
 }
@@ -471,7 +625,6 @@ body {
 	width: 100%;
 	height: 100%;
 	fill: none;
-	stroke: var(--text-color);
 	stroke-width: 2;
 	stroke-linecap: round;
 	stroke-linejoin: round;
@@ -482,11 +635,6 @@ body {
 .favorite-button .icon-heart path {
 	fill: transparent;
 	transition: fill 0.2s ease-in-out;
-}
-
-.favorite-button.is-favorited .icon-heart path {
-	fill: var(--accent-color);
-	stroke: var(--accent-color);
 }
 
 .favorite-button .icon-wrapper {
@@ -525,7 +673,6 @@ body {
 /* --- Header Icon Buttons --- */
 #theme-toggle-button,
 #settings-button {
-	fill: var(--text-color);
 	width: 24px;
 	height: 24px;
 	flex-shrink: 0; /* Prevent shrinking */
@@ -547,7 +694,6 @@ body {
 
 .icon-theme-toggle .icon-sun,
 .icon-theme-toggle .icon-moon {
-	fill: var(--text-color);
 	transition: opacity 0.3s ease-in-out;
 }
 
@@ -565,10 +711,6 @@ body {
 }
 
 /* --- Header Icon Buttons --- */
-#theme-toggle-button,
-#settings-button {
-	fill: var(--text-color);
-}
 
 #settings-button .icon-wrapper {
 	display: flex;
@@ -585,7 +727,6 @@ body {
 
 .icon-theme-toggle .icon-sun,
 .icon-theme-toggle .icon-moon {
-	fill: var(--text-color);
 	transition: opacity 0.3s ease-in-out;
 }
 
@@ -609,13 +750,7 @@ body {
 }
 
 .item-title a {
-	color: var(--item-title-color);
 	text-decoration: underline;
-}
-
-.item-title a:hover,
-.item-title a:active {
-	color: var(--text-color);
 }
 
 .item-source {
@@ -625,7 +760,6 @@ body {
 .more-button {
 	background: none;
 	border: none;
-	color: var(--text-color);
 	cursor: pointer;
 	font-weight: bold;
 	padding: 0;
@@ -658,12 +792,8 @@ body {
 }
 
 .notification {
-	background-color: var(--card-background-color);
-	color: var(--text-color);
 	padding: 0.8rem 1.2rem;
 	border-radius: 8px;
-	border: 1px solid var(--border-color);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -686,7 +816,6 @@ body {
 .undo-button {
 	background: none;
 	border: none;
-	color: var(--accent-color);
 	cursor: pointer;
 	font-weight: bold;
 	padding: 0;
@@ -713,11 +842,9 @@ body {
 	position: relative;
 	display: flex;
 	align-items: center;
-	background-color: var(--category-button-background);
 	border-radius: 20px;
 	padding: 0.3rem 0.8rem;
 	transition: background-color 0.2s;
-	border: 1px solid transparent;
 }
 
 .select-wrapper {
@@ -728,32 +855,21 @@ body {
 	flex-grow: 1;
 }
 
-.search-bar-wrapper:focus-within,
-.select-wrapper:focus-within {
-	background-color: var(--card-background-color);
-	border-color: var(--accent-color);
-}
-
-.search-bar-wrapper:focus-within #search-input,
-.select-wrapper:focus-within #sort-select {
-	background-color: var(--card-background-color);
-}
-
+.setting > input,
 #search-input,
 #sort-select {
 	background: none;
 	border: none;
 	outline: none;
-	color: var(--text-color);
+}
+
+#search-input,
+#sort-select {
 	width: 100%;
-	background-color: var(--category-button-background);
 	padding-left: 4px;
 }
 
-#sort-select option {
-	background-color: var(--background-color);
-	color: var(--text-color);
-}
+
 
 #sort-select:focus {
     outline: none;
@@ -764,7 +880,6 @@ body {
 }
 
 #search-input::placeholder {
-	color: var(--text-color);
 	opacity: 0.7;
 }
 
@@ -789,7 +904,6 @@ body {
 	transform: translateY(-50%);
 	font-size: 0.8em;
 	pointer-events: none;
-	color: var(--text-color);
 }
 
 
@@ -816,7 +930,6 @@ body {
 .clear-button svg {
 	width: 14px;
 	height: 14px;
-	fill: var(--text-color);
 }
 
 .search-toggle-button {
@@ -830,9 +943,7 @@ body {
 	transform: scale(1.1);
 }
 
-.search-toggle-button svg {
-	stroke: var(--text-color);
-}
+
 
 @media (max-width: 550px) {
 	/* Default mobile view: show only the icons */
@@ -892,9 +1003,7 @@ body {
 		top: 100%;
 		left: 0;
 		right: 0;
-		background-color: var(--background-color);
 		padding: 1rem;
-		border-bottom: 1px solid var(--border-color);
 	}
 
 	.controls.active > * {
@@ -927,14 +1036,10 @@ body {
 .settings-panel.is-visible .settings-panel-content {
 	transform: scale(1);
 }
-.settings-panel {
-	background-color: var(--background-color-input);
-}
+
 .settings-panel-content {
-	background-color: var(--background-color);
 	padding: 2rem;
 	border-radius: 8px;
-	border: 1px solid var(--border-color);
 	transform: scale(0.95);
 	transition: transform 0.3s ease-in-out;
 }
@@ -958,7 +1063,6 @@ body {
 	font-size: 2rem;
 	cursor: pointer;
 	line-height: 1;
-	color: var(--text-color);
 }
 
 
@@ -972,12 +1076,9 @@ body {
     position: fixed;
     z-index: 10000;
     width: 180px; /* Wider to prevent text wrapping */
-    background-color: var(--card-background-color);
     border-radius: 6px; /* Slightly smaller radius */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     display: none;
     padding: 0.25rem 0; /* More compact padding */
-    outline: 1px solid rgba(128, 128, 128, 0.2); /* Subtle outline for floating effect */
 }
 
 .context-menu.show {
@@ -993,22 +1094,12 @@ body {
 .context-menu ul li {
     padding: 0.5rem 1rem; /* More compact padding */
     cursor: pointer;
-    color: var(--text-color);
     transition: background-color 0.1s, color 0.1s;
     font-size: 0.9rem; /* Smaller font size */
     border-radius: 4px;
     margin: 0 0.25rem;
 }
 
-.context-menu ul li:hover {
-    background-color: var(--context-menu-highlight-bg);
-    color: var(--context-menu-highlight-text);
-}
-
-.context-menu ul li:active {
-    background-color: var(--context-menu-active-bg);
-    color: var(--context-menu-highlight-text);
-}
 
 /* --- Back to Top Button --- */
 #back-to-top {
@@ -1017,10 +1108,7 @@ body {
     right: 1rem;
     width: 40px;
     height: 40px;
-    background-color: var(--category-button-background);
-    transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.3s, transform 0.3s;
@@ -1032,12 +1120,7 @@ body {
     transform: translateY(0);
 }
 
-#back-to-top:hover {
-    background-color: var(--back-to-top-hover-bg);
-}
-
 #back-to-top svg {
-    fill: var(--category-button-active-text);
     width: 24px;
     height: 24px;
 }
@@ -1054,14 +1137,11 @@ body {
 	top: 100%;
 	left: 0;
 	right: 0;
-	background-color: var(--card-background-color);
-	border: 1px solid var(--border-color);
 	border-top: none;
 	border-radius: 0 0 8px 8px;
 	z-index: 100;
 	max-height: 300px;
 	overflow-y: auto;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 	display: none; /* Hidden by default to prevent initial render glitch */
 }
 
@@ -1080,15 +1160,9 @@ body {
 	transition: background-color 0.2s;
 }
 
-.autocomplete-container li:hover {
-	background-color: var(--category-button-background);
-	color: var(--category-button-text);
-}
-
 .delete-suggestion {
 	background: none;
 	border: none;
-	color: var(--text-color);
 	opacity: 0.5;
 	cursor: pointer;
 	font-size: 1.2rem;
@@ -1166,10 +1240,8 @@ body:not(.show-trending) .trending-panel {
 
 .trending-section {
 	margin-bottom: 1rem;
-	background-color: var(--card-background-color);
 	border-radius: 8px;
 	padding: 1rem;
-	border: 1px solid var(--border-color);
 }
 
 .trending-title {
@@ -1177,8 +1249,6 @@ body:not(.show-trending) .trending-panel {
 	font-weight: bold;
 	margin-top: 0;
 	margin-bottom: 1rem;
-	color: var(--item-title-color);
-	cursor: default;
 }
 
 .trending-list {
@@ -1192,7 +1262,6 @@ body:not(.show-trending) .trending-panel {
 }
 
 .trending-item a {
-	color: var(--text-color);
 	text-decoration: none;
 	font-size: 0.9rem;
 }
@@ -1223,7 +1292,6 @@ body:not(.show-trending) .trending-panel {
 	font-size: 1.5rem;
 	cursor: pointer;
 	line-height: 1;
-	color: var(--text-color);
 	opacity: 0.5;
 	transition: opacity 0.2s;
 	position: relative;
@@ -1280,10 +1348,8 @@ body:not(.show-trending) .trending-panel {
 }
 
 .top-trends-section {
-	background-color: var(--card-background-color);
 	border-radius: 8px;
 	padding: 1rem;
-	border: 1px solid var(--border-color);
 }
 
 .top-trends-title {
@@ -1291,7 +1357,6 @@ body:not(.show-trending) .trending-panel {
 	font-weight: bold;
 	margin-top: 0;
 	margin-bottom: 1rem;
-	color: var(--item-title-color);
 	cursor: default;
 }
 
@@ -1306,13 +1371,11 @@ body:not(.show-trending) .trending-panel {
 }
 
 .top-trends-item a {
-	color: var(--item-title-color);
 	text-decoration: none;
 	font-size: 0.9rem;
 }
 
 .top-trends-item a:hover {
-	color: var(--text-color);
 	text-decoration: underline;
 	cursor: pointer;
 }
@@ -1363,7 +1426,6 @@ body:not(.show-trending) .trending-panel {
 	height: auto;
 	max-height: 90vh;
 	overflow-y: auto;
-	background-color: var(--card-background-color);
 	border-radius: 8px;
 }
 
@@ -1400,7 +1462,6 @@ body:not(.show-trending) .trending-panel {
 .fullscreen-gallery .swiper-button-next::after {
 	font-family: swiper-icons;
 	font-size: 44px; /* Larger arrows */
-	color: var(--text-color); /* Use theme font color */
 	text-transform: none !important;
 	letter-spacing: 0;
 	font-variant: initial;
@@ -1445,7 +1506,6 @@ body:not(.show-trending) .trending-panel {
 }
 
 .panel-loader .loader-path {
-	stroke: var(--text-color); /* Use theme variable for color */
 	stroke-linecap: round;
 	animation: dash 1.5s ease-in-out infinite;
 }

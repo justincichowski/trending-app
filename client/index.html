@@ -6,21 +6,75 @@
 <script>
 (function () {
   try {
-    var saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
-    // var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    // var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
-    // var root = document.documentElement;
-    // if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
-    // root.setAttribute('data-theme', theme);
-    // var bg = theme === 'dark' ? '#0B0F17' : '#FFFFFF';
-    // var fg = theme === 'dark' ? '#FFFFFF' : '#0B0F17';
-    // root.style.setProperty('--bg', bg);
-    // root.style.setProperty('--fg', fg);
-    // root.style.backgroundColor = 'var(--bg)';
-    // document.addEventListener('DOMContentLoaded', function(){
-    //   document.body.style.backgroundColor = 'var(--bg)';
-    //   document.body.style.color = 'var(--fg)';
-    // });
+    // Figure out initial theme
+	var saved = JSON.parse(localStorage.getItem('theme')); // JSON.parse() required saved as json
+	var sys = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+	var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
+	var html = document.documentElement;
+	html.classList.toggle('light-theme', theme === 'light');
+	html.classList.toggle('dark-theme', theme !== 'light');
+	var css = `
+	/* theme variables */
+	:root {
+		--back-to-top-hover-bg: #4a4a4a;
+		--background-color: #121212;
+		--background-color-input: rgba(0, 0, 0, 0.5);
+		--text-color: #ffffff;
+		--accent-color: #bb86fc;
+		--card-background-color: #1e1e1e;
+		--border-color: #333333;
+		--card-hover-background-color: #252525;
+		--item-title-color: #bbbbbb;
+		--category-button-background: #343a40;
+		--category-button-text: #e9ecef;
+		--category-button-active-background: #e9ecef;
+		--category-button-active-text: #121212;
+		--context-menu-highlight-bg: #bb86fc;
+		--context-menu-highlight-text: #121212;
+		--context-menu-active-bg: #9857e7;
+	}
+	html.dark-theme { color-scheme: dark; }
+
+	html.light-theme {
+		--back-to-top-hover-bg: #d3d9df;
+		--background-color: #ffffff;
+		--background-color-input: rgba(255, 255, 255, 0.5);
+		--text-color: #333333;
+		--accent-color: #007bff;
+		--card-background-color: #f8f9fa;
+		--border-color: #dee2e6;
+		--card-hover-background-color: #f1f3f5;
+		--item-title-color: #555555;
+		--category-button-background: #e9ecef;
+		--category-button-text: #495057;
+		--category-button-active-background: #343a40;
+		--category-button-active-text: #f8f9fa;
+		--context-menu-highlight-bg: #007bff;
+		--context-menu-highlight-text: #ffffff;
+		--context-menu-active-bg: #0056b3;
+		color-scheme: light;
+	}
+	`;
+
+	var style = document.createElement('style');
+	style.id = 'theme-vars';
+	style.textContent = css;
+	document.head.prepend(style);  // Put it early so your main stylesheet can reference the vars immediately
+
+	localStorage.setItem('theme', JSON.stringify(theme)); // stringify required
+
+	// setup transition after load
+	window.addEventListener('DOMContentLoaded', function () {
+		// Add transition rule after page load
+		var style = document.createElement('style');
+		style.textContent = `
+			body {
+				transition: background-color 0.3s, color 0.3s;
+			}
+		`;
+		document.head.appendChild(style);
+	});
+
   } catch (e) {}
 })();
 </script>
