@@ -3,6 +3,14 @@ import { presets } from './lib/presets';
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
 import type { NormalizedItem } from './lib/types';
+import {
+	PRESET_ITEMS_LIMIT_DEFAULT,
+	MAX_LIMIT,
+	PRESETS_ITEMS_TTL_S,
+	PRESETS_LIST_TTL_S,
+	SWR_TTL_S,
+} from './lib/config';
+import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/utils';
 
 /**
 	MAINTAINER NOTES — PER-CATEGORY ENDLESS SCROLL (/api/presets)
@@ -33,12 +41,8 @@ import type { NormalizedItem } from './lib/types';
 	- If you change the default `limit`, confirm client infinite-scroll increments match.
 	- Keep the `excludedIds` contract intact to prevent duplicates on scroll.
 	--------------------------------------------------------------------
+*/
 
- * /api/presets — category list and per-category items (center column)
- *
- * - NO id: return the list of categories (cached 60m)
- * - WITH id: return items for that category (supports endless scroll via page+limit+excludedIds)
- */
 export default async function handler(request: VercelRequest, response: VercelResponse) {
 	const {
 		id,
@@ -56,13 +60,13 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
 	// Categories list
 	if (!id) {
-		response.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=300'); // 60m
+		setCache(response, PRESETS_LIST_TTL_S, 300);
 		return response.status(200).json(presets);
 	}
 
-	const pageNumber = page ? parseInt(page, 10) : 0;
-	const limitNumber = limit ? parseInt(limit, 10) : 15;
-	const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',').filter(Boolean) : [];
+	const pageNumber = parseIntParam(page, 0, 0, 1_000_000);
+	const limitNumber = parseIntParam(limit, PRESET_ITEMS_LIMIT_DEFAULT, 1, MAX_LIMIT);
+	const excludedIds = parseExcludedIds(excludedIdsQuery);
 
 	try {
 		let items: NormalizedItem[] = [];
@@ -77,8 +81,10 @@ export default async function handler(request: VercelRequest, response: VercelRe
 			const y = await getYouTubeVideos({ query: String(query), max: overfetch });
 			const filtered = y.filter((item) => !excludedIds.includes(item.id));
 			const offset = pageNumber * limitNumber;
-			response.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60'); // 5m
-			return response.status(200).json(filtered.slice(offset, offset + limitNumber));
+			setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
+			const out = filtered.slice(offset, offset + limitNumber);
+			setWeakEtag(response, out.map((i) => i.id).filter(Boolean));
+			return response.status(200).json(out);
 		}
 
 		const preset = presets.find((p) => p.id === id);
@@ -109,7 +115,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
 				items = [];
 		}
 
-		response.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60'); // 5m
+		setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
+		setWeakEtag(response, items.map((i) => i.id).filter(Boolean));
 		return response.status(200).json(items);
 	} catch (error) {
 		console.error(error);

@@ -3,6 +3,8 @@ import { presets as PRESET_CONFIG } from './lib/presets';
 import { getRssFeed } from './lib/rss';
 import { getYouTubeVideos } from './lib/youtube';
 import type { NormalizedItem } from './lib/types';
+import { PER_CAT_MAX, ALL_LIMIT_DEFAULT, MAX_LIMIT, ALL_TTL_S, SWR_TTL_S } from './lib/config';
+import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/utils';
 
 /**
 	MAINTAINER NOTES — CENTER COLUMN AGGREGATOR (/api/all)
@@ -48,24 +50,7 @@ import type { NormalizedItem } from './lib/types';
 	- If changing PER_CAT_MAX or `limit`, reconsider how many categories are needed,
 	  and re-check quota/latency tradeoffs. Keep the seeded logic stable per page.
 	--------------------------------------------------------------------
-
- * /api/all — Quota-friendly center column (endless scroll)
- *
- * Behavior:
- * - Returns a shuffled mix aggregated across non-local presets.
- * - Fetches at most `PER_CAT_MAX` items per selected category (YouTube/RSS).
- * - Selects only as many categories as needed to fill `limit` (ceil(limit / PER_CAT_MAX)).
- * - If not enough after filtering `excludedIds`, pulls from additional categories until filled or exhausted.
- * - NEVER calls /api/toptrends or /api/trending.
- *
- * Query params:
- * - limit?: number (default 15)
- * - page?: number (default 0) → used to seed category selection for stable pages
- * - excludedIds?: CSV of ids to skip (de-dup across pages)
- *
- * Caching: 5 minutes (CDN): s-maxage=300, stale-while-revalidate=60
- */
-const PER_CAT_MAX = 5;
+*/
 
 function seededShuffle<T>(arr: T[], seed: number): T[] {
 	// Simple LCG-based shuffle seed
@@ -85,20 +70,29 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const {
+		id,
 		page,
 		limit,
 		excludedIds: excludedIdsQuery,
 	} = req.query as {
+		id?: string;
 		page?: string;
 		limit?: string;
 		excludedIds?: string;
 	};
 
-	const limitNumber = Math.max(1, Math.min(50, limit ? parseInt(limit, 10) : 15));
-	const pageNumber = Math.max(0, page ? parseInt(page, 10) : 0);
-	const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',').filter(Boolean) : [];
+	// Enforce original contract: /api/all is aggregator only (no id)
+	if (id) {
+		return res
+			.status(400)
+			.json({ error: 'Use /api/presets?id=<category> for per-category items.' });
+	}
 
-	res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60'); // 5m
+	const limitNumber = parseIntParam(limit, ALL_LIMIT_DEFAULT, 1, MAX_LIMIT);
+	const pageNumber = parseIntParam(page, 0, 0, 1_000_000);
+	const excludedIds = parseExcludedIds(excludedIdsQuery);
+
+	setCache(res, ALL_TTL_S, SWR_TTL_S);
 
 	// Build candidate category list (non-local only), shuffled deterministically by page
 	const candidates = PRESET_CONFIG.filter((p) => p.source === 'rss' || p.source === 'youtube');
@@ -123,7 +117,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 			collected.push(...items);
 		} else if (p.source === 'youtube') {
-			// Fetch up to PER_CAT_MAX, avoid heavy overfetch; trust excludedIds to remove dups
+			// Fetch up to PER_CAT_MAX, avoid heavy overfetch; rely on excludedIds to remove dups
 			const items = await getYouTubeVideos({ ...(p.params as any), max: PER_CAT_MAX });
 			collected.push(...items);
 		}
@@ -149,6 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const shuffled = seededShuffle(filtered, pageNumber + 12345);
 		const result = shuffled.slice(0, limitNumber);
 
+		setWeakEtag(res, result.map((i) => i.id).filter(Boolean));
 		return res.status(200).json(result);
 	} catch (err: any) {
 		console.error('[API /all] error', err);

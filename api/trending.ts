@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { RIGHT_PANEL_TTL_MS, RIGHT_PANEL_TTL_S, SWR_TTL_S } from './lib/config';
 import { getRssFeed } from './lib/rss';
 import { cached } from './lib/persist';
 import type { NormalizedItem } from './lib/types';
@@ -9,7 +10,7 @@ import type { NormalizedItem } from './lib/types';
 // - If all sources are empty after one retry, respond with 204 No Content.
 // - Serverless cache TTL for the right column is 15 minutes.
 const LIMIT_PER_SECTION = 3; // change to 4+ if product requests
-const RIGHT_PANEL_TTL_MS = 15 * 60 * 1000; // 15 minutes // 10 minutes // 15 minutes
+// RIGHT_PANEL_TTL_MS from config // 15 minutes // 10 minutes // 15 minutes
 const TRENDING_FEEDS = [
 	{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
 	{
@@ -74,7 +75,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				'[API /trending] sample section lengths:',
 				Object.fromEntries(Object.entries(data).map(([k, v]) => [k, v.length])),
 			);
-		res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=60');
+		res.setHeader(
+			'Cache-Control',
+			`s-maxage=${RIGHT_PANEL_TTL_S}, stale-while-revalidate=${SWR_TTL_S}`,
+		);
 		return res.status(200).json(data);
 	} catch (err: any) {
 		console.error('[API /trending] error', err);
