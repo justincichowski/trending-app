@@ -19,8 +19,16 @@ export function parseExcludedIds(csv?: string): string[] {
 }
 
 /** set Cache-Control header for CDN caching */
-export function setCache(res: VercelResponse, sMaxage: number, swr: number): void {
-	res.setHeader('Cache-Control', `s-maxage=${sMaxage}, stale-while-revalidate=${swr}`);
+export function setCache(
+	res: VercelResponse,
+	sMaxage: number,
+	swr: number,
+	browserMaxAge: number = sMaxage,
+): void {
+	res.setHeader(
+		'Cache-Control',
+		`public, max-age=${browserMaxAge}, s-maxage=${sMaxage}, stale-while-revalidate=${swr}`,
+	);
 }
 
 /** attach a weak ETag based on returned item ids */
