@@ -98,3 +98,10 @@ export function getTopTrends(): Promise<TopTrendsData> {
 export function getTrending(): Promise<TrendingData> {
 	return get<TrendingData>(`${API_BASE_URL}/trending`);
 }
+
+export async function fetchAll(options?: { id?: string }) {
+  const qs = options?.id ? `?id=${encodeURIComponent(options.id)}` : '';
+  const r = await fetch(`${API_BASE_URL}/all${qs}`);
+  if (!r.ok) throw new Error(`/all failed: ${r.status}`);
+  return r.json();
+}

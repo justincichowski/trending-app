@@ -8,7 +8,7 @@ This README is the **single source of truth** for running locally and deploying.
 
 ## ⚠️ What “Serverless on Vercel” Means
 
-- In **serverless functions**, you **do not** call `app.listen()`; Vercel spins up your handler per request.
+- In **serverless functions**, you **do not** call `
 - For **local development** you have two choices:
   - Use **`vercel dev`** to emulate serverless (site and API served from **http://localhost:3000**).
   - Or run a **local Node server** (with `listen(3000)`) and proxy to it from Vite on **5173**.
@@ -33,7 +33,7 @@ npm run dev
 ```
 
 ### B) Split Mode: Vite (5173) + Local API (3000)
-Use this if you prefer Vite’s HMR on 5173 while running a local Node/Fastify API.
+Use this if you prefer Vite’s HMR on 5173 while running a local Node/serverless runtime API.
 
 ```bash
 npm run dev:split
@@ -53,7 +53,7 @@ npm run dev:split
   "dev:split": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
   "build": "tsc --project api/tsconfig.json && npm --prefix client run build",
   "preview": "npm --prefix client run preview",
-  "dev:server": "tsx server_local.ts",
+  "dev:server": "tsx `vercel dev` (serverless local runtime)",
   "client:install": "npm --prefix client install",
   "start": "npm run dev",
   "lint": "eslint . --ext .ts",
@@ -65,7 +65,7 @@ npm run dev:split
 
 - **dev** — `vercel dev` (site + serverless API at 3000)
 - **dev:split** — run API on 3000 and client on 5173 together
-- **dev:server** — start the local API (Fastify/Node) on 3000
+- **dev:server** — start the local API (serverless runtime/Node) on 3000
 - **dev:client** — start Vite dev server on 5173
 
 
@@ -128,7 +128,7 @@ Not needed for normal local development.
 ### Logging Policy (Do Not Remove)
 - Custom logs for Trending are **required** for troubleshooting.
 - Client logs: emitted by `fetchTrendingWithCache` and render path.
-- Server logs: Fastify route logs on `/api/trending` — do not remove.
+- Server logs: serverless runtime route logs on `/api/trending` — do not remove.
 
 - Logs are now **commented out by default**. Uncomment individual lines as needed during debugging.
 
@@ -178,7 +178,56 @@ This avoids the hard 50‑item stop and ensures consistent behavior with your `l
 
 ## Deploy hygiene
 
-- **Avoid TS/JS duplicates**: `.gitignore` now ignores compiled `.js` alongside `.ts` in `api/`, `server/`, and `client/src/`.
+- **Avoid TS/JS duplicates**: `.gitignore` now ignores compiled `.js` alongside `.ts` in `api/`, ``, and `client/src/`.
 - **Vercel deploys**: `.vercelignore` trims build artifacts (`dist/`, `.next/`, `client/.vite/`, etc.).
 - **Bootstrap**: run `npm run bootstrap` once locally to install root + client deps.
 - **Start/Build**: keep your current `start`/`build` flow; Vercel builds serverless functions from the TypeScript in `api/`.
+
+
+## 🌐 Serverless Lifecycle (Vercel)
+
+- **Trigger**  
+  Each time someone calls `/api/*`, Vercel launches (or reuses) a Node.js function.
+
+- **Request object (`req`)**  
+  Contains:
+  - `.query` → query string parameters  
+  - `.body` → POST body  
+  - `.headers` → HTTP headers  
+
+- **Response object (`res`)**  
+  Use methods like:
+  - `.status(200)` → set status code  
+  - `.json({...})` → send JSON back  
+  - `.setHeader('Cache-Control', 's-maxage=300')` → control caching  
+
+- **Cold start vs warm start**  
+  - If the function hasn’t run recently, Vercel boots it fresh (cold).  
+  - If it’s already “warm”, it reuses the process (faster).  
+
+- **Stateless by design**  
+  Functions don’t keep memory or disk state across requests. If you need persistence, use:
+  - a database  
+  - Vercel KV / Redis  
+  - CDN caching with `Cache-Control` headers (already in your functions)  
+
+- **End of lifecycle**  
+  When your function finishes `res.json(...)`, Vercel can immediately freeze/tear it down.  
+  No need for `server.listen()` — Vercel handles the server part.
+
+\n\n### Center column API (`/api/all`)
+
+- **`GET /api/all`** → returns only the category list (presets). Cached 60 minutes.
+- **`GET /api/all?id=<presetId>`** → returns items for that single category. Cached 5 minutes.
+- This route **does not** fetch the left (`/api/toptrends`) or right (`/api/trending`) columns.
+- Client helper available at `client/src/api/index.ts`:
+
+```ts
+import { fetchAll } from './api';
+
+// categories
+const { presets } = await fetchAll();
+
+// items for a category
+const { id, name, items } = await fetchAll({ id: 'news' });
+```\n

@@ -50,11 +50,11 @@ Removed legacy aliases (`dev:server`, `dev:split`) to avoid confusion. Everythin
   • `vercel dev` (serverless functions on http://localhost:3000)  
   • `npm run dev:client` (Vite on http://localhost:5173, proxying /api → 3000).
 
-- **`npm run dev:server`** is now mapped to `vercel dev` (no Fastify).  
+- **`vercel dev`** is now mapped to `vercel dev` (no serverless runtime).  
 - **`npm run build`** builds the client and TypeScript for API functions.  
 - **`npm run preview`** previews the built client.
 
-This replaces the old Fastify-based flow. All API routes are now Vercel serverless functions.
+This replaces the old serverless runtime-based flow. All API routes are now Vercel serverless functions.
 
 
 
@@ -63,7 +63,7 @@ This replaces the old Fastify-based flow. All API routes are now Vercel serverle
 - In a second terminal, run: `npm --prefix client run dev` (Vite at http://localhost:5173)
 Vite proxies `/api` → `http://localhost:3000`.
 
-The legacy Fastify server and `server_local.ts` have been removed.
+The legacy serverless runtime server and ``vercel dev` (serverless local runtime)` have been removed.
 
 
 # Trending App — Run & Deploy Instructions
@@ -81,10 +81,10 @@ This project is now wired to run consistently in three modes:
 ```bash
 npm run start
 ```
-- Fastify local API → http://localhost:3000/api/health  
+- serverless runtime local API → http://localhost:3000/api/health  
 - Vite frontend → http://localhost:5173 (proxies `/api/*` → `:3000`)  
 
-This uses the same code as Vercel Functions but wrapped in a local Fastify server.
+This uses the same code as Vercel Functions but wrapped in a local serverless runtime server.
 
 ### 2. Build + preview (SPA only)
 ```bash
@@ -102,7 +102,7 @@ npm run api:start
 ```bash
 npm run api:start
 ```
-- Starts the Fastify API alone on http://localhost:3000
+- Starts the serverless runtime API alone on http://localhost:3000
 
 ### 4. Client only (no API)
 ```bash
@@ -134,7 +134,7 @@ No — you do **not** need to install Node manually.
 - It runs your configured **Build Command** (`npm run buildv`).  
 - Functions under `/api/*.ts` are automatically built into Node serverless functions by Vercel.
 
-You do **not** need to use the `server/` or `server_local.ts` for Vercel — those are only for running locally.  
+You do **not** need to use the `` or ``vercel dev` (serverless local runtime)` for Vercel — those are only for running locally.  
 On Vercel, everything under `/api/*` becomes a serverless endpoint.
 
 ---
@@ -161,6 +161,6 @@ After deploying to Vercel, verify:
 - https://your-app.vercel.app → SPA loads (dark theme by default)
 
 ### Ports quick reference
-- Fastify local API: http://localhost:3000
+- serverless runtime local API: http://localhost:3000
 - Vite dev server: http://localhost:5173
 - Vite preview: http://localhost:5174
