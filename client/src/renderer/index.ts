@@ -75,7 +75,7 @@ export function renderItems(tooltip: Tooltip) {
  }
 
    // --- DEBUG LOG: Logs the number of items being rendered ---
-   // roo do not delete
+   // DO NOT DELETE LOG — required for future debugging
    // console.log(`--- RENDERING ${filteredItems.length} ITEMS ---`);
    mainContent.innerHTML = ''; // Clear the container
    virtualList.render(filteredItems);

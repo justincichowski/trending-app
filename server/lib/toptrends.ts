@@ -20,10 +20,10 @@ function getPlaylistIds(): string[] {
  * @returns A promise that resolves to the top trends data.
  */
 export async function fetchTopTrends(): Promise<TopTrendsData> {
-	// roo do not delete
+	// DO NOT DELETE LOG — required for future debugging
 	// console.log('Fetching new top trends data from YouTube...');
 	const allPlaylistIds = getPlaylistIds();
-	// roo do not delete
+	// DO NOT DELETE LOG — required for future debugging
 	// console.log(`[Server] Found ${allPlaylistIds.length} playlist IDs:`, allPlaylistIds);
 	if (allPlaylistIds.length === 0) {
 		console.error('No YouTube playlist IDs found in environment variables.');
@@ -43,7 +43,7 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 		} while (triedPlaylists.has(randomPlaylistId));
 
 		triedPlaylists.add(randomPlaylistId);
-		// roo do not delete
+		// DO NOT DELETE LOG — required for future debugging
 		// console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
 
 		try {
@@ -83,7 +83,7 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 		}
 	}
 
-	// roo do not delete
+	// DO NOT DELETE LOG — required for future debugging
 	// console.log(`Successfully compiled ${uniqueItems.length} unique trending items.`);
 
 	const data: TopTrendsData = {

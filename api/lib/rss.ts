@@ -31,15 +31,15 @@ async function getOpenGraphImage(url: string): Promise<string | null> {
 		});
 		const match = html.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/);
 		if (match && match[1]) {
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`Scraped og:image: ${match[1]}`);
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log(`Scraped og:image: ${match[1]}`);
 			return match[1];
 		}
 		return null;
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-// DO NOT DELETE LOG — required for future debugging
-// 		console.warn(`Could not scrape Open Graph image for ${url}. Reason: ${errorMessage}`);
+		// DO NOT DELETE LOG — required for future debugging
+		// console.warn(`Could not scrape Open Graph image for ${url}. Reason: ${errorMessage}`);
 		return null;
 	}
 }
@@ -84,10 +84,8 @@ async function normalizeItem(item: Parser.Item, source: string): Promise<Normali
 		const itemDate = new Date(publishedAt);
 		const now = new Date();
 		if (itemDate > now) {
-			// roo do not delete
-			// roo do not delete
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log(`Capping future date for item "${item.title}". Original: ${item.isoDate}, New: ${now.toISOString()}`);
 			publishedAt = now.toISOString();
 		}
 	}
@@ -145,26 +143,22 @@ export async function getRssFeed(options: {
 
 	try {
 		// roo: log feed url (do not remove)
-// DO NOT DELETE LOG — required for future debugging
-//     console.log('[Serverless RSS] parsing URL', feedUrl);
-    const feed = await parser.parseURL(feedUrl);
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log('[Serverless RSS] parsing URL', feedUrl);
+   		const feed = await parser.parseURL(feedUrl);
 
 		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
-		// roo do not delete
-		//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
 		/*
 		// --- Previous debug log for inspecting a single raw item ---
 		if (feed.items.length > 0) {
-			// roo do not delete
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log('--- RAW RSS ITEM DEBUG ---');
-			// roo do not delete
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log(JSON.stringify(feed.items[0], null, 2));
-			// roo do not delete
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log('--------------------------');
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log('--- RAW RSS ITEM DEBUG ---');
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log(JSON.stringify(feed.items[0], null, 2));
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log('--------------------------');
 		}
 		*/
 		// --- END DEBUG LOG ---
@@ -180,23 +174,20 @@ export async function getRssFeed(options: {
 
 		return normalizedItems;
 	} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 		console.error(`Failed to fetch or parse RSS feed at ${feedUrl}`, error);
+		// DO NOT DELETE LOG — required for future debugging
+		// console.error(`Failed to fetch or parse RSS feed at ${feedUrl}`, error);
 		// Re-throw the error with more context to be caught by the caller
 		throw new Error(`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
 	}
 	/*
 	// --- Previous debug log for inspecting a single raw item ---
 	if (feed.items.length > 0) {
-		// roo do not delete
-		//// DO NOT DELETE LOG — required for future debugging
-//  console.log('--- RAW RSS ITEM DEBUG ---');
-		// roo do not delete
-		//// DO NOT DELETE LOG — required for future debugging
-//  console.log(JSON.stringify(feed.items[0], null, 2));
-		// roo do not delete
-		//// DO NOT DELETE LOG — required for future debugging
-//  console.log('--------------------------');
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log('--- RAW RSS ITEM DEBUG ---');
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log(JSON.stringify(feed.items[0], null, 2));
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log('--------------------------');
 	}
 	*/
 	// --- END DEBUG LOG ---

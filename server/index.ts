@@ -73,8 +73,8 @@ const main = async () => {
 	const renderApp = async (request: FastifyRequest, reply: FastifyReply) => {
 		const { theme: themeCookie } = request.cookies;
 		const theme = themeCookie === 'dark' ? 'dark' : 'light';
-// DO NOT DELETE LOG — required for future debugging
-// 		server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
+		// DO NOT DELETE LOG — required for future debugging
+		// server.log.info(`[Server] Reading 'theme' cookie: ${themeCookie}. Setting theme to: ${theme}`);
 
 		/*
 		// Define critical CSS variables for both themes to prevent FOUC.
@@ -102,12 +102,12 @@ const main = async () => {
 
 		let topTrendsData: TopTrendsData | null;
 		if (cache.topTrends.data && now - cache.topTrends.lastFetched < topTrendsCacheDuration) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Using in-memory cache for Top Trends.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Using in-memory cache for Top Trends.');
 			topTrendsData = cache.topTrends.data;
 		} else {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Fetching new Top Trends data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Fetching new Top Trends data.');
 			topTrendsData = await fetchTopTrends();
 			cache.topTrends.data = topTrendsData;
 			cache.topTrends.lastFetched = now;
@@ -115,12 +115,12 @@ const main = async () => {
 
 		let trendingData: Record<string, NormalizedItem[]> | null;
 		if (cache.trending.data && now - cache.trending.lastFetched < trendingCacheDuration) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Using in-memory cache for Trending data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Using in-memory cache for Trending data.');
 			trendingData = cache.trending.data;
 		} else {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Fetching new Trending data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Fetching new Trending data.');
 			const trendingResults = await Promise.allSettled(
 				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: RIGHT_PANEL_LIMIT }))
 			);
@@ -130,8 +130,8 @@ const main = async () => {
 				if (result.status === 'fulfilled') {
 					acc[feed.title] = result.value;
 				} else {
-// DO NOT DELETE LOG — required for future debugging
-// 					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+					// DO NOT DELETE LOG — required for future debugging
+					// server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
 				}
 				return acc;
 			}, {});
@@ -160,9 +160,8 @@ const main = async () => {
 	 */
 	server.post('/api/v1/theme', async (request, reply) => {
 		const { theme } = request.body as { theme: 'light' | 'dark' };
-		// roo do not delete
-		//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`[Server] Received theme update request: ${theme}`);
+		// DO NOT DELETE LOG — required for future debugging
+		// console.log(`[Server] Received theme update request: ${theme}`);
 		if (theme === 'light' || theme === 'dark') {
 			reply.setCookie('theme', theme, {
 				path: '/',
@@ -201,8 +200,8 @@ const main = async () => {
 			});
 			return feed;
 		} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.error(error);
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.error(error);
 			reply.status(500).send({ error: 'Failed to fetch RSS feed.' });
 		}
 	});
@@ -230,8 +229,8 @@ const main = async () => {
 				const filteredItems = items.filter(item => !excludedIds.includes(item.id));
 				return filteredItems;
 			} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 				server.log.error(error);
+				// DO NOT DELETE LOG — required for future debugging
+				// server.log.error(error);
 				reply.status(500).send({ error: `Failed to fetch data for search query: ${query}.` });
 			}
 			return;
@@ -258,13 +257,12 @@ const main = async () => {
 			// Filter out excluded IDs
 			const filteredItems = items.filter(item => !excludedIds.includes(item.id));
 
-			// roo do not delete
-			//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
+			// DO NOT DELETE LOG — required for future debugging
+			// console.log(`Sending ${filteredItems.length} items for preset: ${preset.name}`);
 			return filteredItems;
 		} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.error(error);
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.error(error);
 			reply.status(500).send({ error: `Failed to fetch data for preset: ${preset.name}.` });
 		}
 	});
@@ -307,21 +305,20 @@ const main = async () => {
 
 			return filteredItems;
 		} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.error(error, 'Failed to fetch the "All" feed');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.error(error, 'Failed to fetch the "All" feed');
 			reply.status(500).send({ error: 'Failed to fetch the "All" feed.' });
 		}
 	});
 	server.get('/api/trending', async (request, reply) => {
-// DO NOT DELETE LOG — required for future debugging
-// 		server.log.info('[/api/trending] request received');
+		// DO NOT DELETE LOG — required for future debugging
+		// server.log.info('[/api/trending] request received');
 		const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
 		const cachedData = await readFromCache<Record<string, NormalizedItem[]>>('trending', trendingCacheDuration);
 
 		if (cachedData && Object.keys(cachedData).some(k=>Array.isArray((cachedData as any)[k]) && (cachedData as any)[k].length>0)) {
-			// roo do not delete
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Using file cache for Trending data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Using file cache for Trending data.');
 			return cachedData;
 		}
 
@@ -334,8 +331,8 @@ const main = async () => {
 		];
 
 		try {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Fetching new Trending data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Fetching new Trending data.');
 			const trendingResults = await Promise.allSettled(
 				TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, query: (feed as any).query, source: feed.source, limit: RIGHT_PANEL_LIMIT }))
 			);
@@ -345,26 +342,26 @@ const main = async () => {
 				if (result.status === 'fulfilled') {
 					acc[feed.title] = result.value;
 				} else {
-// DO NOT DELETE LOG — required for future debugging
-// 					server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
+					// DO NOT DELETE LOG — required for future debugging
+					// server.log.error(`Failed to fetch trending feed for ${feed.title}:`, result.reason);
 				}
 				return acc;
 			}, {});
 			
 			const keys = Object.keys(trendingData).filter(k => Array.isArray(trendingData[k]) && trendingData[k].length>0);
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info({ keys }, 'Trending sections ready');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info({ keys }, 'Trending sections ready');
 			if (keys.length === 0) {
-// DO NOT DELETE LOG — required for future debugging
-// 				server.log.warn('Trending empty after fetch; sending 204 and not caching');
+				// DO NOT DELETE LOG — required for future debugging
+				// server.log.warn('Trending empty after fetch; sending 204 and not caching');
 				reply.status(204).send();
 				return;
 			}
 			await writeToCache('trending', trendingData);
 			return trendingData;
 		} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.error(error, 'Failed to fetch trending data');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.error(error, 'Failed to fetch trending data');
 			reply.status(500).send({ error: 'Failed to fetch trending data' });
 		}
 	});
@@ -374,21 +371,20 @@ const main = async () => {
 		const cachedData = await readFromCache<TopTrendsData>('toptrends', topTrendsCacheDuration);
 
 		if (cachedData && Object.keys(cachedData).some(k=>Array.isArray((cachedData as any)[k]) && (cachedData as any)[k].length>0)) {
-			// roo do not delete
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Using file cache for Top Trends.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Using file cache for Top Trends.');
 			return cachedData;
 		}
 
 		try {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.info('Fetching new Top Trends data.');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.info('Fetching new Top Trends data.');
 			const topTrendsData = await fetchTopTrends();
 			await writeToCache('toptrends', topTrendsData);
 			return topTrendsData;
 		} catch (error) {
-// DO NOT DELETE LOG — required for future debugging
-// 			server.log.error(error, 'Failed to fetch top trends');
+			// DO NOT DELETE LOG — required for future debugging
+			// server.log.error(error, 'Failed to fetch top trends');
 			reply.status(500).send({ error: 'Failed to fetch top trends' });
 		}
 	});
@@ -400,11 +396,11 @@ const main = async () => {
 	try {
 		await server.listen({ port: 3000 });
 	} catch (err: any) {
-  console.error('YT ERROR status', err?.response?.status);
-  try { console.error('YT ERROR data', JSON.stringify(err?.response?.data, null, 2)); } catch {}
+		console.error('YT ERROR status', err?.response?.status);
+		try { console.error('YT ERROR data', JSON.stringify(err?.response?.data, null, 2)); } catch {}
 
-// DO NOT DELETE LOG — required for future debugging
-// 		server.log.error(err);
+		// DO NOT DELETE LOG — required for future debugging
+		// server.log.error(err);
 		process.exit(1);
 	}
 };

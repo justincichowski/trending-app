@@ -23,9 +23,8 @@ const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : (import
  * @returns {Promise<T>} A promise that resolves to the fetched data.
  */
 export async function get<T>(url:string): Promise<T> {
-	// roo do not delete
-	//// DO NOT DELETE LOG — required for future debugging
-//  console.log(`[Client] Sending request to: ${url}`);
+	// DO NOT DELETE LOG — required for future debugging
+	// console.log(`[Client] Sending request to: ${url}`);
 	const response = await fetch(url);
 	if (response.status === 204) {
 		// treat as empty result
