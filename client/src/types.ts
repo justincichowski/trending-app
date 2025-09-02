@@ -101,9 +101,9 @@ export interface TopTrendsData {
 }
 
 /**
-	* Represents the data structure for the trending panel, which is a dictionary
-	* where keys are section titles and values are arrays of items.
-	*/
+ * Represents the data structure for the trending panel, which is a dictionary
+ * where keys are section titles and values are arrays of items.
+ */
 export interface TrendingData {
 	[key: string]: NormalizedItem[];
 }

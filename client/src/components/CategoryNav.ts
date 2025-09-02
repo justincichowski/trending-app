@@ -36,9 +36,12 @@ export class CategoryNav {
 	 * Initializes the component by subscribing to state changes.
 	 */
 	private init() {
-		stateManager.subscribe(state => {
+		stateManager.subscribe((state) => {
 			// Render the categories if they haven't been rendered yet
-			if (state.categories.length > 0 && this.element.querySelector('.swiper-wrapper') === null) {
+			if (
+				state.categories.length > 0 &&
+				this.element.querySelector('.swiper-wrapper') === null
+			) {
 				this.render(state.categories);
 			}
 
@@ -60,7 +63,7 @@ export class CategoryNav {
 		// Get the initial path from the URL to set the active class on first render
 		const initialPath = window.location.pathname.substring(1);
 
-		categories.forEach(category => {
+		categories.forEach((category) => {
 			const slide = document.createElement('div');
 			slide.className = 'swiper-slide';
 
@@ -125,12 +128,12 @@ export class CategoryNav {
 	}
 
 	/**
-		* Attaches mouseover/mouseout events to the visible slides.
-		*/
+	 * Attaches mouseover/mouseout events to the visible slides.
+	 */
 	private attachTooltipEvents() {
 		if (!this.swiper) return;
 
-		this.swiper.slides.forEach(slide => {
+		this.swiper.slides.forEach((slide) => {
 			const link = slide.querySelector('.category-link');
 			if (link) {
 				// Remove old listeners to prevent duplicates
@@ -145,35 +148,38 @@ export class CategoryNav {
 	}
 
 	/**
-		* Handles the mouseover event for a category link.
-		* @param {Event} e - The mouse event.
-		*/
+	 * Handles the mouseover event for a category link.
+	 * @param {Event} e - The mouse event.
+	 */
 	private handleMouseOver(e: Event) {
 		const target = e.currentTarget as HTMLElement;
 		if (target.classList.contains('active')) {
 			const { lastUpdated } = stateManager.getState();
 			if (lastUpdated) {
-				this.tooltip.show(target, `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
+				this.tooltip.show(
+					target,
+					`Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`,
+				);
 			}
 		}
 	}
 
 	/**
-		* Handles the mouseout event for a category link.
-		*/
+	 * Handles the mouseout event for a category link.
+	 */
 	private handleMouseOut() {
 		this.tooltip.hide();
 	}
 
 	/**
-		* Updates the active class on the category links.
-		* @param {string | null} activeCategoryId - The ID of the currently active category.
-		*/
+	 * Updates the active class on the category links.
+	 * @param {string | null} activeCategoryId - The ID of the currently active category.
+	 */
 	private updateActiveClass() {
 		const links = this.element.querySelectorAll('.category-link');
 		const currentPath = window.location.pathname;
 
-		links.forEach(link => {
+		links.forEach((link) => {
 			const linkElement = link as HTMLAnchorElement;
 			const linkPath = linkElement.getAttribute('href');
 

@@ -1,231 +1,234 @@
-
 /* colors only variable elements */
 
-	@media (max-width: 550px) {
-
-		.controls.active {
-			background-color: var(--background-color);
-			border-bottom: 1px solid var(--border-color);
-		}
-
-	}
-
-	body {
-		background-color: var(--background-color);
-		color: var(--text-color);
-	}
-	.category-link {
-		background-color: var(--category-button-background);
-		color: var(--category-button-text);
-	}
-	.category-link.active {
-		background-color: var(--category-button-active-background);
-		color: var(--category-button-active-text);
-	}
-	#category-nav .swiper-button-prev::after,
-	#category-nav .swiper-button-next::after {
-		color: var(--text-color);
-		background-color: var(--category-button-background);
-		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-	}
-	#category-nav .swiper-button-prev:hover::after,
-	#category-nav .swiper-button-next:hover::after {
-		background-color: var(--back-to-top-hover-bg);
-	}
-	#category-nav .swiper-button-prev, #category-nav .swiper-container-rtl .swiper-button-next {
-		background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
-	}
-	#category-nav .swiper-button-next, #category-nav .swiper-container-rtl .swiper-button-prev {
-		background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
-	}
-	.logo-letter {
-		fill: var(--text-color);
-	}
-	.global-tooltip {
-		background-color: var(--card-background-color);
-		color: var(--text-color);
-		border: 1px solid var(--accent-color);
-	}
-	.loader-path {
-		stroke: var(--category-button-text);
-	}
-	.item-card {
-		border: 1px solid var(--border-color);
-		background-color: var(--card-background-color);
-	}
-	.item-card:hover {
-		background-color: var(--card-hover-background-color);
-	}
-	.item-controls {
-		color: var(--text-color);
-	}
-	.icon-button svg {
-		stroke: var(--text-color);
-	}
-	.favorite-button.is-favorited .icon-heart path {
-		fill: var(--accent-color);
-		stroke: var(--accent-color);
-	}
-	#theme-toggle-button,
-	#settings-button {
-		fill: var(--text-color);
-	}
-	.icon-theme-toggle .icon-sun,
-	.icon-theme-toggle .icon-moon {
-		fill: var(--text-color);
-	}
-	.item-title a {
-		color: var(--item-title-color);
-	}
-	.item-title a:hover,
-	.item-title a:active {
-		color: var(--text-color);
-	}
-	.more-button {
-		color: var(--text-color);
-	}
-	.notification {
-		background-color: var(--card-background-color);
-		color: var(--text-color);
-		border: 1px solid var(--border-color);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
-	.undo-button {
-		color: var(--accent-color);
-	}
-	.search-bar-wrapper,
-	.select-wrapper {
-		background-color: var(--category-button-background);
-		border: 1px solid transparent;
-	}
-	.search-bar-wrapper:focus-within,
-	.select-wrapper:focus-within {
-		background-color: var(--card-background-color);
-		border-color: var(--accent-color);
-	}
-	.search-bar-wrapper:focus-within #search-input,
-	.select-wrapper:focus-within #sort-select {
-		background-color: var(--card-background-color);
-	}
-	.setting > input,
-	#search-input,
-	#sort-select {
-		color: var(--text-color);
-		background-color: var(--category-button-background);
-	}
-	#sort-select option {
-		background-color: var(--background-color);
-		color: var(--text-color);
-	}
-	#search-input::placeholder {
-		color: var(--text-color);
-	}
-	.select-wrapper::after {
-		color: var(--text-color);
-	}
-	.clear-button svg {
-		fill: var(--text-color);
-	}
-	.search-toggle-button svg {
-		stroke: var(--text-color);
-	}
-	@media (max-width: 550px) {
-		.controls.active {
+@media (max-width: 550px) {
+	.controls.active {
 		background-color: var(--background-color);
 		border-bottom: 1px solid var(--border-color);
-		}
 	}
-	.settings-panel {
-		background-color: var(--background-color-input);
-	}
-	.settings-panel-content {
+}
+
+body {
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+.category-link {
+	background-color: var(--category-button-background);
+	color: var(--category-button-text);
+}
+.category-link.active {
+	background-color: var(--category-button-active-background);
+	color: var(--category-button-active-text);
+}
+#category-nav .swiper-button-prev::after,
+#category-nav .swiper-button-next::after {
+	color: var(--text-color);
+	background-color: var(--category-button-background);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+#category-nav .swiper-button-prev:hover::after,
+#category-nav .swiper-button-next:hover::after {
+	background-color: var(--back-to-top-hover-bg);
+}
+#category-nav .swiper-button-prev,
+#category-nav .swiper-container-rtl .swiper-button-next {
+	background: linear-gradient(to left, transparent 0%, var(--background-color) 25%);
+}
+#category-nav .swiper-button-next,
+#category-nav .swiper-container-rtl .swiper-button-prev {
+	background: linear-gradient(to right, transparent 0%, var(--background-color) 25%);
+}
+.logo-letter {
+	fill: var(--text-color);
+}
+.global-tooltip {
+	background-color: var(--card-background-color);
+	color: var(--text-color);
+	border: 1px solid var(--accent-color);
+}
+.loader-path {
+	stroke: var(--category-button-text);
+}
+.item-card {
+	border: 1px solid var(--border-color);
+	background-color: var(--card-background-color);
+}
+.item-card:hover {
+	background-color: var(--card-hover-background-color);
+}
+.item-controls {
+	color: var(--text-color);
+}
+.icon-button svg {
+	stroke: var(--text-color);
+}
+.favorite-button.is-favorited .icon-heart path {
+	fill: var(--accent-color);
+	stroke: var(--accent-color);
+}
+#theme-toggle-button,
+#settings-button {
+	fill: var(--text-color);
+}
+.icon-theme-toggle .icon-sun,
+.icon-theme-toggle .icon-moon {
+	fill: var(--text-color);
+}
+.item-title a {
+	color: var(--item-title-color);
+}
+.item-title a:hover,
+.item-title a:active {
+	color: var(--text-color);
+}
+.more-button {
+	color: var(--text-color);
+}
+.notification {
+	background-color: var(--card-background-color);
+	color: var(--text-color);
+	border: 1px solid var(--border-color);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.undo-button {
+	color: var(--accent-color);
+}
+.search-bar-wrapper,
+.select-wrapper {
+	background-color: var(--category-button-background);
+	border: 1px solid transparent;
+}
+.search-bar-wrapper:focus-within,
+.select-wrapper:focus-within {
+	background-color: var(--card-background-color);
+	border-color: var(--accent-color);
+}
+.search-bar-wrapper:focus-within #search-input,
+.select-wrapper:focus-within #sort-select {
+	background-color: var(--card-background-color);
+}
+.setting > input,
+#search-input,
+#sort-select {
+	color: var(--text-color);
+	background-color: var(--category-button-background);
+}
+#sort-select option {
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+#search-input::placeholder {
+	color: var(--text-color);
+}
+.select-wrapper::after {
+	color: var(--text-color);
+}
+.clear-button svg {
+	fill: var(--text-color);
+}
+.search-toggle-button svg {
+	stroke: var(--text-color);
+}
+@media (max-width: 550px) {
+	.controls.active {
 		background-color: var(--background-color);
-		border: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
 	}
-	.close-button {
-		color: var(--text-color);
-	}
-	.context-menu {
-		background-color: var(--card-background-color);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-		outline: 1px solid rgba(128, 128, 128, 0.2);
-	}
-	.context-menu ul li {
-		color: var(--text-color);
-	}
-	.context-menu ul li:hover {
-		background-color: var(--context-menu-highlight-bg);
-		color: var(--context-menu-highlight-text);
-	}
-	.context-menu ul li:active {
-		background-color: var(--context-menu-active-bg);
-		color: var(--context-menu-highlight-text);
-	}
-	#back-to-top {
-		background-color: var(--category-button-background);
-		transition: opacity 0.3s, transform 0.3s, background-color 0.2s;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	}
-	#back-to-top:hover {
-		background-color: var(--back-to-top-hover-bg);
-	}
-	#back-to-top svg {
-		fill: var(--category-button-active-text);
-	}
-	.autocomplete-container {
-		background-color: var(--card-background-color);
-		border: 1px solid var(--border-color);
-		box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-	}
-	.autocomplete-container li:hover {
-		background-color: var(--category-button-background);
-		color: var(--category-button-text);
-	}
-	.delete-suggestion {
-		background: none;
-		border: none;
-		color: var(--text-color);
-	}
-	.trending-section {
-		background-color: var(--card-background-color);
-		border: 1px solid var(--border-color);
-	}
-	.trending-title {
-		color: var(--item-title-color);
-	}
-	.trending-item a {
-		color: var(--text-color);
-	}
-	.trending-section .close-button {
-		color: var(--text-color);
-	}
-	.top-trends-section {
-		background-color: var(--card-background-color);
-		border: 1px solid var(--border-color);
-	}
-	.top-trends-title {
-		color: var(--item-title-color);
-	}
-	.top-trends-item a {
-		color: var(--item-title-color);
-	}
-	.top-trends-item a:hover {
-		color: var(--text-color);
-	}
-	.gallery-swiper .swiper-slide .item-card {
-		background-color: var(--card-background-color);
-	}
-	.fullscreen-gallery .swiper-button-prev::after,
-	.fullscreen-gallery .swiper-button-next::after {
-		color: var(--text-color);
-	}
-	.panel-loader .loader-path {
-		stroke: var(--text-color);
-	}
+}
+.settings-panel {
+	background-color: var(--background-color-input);
+}
+.settings-panel-content {
+	background-color: var(--background-color);
+	border: 1px solid var(--border-color);
+}
+.close-button {
+	color: var(--text-color);
+}
+.context-menu {
+	background-color: var(--card-background-color);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	outline: 1px solid rgba(128, 128, 128, 0.2);
+}
+.context-menu ul li {
+	color: var(--text-color);
+}
+.context-menu ul li:hover {
+	background-color: var(--context-menu-highlight-bg);
+	color: var(--context-menu-highlight-text);
+}
+.context-menu ul li:active {
+	background-color: var(--context-menu-active-bg);
+	color: var(--context-menu-highlight-text);
+}
+#back-to-top {
+	background-color: var(--category-button-background);
+	transition:
+		opacity 0.3s,
+		transform 0.3s,
+		background-color 0.2s;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+#back-to-top:hover {
+	background-color: var(--back-to-top-hover-bg);
+}
+#back-to-top svg {
+	fill: var(--category-button-active-text);
+}
+.autocomplete-container {
+	background-color: var(--card-background-color);
+	border: 1px solid var(--border-color);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.autocomplete-container li:hover {
+	background-color: var(--category-button-background);
+	color: var(--category-button-text);
+}
+.delete-suggestion {
+	background: none;
+	border: none;
+	color: var(--text-color);
+}
+.trending-section {
+	background-color: var(--card-background-color);
+	border: 1px solid var(--border-color);
+}
+.trending-title {
+	color: var(--item-title-color);
+}
+.trending-item a {
+	color: var(--text-color);
+}
+.trending-section .close-button {
+	color: var(--text-color);
+}
+.top-trends-section {
+	background-color: var(--card-background-color);
+	border: 1px solid var(--border-color);
+}
+.top-trends-title {
+	color: var(--item-title-color);
+}
+.top-trends-item a {
+	color: var(--item-title-color);
+}
+.top-trends-item a:hover {
+	color: var(--text-color);
+}
+.gallery-swiper .swiper-slide .item-card {
+	background-color: var(--card-background-color);
+}
+.fullscreen-gallery .swiper-button-prev::after,
+.fullscreen-gallery .swiper-button-next::after {
+	color: var(--text-color);
+}
+.panel-loader .loader-path {
+	stroke: var(--text-color);
+}
 
 /* end colors elements*/
 
-body, html{
+body,
+html {
 	max-height: 100%;
 	overflow: hidden;
 }
@@ -234,8 +237,7 @@ body {
 	margin-top: 8px;
 	margin-left: 8px;
 	margin-right: 8px;
-	margin-bottom: 0px!important;
-	
+	margin-bottom: 0px !important;
 }
 
 .preload * {
@@ -254,7 +256,7 @@ body {
 .category-nav {
 	position: relative;
 	padding: 0 1rem; /* Add some padding on the sides */
-	z-index: 5;       /* Position below the header */
+	z-index: 5; /* Position below the header */
 }
 
 .category-nav .swiper-wrapper {
@@ -288,16 +290,16 @@ body {
 	padding: 0.3rem 0.8rem; /* Further reduced padding */
 	text-decoration: none;
 	border-radius: 10px;
-	transition: background-color 0.2s, color 0.2s;
+	transition:
+		background-color 0.2s,
+		color 0.2s;
 	border: none; /* Remove the old border */
 	white-space: nowrap; /* Prevent text wrapping */
 }
 
-
 .category-link.active {
 	font-weight: bold;
 }
-
 
 /* Gradient edges for scroll indication, controlled by Swiper events */
 /* --- Swiper Navigation Arrows --- */
@@ -334,11 +336,12 @@ body {
 	width: 31px;
 	height: 31px;
 	border-radius: 50%;
-	transition: background-color 0.2s, transform 0.1s;
+	transition:
+		background-color 0.2s,
+		transform 0.1s;
 	z-index: 2; /* Ensure the button is on top of the fade */
 	position: relative; /* Needed for z-index to apply */
 }
-
 
 #category-nav .swiper-button-prev:active::after {
 	transform: translateX(-3px) scale(0.9);
@@ -348,12 +351,14 @@ body {
 	transform: translateX(3px) scale(0.9);
 }
 
-#category-nav .swiper-button-prev, #category-nav .swiper-container-rtl .swiper-button-next {
+#category-nav .swiper-button-prev,
+#category-nav .swiper-container-rtl .swiper-button-next {
 	left: -0.5px;
 	right: auto;
 }
 
-#category-nav .swiper-button-next, #category-nav .swiper-container-rtl .swiper-button-prev {
+#category-nav .swiper-button-next,
+#category-nav .swiper-container-rtl .swiper-button-prev {
 	right: -0.5px;
 	left: auto;
 }
@@ -448,7 +453,6 @@ body {
 	position: relative;
 	display: inline-block;
 }
-
 
 /* --- Global Tooltip --- */
 .global-tooltip {
@@ -799,7 +803,9 @@ body {
 	gap: 1rem;
 	transform: translateY(150%);
 	opacity: 0;
-	transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+	transition:
+		transform 0.2s ease-in-out,
+		opacity 0.2s ease-in-out;
 	user-select: none;
 }
 
@@ -827,7 +833,7 @@ body {
 	align-items: center;
 	padding: 1rem;
 	position: relative; /* Needed for z-index to work */
-	z-index: 10;      /* Ensure header is on top */
+	z-index: 10; /* Ensure header is on top */
 }
 
 .controls {
@@ -869,10 +875,8 @@ body {
 	padding-left: 4px;
 }
 
-
-
 #sort-select:focus {
-    outline: none;
+	outline: none;
 }
 
 #search-input {
@@ -905,7 +909,6 @@ body {
 	font-size: 0.8em;
 	pointer-events: none;
 }
-
 
 .clear-button {
 	position: absolute;
@@ -942,8 +945,6 @@ body {
 .search-toggle-button:hover {
 	transform: scale(1.1);
 }
-
-
 
 @media (max-width: 550px) {
 	/* Default mobile view: show only the icons */
@@ -1065,70 +1066,71 @@ body {
 	line-height: 1;
 }
 
-
 .undo-button:hover {
 	text-decoration: underline;
 }
 
-
 /* --- Custom Context Menu --- */
 .context-menu {
-    position: fixed;
-    z-index: 10000;
-    width: 180px; /* Wider to prevent text wrapping */
-    border-radius: 6px; /* Slightly smaller radius */
-    display: none;
-    padding: 0.25rem 0; /* More compact padding */
+	position: fixed;
+	z-index: 10000;
+	width: 180px; /* Wider to prevent text wrapping */
+	border-radius: 6px; /* Slightly smaller radius */
+	display: none;
+	padding: 0.25rem 0; /* More compact padding */
 }
 
 .context-menu.show {
-    display: block;
+	display: block;
 }
 
 .context-menu ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .context-menu ul li {
-    padding: 0.5rem 1rem; /* More compact padding */
-    cursor: pointer;
-    transition: background-color 0.1s, color 0.1s;
-    font-size: 0.9rem; /* Smaller font size */
-    border-radius: 4px;
-    margin: 0 0.25rem;
+	padding: 0.5rem 1rem; /* More compact padding */
+	cursor: pointer;
+	transition:
+		background-color 0.1s,
+		color 0.1s;
+	font-size: 0.9rem; /* Smaller font size */
+	border-radius: 4px;
+	margin: 0 0.25rem;
 }
-
 
 /* --- Back to Top Button --- */
 #back-to-top {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 100;
+	position: absolute;
+	bottom: 1rem;
+	right: 1rem;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	opacity: 0;
+	transform: translateY(20px);
+	transition:
+		opacity 0.3s,
+		transform 0.3s;
+	z-index: 100;
 }
 
 #back-to-top:not([hidden]) {
-    opacity: 1;
-    transform: translateY(0);
+	opacity: 1;
+	transform: translateY(0);
 }
 
 #back-to-top svg {
-    width: 24px;
-    height: 24px;
+	width: 24px;
+	height: 24px;
 }
 
 #back-to-top[data-tooltip]::after {
-    top: auto;
-    bottom: 125%;
-    transform: translateX(calc(-50% - 15px));
+	top: auto;
+	bottom: 125%;
+	transform: translateX(calc(-50% - 15px));
 }
 
 /* --- Autocomplete --- */
@@ -1180,7 +1182,7 @@ body {
 	position: relative;
 	width: 100%;
 	/* 16:9 Aspect Ratio */
-	padding-top: 56.25%; 
+	padding-top: 56.25%;
 	background-color: #000;
 	border-radius: 4px;
 	overflow: hidden;
@@ -1274,9 +1276,9 @@ body:not(.show-trending) .trending-panel {
 	.trending-panel {
 		display: none;
 	}
-    .main-content-wrapper {
-        justify-content: center;
-    }
+	.main-content-wrapper {
+		justify-content: center;
+	}
 }
 
 .trending-section-header {
@@ -1428,7 +1430,6 @@ body:not(.show-trending) .trending-panel {
 	overflow-y: auto;
 	border-radius: 8px;
 }
-
 
 .gallery-close-button {
 	position: absolute;

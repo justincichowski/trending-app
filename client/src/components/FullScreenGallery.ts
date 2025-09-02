@@ -33,11 +33,15 @@ export class FullScreenGallery {
 			<button class="gallery-close-button">&times;</button>
 			<div class="swiper gallery-swiper">
 				<div class="swiper-wrapper">
-					${items.map(item => `
+					${items
+						.map(
+							(item) => `
 						<div class="swiper-slide">
 							${createItemCard(item, this.tooltip, { isGallery: true }).outerHTML}
 						</div>
-					`).join('')}
+					`,
+						)
+						.join('')}
 				</div>
 				<div class="swiper-button-prev"></div>
 				<div class="swiper-button-next"></div>
@@ -47,15 +51,22 @@ export class FullScreenGallery {
 		document.body.appendChild(this.container);
 		document.body.style.overflow = 'hidden';
 
-		this.container.querySelector('.gallery-close-button')?.addEventListener('click', () => this.hide());
-		this.container.querySelector('.gallery-overlay')?.addEventListener('click', () => this.hide());
+		this.container
+			.querySelector('.gallery-close-button')
+			?.addEventListener('click', () => this.hide());
+		this.container
+			.querySelector('.gallery-overlay')
+			?.addEventListener('click', () => this.hide());
 
 		this.container.addEventListener('mouseover', (event) => {
 			const target = event.target as HTMLElement;
 			const favoriteButton = target.closest('.favorite-button');
 			if (favoriteButton) {
 				const isFavorited = favoriteButton.classList.contains('is-favorited');
-				this.tooltip.show(favoriteButton as HTMLElement, isFavorited ? 'Unfavorite' : 'Favorite');
+				this.tooltip.show(
+					favoriteButton as HTMLElement,
+					isFavorited ? 'Unfavorite' : 'Favorite',
+				);
 			}
 		});
 
@@ -79,14 +90,16 @@ export class FullScreenGallery {
 				const itemId = itemCard?.getAttribute('data-id');
 				if (!itemId) return;
 
-				const item = this.items.find(i => i.id === itemId);
+				const item = this.items.find((i) => i.id === itemId);
 				if (!item) return;
 
 				const { favorites } = stateManager.getState();
 				const isFavorited = favorites.some((fav: NormalizedItem) => fav.id === item.id);
 
 				if (isFavorited) {
-					const newFavorites = favorites.filter((fav: NormalizedItem) => fav.id !== item.id);
+					const newFavorites = favorites.filter(
+						(fav: NormalizedItem) => fav.id !== item.id,
+					);
 					stateManager.setState({ favorites: newFavorites });
 					this.notification.show('Removed from favorites.');
 					favoriteButton.classList.remove('is-favorited');

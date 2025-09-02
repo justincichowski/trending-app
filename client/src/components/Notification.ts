@@ -33,7 +33,14 @@ export class Notification {
 	 * @param {() => void} [options.onUndo] - A callback function for the "Undo" button.
 	 * @param {number} [options.duration=5000] - The duration in milliseconds.
 	 */
-	show(message: string, options: { onUndo?: () => void; onClose?: (didUndo: boolean) => void; duration?: number } = {}) {
+	show(
+		message: string,
+		options: {
+			onUndo?: () => void;
+			onClose?: (didUndo: boolean) => void;
+			duration?: number;
+		} = {},
+	) {
 		// If a notification is already showing, hide it immediately.
 		if (this.currentNotification) {
 			this.hide(this.currentNotification, false, undefined, true); // Force hide without animation
@@ -82,7 +89,12 @@ export class Notification {
 	 * @param {(didUndo: boolean) => void} [onClose] - Callback on close.
 	 * @param {boolean} [immediate=false] - If true, remove immediately without animation.
 	 */
-	private hide(notificationElement: HTMLElement, didUndo: boolean, onClose?: (didUndo: boolean) => void, immediate = false) {
+	private hide(
+		notificationElement: HTMLElement,
+		didUndo: boolean,
+		onClose?: (didUndo: boolean) => void,
+		immediate = false,
+	) {
 		if (this.hideTimeoutId) {
 			clearTimeout(this.hideTimeoutId);
 			this.hideTimeoutId = null;
@@ -96,10 +108,14 @@ export class Notification {
 		}
 
 		notificationElement.classList.remove('show');
-		notificationElement.addEventListener('transitionend', () => {
-			notificationElement.remove();
-			onClose?.(didUndo);
-			this.currentNotification = null;
-		}, { once: true });
+		notificationElement.addEventListener(
+			'transitionend',
+			() => {
+				notificationElement.remove();
+				onClose?.(didUndo);
+				this.currentNotification = null;
+			},
+			{ once: true },
+		);
 	}
 }

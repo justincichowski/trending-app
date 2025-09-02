@@ -1,43 +1,46 @@
 {
-  "name": "trending_app",
-  "version": "1.0.0",
-  "description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
-  "main": "index.js",
-  "scripts": {
-    "start": "npm install && cd client && npm install && cd .. && npm run dev && npm run build",
-    "dev": "concurrently \"vercel dev\" \"npm:dev:client\"",
-    "dev:client": "npm --prefix client run dev",
-    "build": "tsc --project api/tsconfig.json && npm --prefix client run build",
-    "preview": "npm --prefix client run preview",
-    "client:install": "npm --prefix client install",
-    "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "buildv": "npm --prefix client run build",
-    "postinstall": "npm --prefix client ci || npm --prefix client i",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit && tsc -p api/tsconfig.json --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/ejs": "^3.1.5",
-    "@types/node": "^20.11.30",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "@vercel/node": "^5.3.17",
-    "concurrently": "^9.1.2",
-    "eslint": "^9.34.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.6.2",
-    "tsc-watch": "^6.2.0",
-    "tsx": "^4.19.1",
-    "typescript": "^5.4.5"
-  },
-  "dependencies": {
-    "axios": "^1.11.0",
-    "dotenv": "^16.4.5",
-    "google-auth-library": "^10.3.0",
-    "rss-parser": "^3.13.0"
-  }
+	"name": "trending_app",
+	"version": "1.0.0",
+	"description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
+	"main": "index.js",
+	"scripts": {
+		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev && npm run build",
+		"dev": "concurrently \"vercel dev\" \"npm:dev:client\"",
+		"dev:client": "npm --prefix client run dev",
+		"build": "tsc --project api/tsconfig.json && npm --prefix client run build",
+		"preview": "npm --prefix client run preview",
+		"client:install": "npm --prefix client install",
+		"lint": "eslint . --ext .ts",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"buildv": "npm --prefix client run build",
+		"postinstall": "npm --prefix client ci || npm --prefix client i",
+		"typecheck": "tsc -p tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit && tsc -p api/tsconfig.json --noEmit",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"prebuild": "npm run format"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/ejs": "^3.1.5",
+		"@types/node": "^20.11.30",
+		"@typescript-eslint/eslint-plugin": "^8.41.0",
+		"@typescript-eslint/parser": "^8.41.0",
+		"@vercel/node": "^5.3.17",
+		"concurrently": "^9.1.2",
+		"eslint": "^9.34.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.4",
+		"prettier": "^3.6.2",
+		"tsc-watch": "^6.2.0",
+		"tsx": "^4.19.1",
+		"typescript": "^5.4.5"
+	},
+	"dependencies": {
+		"axios": "^1.11.0",
+		"dotenv": "^16.4.5",
+		"google-auth-library": "^10.3.0",
+		"rss-parser": "^3.13.0"
+	}
 }

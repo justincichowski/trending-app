@@ -33,7 +33,7 @@ export class TopTrendsPanel {
 		}
 
 		// Filter for valid items BEFORE rendering to ensure indices are correct.
-		const validItems = this.data.items.filter(item => item && item.fullItem);
+		const validItems = this.data.items.filter((item) => item && item.fullItem);
 
 		const listItems = validItems
 			.map(
@@ -43,7 +43,7 @@ export class TopTrendsPanel {
 	                   #${item.title}
 	               </a>
 	           </li>
-	       `
+	       `,
 			)
 			.join('');
 
@@ -66,8 +66,8 @@ export class TopTrendsPanel {
 				const index = parseInt(link.dataset.index || '0', 10);
 				// Use the same filtering logic to ensure the data passed to the gallery is in sync.
 				const validFullItems = this.data.items
-					.filter(item => item && item.fullItem)
-					.map(item => item.fullItem);
+					.filter((item) => item && item.fullItem)
+					.map((item) => item.fullItem);
 
 				this.gallery.show(validFullItems, index);
 			}

@@ -1,19 +1,23 @@
 <!doctype html>
 <html lang="en">
 	<head>
-<!-- Prevent theme flash: run before CSS/JS -->
-<meta name="color-scheme" content="dark light" />
-<script>
-(function () {
-  try {
-    // Figure out initial theme
-	var saved = JSON.parse(localStorage.getItem('theme')); // JSON.parse() required saved as json
-	var sys = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-	var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
-	var html = document.documentElement;
-	html.classList.toggle('light-theme', theme === 'light');
-	html.classList.toggle('dark-theme', theme !== 'light');
-	var css = `
+		<!-- Prevent theme flash: run before CSS/JS -->
+		<meta name="color-scheme" content="dark light" />
+		<script>
+			(function () {
+				try {
+					// Figure out initial theme
+					var saved = JSON.parse(localStorage.getItem('theme')); // JSON.parse() required saved as json
+					var sys =
+						window.matchMedia &&
+						window.matchMedia('(prefers-color-scheme: dark)').matches
+							? 'dark'
+							: 'light';
+					var theme = saved === 'dark' || saved === 'light' ? saved : sys;
+					var html = document.documentElement;
+					html.classList.toggle('light-theme', theme === 'light');
+					html.classList.toggle('dark-theme', theme !== 'light');
+					var css = `
 	/* theme variables */
 	:root {
 		--back-to-top-hover-bg: #4a4a4a;
@@ -56,28 +60,27 @@
 	}
 	`;
 
-	var style = document.createElement('style');
-	style.id = 'theme-vars';
-	style.textContent = css;
-	document.head.prepend(style);  // Put it early so your main stylesheet can reference the vars immediately
+					var style = document.createElement('style');
+					style.id = 'theme-vars';
+					style.textContent = css;
+					document.head.prepend(style); // Put it early so your main stylesheet can reference the vars immediately
 
-	localStorage.setItem('theme', JSON.stringify(theme)); // stringify required
+					localStorage.setItem('theme', JSON.stringify(theme)); // stringify required
 
-	// setup transition after load
-	window.addEventListener('DOMContentLoaded', function () {
-		// Add transition rule after page load
-		var style = document.createElement('style');
-		style.textContent = `
+					// setup transition after load
+					window.addEventListener('DOMContentLoaded', function () {
+						// Add transition rule after page load
+						var style = document.createElement('style');
+						style.textContent = `
 			body {
 				transition: background-color 0.3s, color 0.3s;
 			}
 		`;
-		document.head.appendChild(style);
-	});
-
-  } catch (e) {}
-})();
-</script>
+						document.head.appendChild(style);
+					});
+				} catch (e) {}
+			})();
+		</script>
 
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
@@ -85,13 +88,16 @@
 		<title>Trending App</title>
 		<link rel="preload" href="/src/style.css" as="style" />
 		<link rel="stylesheet" href="/src/style.css" />
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body class="preload">
 		<div id="app">
-		       <header class="app-header">
+			<header class="app-header">
 				<a href="/" onclick="event.preventDefault()" class="logo-link">
 					<div class="logo-wrapper" data-tooltip="Trending">
 						<div class="logo">
@@ -113,7 +119,9 @@
 						<input type="search" id="search-input" placeholder="Search..." />
 						<button id="clear-search-button" class="clear-button" hidden>
 							<svg viewBox="0 0 24 24">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+								<path
+									d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+								/>
 							</svg>
 						</button>
 					</div>
@@ -124,23 +132,53 @@
 							<option value="oldest">Oldest</option>
 						</select>
 					</div>
-					<button id="theme-toggle-button" class="icon-button" data-tooltip="Toggle Theme">
+					<button
+						id="theme-toggle-button"
+						class="icon-button"
+						data-tooltip="Toggle Theme"
+					>
 						<span class="icon-wrapper"></span>
 					</button>
 					<button id="settings-button" class="icon-button" data-tooltip="Settings">
 						<span class="icon-wrapper">
 							<svg class="icon-cog" viewBox="0 0 24 24">
-								<path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.25C8.66,5.49,8.12,5.82,7.63,6.2L5.24,5.24c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.77 c-0.11,0.2-0.06,0.47,0.12,0.61l2.03,1.58C4.82,11.36,4.8,11.68,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.44 c0.04,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.44c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.11-0.2,0.06-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+								<path
+									d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.25C8.66,5.49,8.12,5.82,7.63,6.2L5.24,5.24c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.77 c-0.11,0.2-0.06,0.47,0.12,0.61l2.03,1.58C4.82,11.36,4.8,11.68,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.44 c0.04,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.44c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.11-0.2,0.06-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
+								/>
 							</svg>
 						</span>
 					</button>
-					<button id="search-back-button" class="icon-button search-back-button" data-tooltip="Back" hidden>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<button
+						id="search-back-button"
+						class="icon-button search-back-button"
+						data-tooltip="Back"
+						hidden
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
 							<polyline points="15 18 9 12 15 6"></polyline>
 						</svg>
 					</button>
-					<button id="search-toggle-button" class="icon-button search-toggle-button" data-tooltip="Search" hidden>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<button
+						id="search-toggle-button"
+						class="icon-button search-toggle-button"
+						data-tooltip="Search"
+						hidden
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
 							<circle cx="11" cy="11" r="6"></circle>
 							<line x1="21" y1="21" x2="15.24" y2="15.24"></line>
 						</svg>
@@ -154,7 +192,7 @@
 				<aside id="trending-panel" class="trending-panel"></aside>
 				<button id="back-to-top" class="icon-button" data-tooltip="Back to top" hidden>
 					<svg viewBox="0 0 24 24">
-						<path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+						<path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
 					</svg>
 				</button>
 			</div>

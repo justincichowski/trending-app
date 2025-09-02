@@ -70,7 +70,7 @@ export class VirtualList {
 	 * @param {() => void} callback - The callback function.
 	 */
 	onLoadMore(callback: () => void) {
-	 this.loadMoreCallback = callback;
+		this.loadMoreCallback = callback;
 	}
 
 	/**
@@ -79,7 +79,7 @@ export class VirtualList {
 	 * @param {IntersectionObserverEntry[]} entries - The intersection entries.
 	 */
 	private handleIntersection(entries: IntersectionObserverEntry[]) {
-		entries.forEach(entry => {
+		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
 				this.loadMoreCallback();
 			}

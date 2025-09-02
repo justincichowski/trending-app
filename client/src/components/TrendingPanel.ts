@@ -26,7 +26,8 @@ export class TrendingPanel {
 	public render(data: TrendingData) {
 		this.container.innerHTML = ''; // Clear existing content
 		if (Object.keys(data).length === 0) {
-			this.container.innerHTML = '<div class="error-message">No trending data available.</div>';
+			this.container.innerHTML =
+				'<div class="error-message">No trending data available.</div>';
 			return;
 		}
 		for (const sectionTitle in data) {
@@ -53,7 +54,7 @@ export class TrendingPanel {
 			const list = document.createElement('ul');
 			list.className = 'trending-list';
 
-			data[sectionTitle].forEach(item => {
+			data[sectionTitle].forEach((item) => {
 				const listItem = document.createElement('li');
 				listItem.className = 'trending-item';
 				const link = document.createElement('a');
@@ -92,11 +93,11 @@ export class TrendingPanel {
 								() => {
 									this.container.remove();
 								},
-								{ once: true }
+								{ once: true },
 							);
 						}
 					},
-					{ once: true }
+					{ once: true },
 				);
 			});
 		}

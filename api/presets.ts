@@ -21,7 +21,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
 	}
 
 	// Find the preset with the matching ID
-	const preset = presets.find(p => p.id === id);
+	const preset = presets.find((p) => p.id === id);
 	if (!preset) {
 		response.status(404).json({ error: 'Preset not found.' });
 		return;

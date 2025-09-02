@@ -6,13 +6,16 @@
 declare const YT: any;
 
 declare global {
-  interface Window {
-    YT?: any;
-    enableTrendingDebug?: (on?: boolean) => void;
-  }
-  namespace YT {
-    interface Player {}
-    interface PlayerEvent { target: any; data?: any; }
-  }
+	interface Window {
+		YT?: any;
+		enableTrendingDebug?: (on?: boolean) => void;
+	}
+	namespace YT {
+		interface Player {}
+		interface PlayerEvent {
+			target: any;
+			data?: any;
+		}
+	}
 }
 export {};

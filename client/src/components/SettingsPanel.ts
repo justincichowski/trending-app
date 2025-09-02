@@ -69,15 +69,19 @@ export class SettingsPanel {
 	}
 
 	/**
-		* Adds event listeners to the settings controls.
-		*/
+	 * Adds event listeners to the settings controls.
+	 */
 	private addEventListeners() {
 		// Close when clicking the backdrop
 		this.element.addEventListener('click', (event) => {
 			// If the click target is the backdrop itself (not the content), close the panel.
 			if (event.target === this.element) {
 				// Use pushState to remove the hash without a page reload
-				history.pushState('', document.title, window.location.pathname + window.location.search);
+				history.pushState(
+					'',
+					document.title,
+					window.location.pathname + window.location.search,
+				);
 				this.hide();
 			}
 		});
@@ -86,28 +90,40 @@ export class SettingsPanel {
 		if (closeButton) {
 			closeButton.addEventListener('click', () => {
 				// Use pushState to remove the hash without a page reload
-				history.pushState('', document.title, window.location.pathname + window.location.search);
+				history.pushState(
+					'',
+					document.title,
+					window.location.pathname + window.location.search,
+				);
 				// Manually dispatch a hashchange event to trigger the router
 				this.hide();
 			});
 		}
 
-		const reducedMotionToggle = this.element.querySelector('#reduced-motion-toggle') as HTMLInputElement;
+		const reducedMotionToggle = this.element.querySelector(
+			'#reduced-motion-toggle',
+		) as HTMLInputElement;
 		if (reducedMotionToggle) {
 			reducedMotionToggle.addEventListener('change', () => {
 				document.body.classList.toggle('reduced-motion', reducedMotionToggle.checked);
 			});
 		}
 
-		const autoScrollToggle = this.element.querySelector('#auto-scroll-toggle') as HTMLInputElement;
+		const autoScrollToggle = this.element.querySelector(
+			'#auto-scroll-toggle',
+		) as HTMLInputElement;
 		if (autoScrollToggle) {
 			autoScrollToggle.addEventListener('change', () => {
 				const { autoScroll } = stateManager.getState();
-				stateManager.setState({ autoScroll: { ...autoScroll, enabled: autoScrollToggle.checked } });
+				stateManager.setState({
+					autoScroll: { ...autoScroll, enabled: autoScrollToggle.checked },
+				});
 			});
 		}
 
-		const autoScrollInterval = this.element.querySelector('#auto-scroll-interval') as HTMLInputElement;
+		const autoScrollInterval = this.element.querySelector(
+			'#auto-scroll-interval',
+		) as HTMLInputElement;
 		if (autoScrollInterval) {
 			autoScrollInterval.addEventListener('change', () => {
 				const { autoScroll } = stateManager.getState();
@@ -117,7 +133,9 @@ export class SettingsPanel {
 			});
 		}
 
-		const showTrendingToggle = this.element.querySelector('#show-trending-toggle') as HTMLInputElement;
+		const showTrendingToggle = this.element.querySelector(
+			'#show-trending-toggle',
+		) as HTMLInputElement;
 		if (showTrendingToggle) {
 			showTrendingToggle.addEventListener('change', () => {
 				stateManager.setState({ showTrending: showTrendingToggle.checked });
@@ -126,28 +144,36 @@ export class SettingsPanel {
 	}
 
 	/**
-		* Updates the UI controls based on the current state.
-		*/
+	 * Updates the UI controls based on the current state.
+	 */
 	updateUIFromState() {
 		const { theme, autoScroll, showTrending } = stateManager.getState();
 		document.documentElement.className = `${theme}-theme`;
 
-		const reducedMotionToggle = this.element.querySelector('#reduced-motion-toggle') as HTMLInputElement;
+		const reducedMotionToggle = this.element.querySelector(
+			'#reduced-motion-toggle',
+		) as HTMLInputElement;
 		if (reducedMotionToggle) {
 			reducedMotionToggle.checked = document.body.classList.contains('reduced-motion');
 		}
 
-		const autoScrollToggle = this.element.querySelector('#auto-scroll-toggle') as HTMLInputElement;
+		const autoScrollToggle = this.element.querySelector(
+			'#auto-scroll-toggle',
+		) as HTMLInputElement;
 		if (autoScrollToggle) {
 			autoScrollToggle.checked = autoScroll.enabled;
 		}
 
-		const autoScrollInterval = this.element.querySelector('#auto-scroll-interval') as HTMLInputElement;
+		const autoScrollInterval = this.element.querySelector(
+			'#auto-scroll-interval',
+		) as HTMLInputElement;
 		if (autoScrollInterval) {
 			autoScrollInterval.value = autoScroll.interval.toString();
 		}
 
-		const showTrendingToggle = this.element.querySelector('#show-trending-toggle') as HTMLInputElement;
+		const showTrendingToggle = this.element.querySelector(
+			'#show-trending-toggle',
+		) as HTMLInputElement;
 		if (showTrendingToggle) {
 			showTrendingToggle.checked = showTrending;
 		}

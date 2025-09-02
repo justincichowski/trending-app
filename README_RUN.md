@@ -1,16 +1,16 @@
 ## Local development & start
 
 - **`npm run start`**
-  - Installs root & client deps
-  - Launches dev servers
-  - Builds a demo preview
-  - Matches the original INSTALL_RUN flow you prefer.
+    - Installs root & client deps
+    - Launches dev servers
+    - Builds a demo preview
+    - Matches the original INSTALL_RUN flow you prefer.
 
 - **`npm run dev`**
-  - Runs **both**:
-    - `vercel dev` (serverless functions on http://localhost:3000)
-    - `npm run dev:client` (Vite on http://localhost:5173, proxying `/api` → 3000)
-  - Note: `dev:server` and `dev:split` have been removed to avoid confusion.
+    - Runs **both**:
+        - `vercel dev` (serverless functions on http://localhost:3000)
+        - `npm run dev:client` (Vite on http://localhost:5173, proxying `/api` → 3000)
+    - Note: `dev:server` and `dev:split` have been removed to avoid confusion.
 
 - **`npm run dev:client`** — Vite-only.
 
@@ -19,7 +19,6 @@
 - **`npm run preview`** — Previews the built client.
 
 > Requires Vercel CLI available in your PATH for `vercel dev`.
-
 
 ## Updated local development and start workflow (simplified)
 
@@ -32,12 +31,11 @@
   • `vercel dev` (serverless functions at http://localhost:3000)  
   • `npm run dev:client` (Vite at http://localhost:5173, proxying /api → 3000).
 
-- **`npm run dev:client`** runs the client dev server only.  
-- **`npm run build`** builds the client and TypeScript for API functions.  
+- **`npm run dev:client`** runs the client dev server only.
+- **`npm run build`** builds the client and TypeScript for API functions.
 - **`npm run preview`** previews the built client.
 
 Removed legacy aliases (`dev:server`, `dev:split`) to avoid confusion. Everything now uses `vercel dev` for the backend.
-
 
 ## Updated local development and start workflow
 
@@ -50,25 +48,24 @@ Removed legacy aliases (`dev:server`, `dev:split`) to avoid confusion. Everythin
   • `vercel dev` (serverless functions on http://localhost:3000)  
   • `npm run dev:client` (Vite on http://localhost:5173, proxying /api → 3000).
 
-- **`vercel dev`** is now mapped to `vercel dev` (no serverless runtime).  
-- **`npm run build`** builds the client and TypeScript for API functions.  
+- **`vercel dev`** is now mapped to `vercel dev` (no serverless runtime).
+- **`npm run build`** builds the client and TypeScript for API functions.
 - **`npm run preview`** previews the built client.
 
 This replaces the old serverless runtime-based flow. All API routes are now Vercel serverless functions.
 
-
-
 ## Updated local development (serverless-only)
+
 - In one terminal, run: `vercel dev` (serves /api at http://localhost:3000)
 - In a second terminal, run: `npm --prefix client run dev` (Vite at http://localhost:5173)
-Vite proxies `/api` → `http://localhost:3000`.
+  Vite proxies `/api` → `http://localhost:3000`.
 
 The legacy serverless runtime server and ``vercel dev` (serverless local runtime)` have been removed.
-
 
 # Trending App — Run & Deploy Instructions
 
 This project is now wired to run consistently in three modes:
+
 - Local all-in-one (`npm run start`)
 - Local build + preview (`npm run build && npm run preview`)
 - Vercel deployment (`npm run buildv` with output set to `client/dist`)
@@ -78,37 +75,46 @@ This project is now wired to run consistently in three modes:
 ## 🚀 Local Development
 
 ### 1. Run everything together (API + frontend)
+
 ```bash
 npm run start
 ```
-- serverless runtime local API → http://localhost:3000/api/health  
-- Vite frontend → http://localhost:5173 (proxies `/api/*` → `:3000`)  
+
+- serverless runtime local API → http://localhost:3000/api/health
+- Vite frontend → http://localhost:5173 (proxies `/api/*` → `:3000`)
 
 This uses the same code as Vercel Functions but wrapped in a local serverless runtime server.
 
 ### 2. Build + preview (SPA only)
+
 ```bash
 npm run build
 npm run preview
 ```
+
 - Builds static frontend → `client/dist`
 - Serves it locally on http://localhost:5174
 - To preview with live local API, also run:
+
 ```bash
 npm run api:start
 ```
 
 ### 3. API only
+
 ```bash
 npm run api:start
 ```
+
 - Starts the serverless runtime API alone on http://localhost:3000
 
 ### 4. Client only (no API)
+
 ```bash
 npm run client:dev
 ```
-- Starts only Vite frontend (http://localhost:5173).  
+
+- Starts only Vite frontend (http://localhost:5173).
 - Requires an API base (`/api`) to be available (either via `api:start` or deployed).
 
 ---
@@ -116,6 +122,7 @@ npm run client:dev
 ## 🌐 Vercel Deployment
 
 ### Vercel Settings
+
 In your Vercel Project Settings → Build & Output:
 
 - **Framework Preset:** Vite
@@ -124,17 +131,20 @@ In your Vercel Project Settings → Build & Output:
 - **Root Directory:** project root (where this README lives)
 
 ### Environment Variables
+
 - Add `YOUTUBE_API_KEY` under Vercel → Project → Settings → Environment Variables.  
-  (Add it in both *Preview* and *Production*.)
+  (Add it in both _Preview_ and _Production_.)
 
 ### Do I need a custom Node install?
-No — you do **not** need to install Node manually.  
-- Vercel detects your `package.json` in the root.  
-- It installs dependencies with `npm install`.  
-- It runs your configured **Build Command** (`npm run buildv`).  
+
+No — you do **not** need to install Node manually.
+
+- Vercel detects your `package.json` in the root.
+- It installs dependencies with `npm install`.
+- It runs your configured **Build Command** (`npm run buildv`).
 - Functions under `/api/*.ts` are automatically built into Node serverless functions by Vercel.
 
-You do **not** need to use the `` or ``vercel dev` (serverless local runtime)` for Vercel — those are only for running locally.  
+You do **not** need to use the `or`vercel dev` (serverless local runtime)` for Vercel — those are only for running locally.  
 On Vercel, everything under `/api/*` becomes a serverless endpoint.
 
 ---
@@ -161,6 +171,13 @@ After deploying to Vercel, verify:
 - https://your-app.vercel.app → SPA loads (dark theme by default)
 
 ### Ports quick reference
+
 - serverless runtime local API: http://localhost:3000
 - Vite dev server: http://localhost:5173
 - Vite preview: http://localhost:5174
+
+### Formatting is automatic
+
+- `npm run start` now runs **`npm run format`** after installing dependencies (root + client) and **before** launching dev/build.
+- `npm run build` also formats via the **`prebuild`** hook.
+- Prettier is configured for **tabs=4** (see `.prettierrc`, `.editorconfig`, and `.vscode/settings.json`).

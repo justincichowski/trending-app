@@ -2,7 +2,7 @@
 
 ## What changed (and why)
 
-- **Serverless-first API (`/api/*`)**: All backend logic now runs as Vercel Functions (stateless, no `fs`). This matches production *and* local via `vercel dev`.
+- **Serverless-first API (`/api/*`)**: All backend logic now runs as Vercel Functions (stateless, no `fs`). This matches production _and_ local via `vercel dev`.
 - **No Node `fs` caching**: Removed disk caching used by the old serverless runtime server. Functions set CDN cache headers instead. If you want persistent caching, use Redis/KV later.
 - **Single-page app routing**: `vercel.json` rewrites unknown paths to `index.html` for client-side routing.
 - **Local parity**: `vite` serves the frontend; `vercel dev` serves functions. The client calls `/api/*` in both envs.

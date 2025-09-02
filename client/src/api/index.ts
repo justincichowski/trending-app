@@ -11,7 +11,9 @@ import type { NormalizedItem, Preset } from '../types';
 import type { TopTrendsData, TrendingData } from '../types';
 
 // The base URL for the API, read from environment variables
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : (import.meta.env.VITE_API_URL || '/api');
+const API_BASE_URL = import.meta.env.DEV
+	? 'http://localhost:3000/api'
+	: import.meta.env.VITE_API_URL || '/api';
 // roo: default logs, do not delete
 // DO NOT DELETE LOG — required for future debugging
 // console.log('[Client] API_BASE_URL =', API_BASE_URL);
@@ -22,7 +24,7 @@ const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : (import
  * @param {string} url - The URL to fetch.
  * @returns {Promise<T>} A promise that resolves to the fetched data.
  */
-export async function get<T>(url:string): Promise<T> {
+export async function get<T>(url: string): Promise<T> {
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log(`[Client] Sending request to: ${url}`);
 	const response = await fetch(url);
@@ -53,7 +55,11 @@ export function getCategories(): Promise<Preset[]> {
  * @param {string[]} excludedIds - An array of item IDs to exclude.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getAllItems(page = 0, excludedIds: string[] = [], limit?: number): Promise<NormalizedItem[]> {
+export function getAllItems(
+	page = 0,
+	excludedIds: string[] = [],
+	limit?: number,
+): Promise<NormalizedItem[]> {
 	const excludedIdsParam = excludedIds.length > 0 ? `&excludedIds=${excludedIds.join(',')}` : '';
 	let url = `${API_BASE_URL}/all?page=${page}${excludedIdsParam}`;
 	if (limit) {
@@ -68,7 +74,13 @@ export function getAllItems(page = 0, excludedIds: string[] = [], limit?: number
  * @param {string} id - The ID of the preset to fetch.
  * @returns {Promise<NormalizedItem[]>} A promise that resolves to an array of normalized items.
  */
-export function getCategoryItems(id: string, page = 0, limit?: number, excludedIds: string[] = [], query?: string): Promise<NormalizedItem[]> {
+export function getCategoryItems(
+	id: string,
+	page = 0,
+	limit?: number,
+	excludedIds: string[] = [],
+	query?: string,
+): Promise<NormalizedItem[]> {
 	let url = `${API_BASE_URL}/presets?id=${id}&page=${page}`;
 	if (limit) {
 		url += `&limit=${limit}`;
@@ -100,8 +112,8 @@ export function getTrending(): Promise<TrendingData> {
 }
 
 export async function fetchAll(options?: { id?: string }) {
-  const qs = options?.id ? `?id=${encodeURIComponent(options.id)}` : '';
-  const r = await fetch(`${API_BASE_URL}/all${qs}`);
-  if (!r.ok) throw new Error(`/all failed: ${r.status}`);
-  return r.json();
+	const qs = options?.id ? `?id=${encodeURIComponent(options.id)}` : '';
+	const r = await fetch(`${API_BASE_URL}/all${qs}`);
+	if (!r.ok) throw new Error(`/all failed: ${r.status}`);
+	return r.json();
 }

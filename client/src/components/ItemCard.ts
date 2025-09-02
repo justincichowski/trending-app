@@ -22,7 +22,7 @@ import { Tooltip } from './Tooltip';
 export function createItemCard(
 	item: NormalizedItem,
 	tooltip: Tooltip,
-	options?: { isGallery?: boolean }
+	options?: { isGallery?: boolean },
 ): HTMLElement {
 	const card = document.createElement('div');
 	card.className = 'item-card';
@@ -84,7 +84,9 @@ export function createItemCard(
 	const actions = document.createElement('div');
 	actions.className = 'item-actions';
 
-	const isFavorited = stateManager.getState().favorites.some((fav: NormalizedItem) => fav.id === item.id);
+	const isFavorited = stateManager
+		.getState()
+		.favorites.some((fav: NormalizedItem) => fav.id === item.id);
 	const favoriteButtonContainer = document.createElement('div');
 	favoriteButtonContainer.className = 'tooltip-container';
 
@@ -161,8 +163,12 @@ export function createItemCard(
 		card.appendChild(description);
 
 		const linkify = (text: string) => {
-			const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-			return text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+			const urlRegex =
+				/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+			return text.replace(
+				urlRegex,
+				(url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
+			);
 		};
 
 		setTimeout(() => {
@@ -188,7 +194,7 @@ export function createItemCard(
 				const tempMoreButton = document.createElement('button');
 				tempMoreButton.className = 'more-button';
 				tempMoreButton.textContent = 'More';
-				
+
 				while (truncatedText.length > 0) {
 					measureElement.innerHTML = linkify(truncatedText + '...') + ' ';
 					measureElement.appendChild(tempMoreButton);
@@ -196,7 +202,7 @@ export function createItemCard(
 					if (measureElement.scrollHeight <= maxHeight) {
 						break;
 					}
-					
+
 					const lastSpace = truncatedText.lastIndexOf(' ');
 					if (lastSpace === -1) {
 						truncatedText = '';
@@ -238,7 +244,6 @@ export function createItemCard(
 			document.body.removeChild(measureElement);
 		}, 0);
 	}
-
 
 	return card;
 }

@@ -43,8 +43,8 @@ export interface NormalizedItem {
 }
 
 /**
-	* Represents the configuration for a preset category.
-	*/
+ * Represents the configuration for a preset category.
+ */
 export interface Preset {
 	/**
 	 * A unique identifier for the preset.

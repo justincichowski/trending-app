@@ -7,7 +7,7 @@ async function fetchTrendingWithCache() {
 		const cachedRaw = localStorage.getItem(KEY);
 		if (cachedRaw) {
 			const { t, data } = JSON.parse(cachedRaw);
-			if (t && (now - t) < TTL && data && Object.keys(data).length > 0) {
+			if (t && now - t < TTL && data && Object.keys(data).length > 0) {
 				// DO NOT DELETE LOG — required for future debugging
 				// console.log('[Client] Trending cache hit');
 				return data;
@@ -21,15 +21,19 @@ async function fetchTrendingWithCache() {
 	// console.log('[Client] Trending cache miss; fetching');
 	const data1 = await fetchTrendingOnce();
 	if (isMeaningfulTrending(data1)) {
-		try { localStorage.setItem(KEY, JSON.stringify({ t: now, data: data1 })); } catch {}
+		try {
+			localStorage.setItem(KEY, JSON.stringify({ t: now, data: data1 }));
+		} catch {}
 		return data1;
 	}
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log('[Client] Trending empty on first try; retrying in 1500ms');
-	await new Promise(r => setTimeout(r, 1500));
+	await new Promise((r) => setTimeout(r, 1500));
 	const data2 = await fetchTrendingOnce();
 	if (isMeaningfulTrending(data2)) {
-		try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), data: data2 })); } catch {}
+		try {
+			localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), data: data2 }));
+		} catch {}
 		return data2;
 	}
 	// DO NOT DELETE LOG — required for future debugging
@@ -38,10 +42,12 @@ async function fetchTrendingWithCache() {
 }
 function isMeaningfulTrending(obj: any) {
 	if (!obj) return false;
-	return Object.values(obj).some(arr => Array.isArray(arr) && arr.length > 0);
+	return Object.values(obj).some((arr) => Array.isArray(arr) && arr.length > 0);
 }
 async function fetchTrendingOnce() {
-	const base = import.meta.env.DEV ? 'http://localhost:3000/api' : ((window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api');
+	const base = import.meta.env.DEV
+		? 'http://localhost:3000/api'
+		: (window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api';
 	const u = new URL(base + '/trending', window.location.origin);
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log('[Client] Trending request URL', u.toString());
@@ -63,7 +69,10 @@ async function fetchTrendingOnce() {
 		return null;
 	}
 }
-window.enableTrendingDebug = function(on=true){ sessionStorage.setItem('trending_debug', on?'1':'0'); console.log('[Client] trending debug', on); };
+window.enableTrendingDebug = function (on = true) {
+	sessionStorage.setItem('trending_debug', on ? '1' : '0');
+	console.log('[Client] trending debug', on);
+};
 // ===== End Trending (Right Panel) =====
 // RIGHT PANEL CACHE BEHAVIOR LOGGING
 // Logs: cache hit/miss, empty retry, final outcome.
@@ -194,8 +203,6 @@ if (settingsButton) {
 	});
 }
 
-
-
 /**
  * Handles the view for a specific category.
  *
@@ -208,15 +215,19 @@ export async function categoryView(params: Record<string, string>) {
 	const { favorites, categories } = stateManager.getState();
 
 	// Find the new category first
-	let newCurrentCategory: Preset | null = categories.find(c => c.id === id) || null;
+	let newCurrentCategory: Preset | null = categories.find((c) => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
 		newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
 	} else if (id === '/' && !newCurrentCategory) {
 		newCurrentCategory = { id: '/', name: 'All', source: 'local', params: {} };
 	} else if (id === 'search' && query) {
-		newCurrentCategory = { id: 'search', name: `Search: "${query}"`, source: 'youtube', params: { query } };
+		newCurrentCategory = {
+			id: 'search',
+			name: `Search: "${query}"`,
+			source: 'youtube',
+			params: { query },
+		};
 	}
-
 
 	// Set the new category and loading state immediately for instant UI feedback
 	stateManager.setState({
@@ -269,13 +280,24 @@ export async function loadMoreItems() {
 			const startIndex = nextPage * PAGE_SIZE;
 			newItems = reversedFavorites.slice(startIndex, startIndex + PAGE_SIZE);
 		} else {
-			const excludedIds = items.map(item => item.id);
+			const excludedIds = items.map((item) => item.id);
 			if (currentCategory.id === '/') {
 				newItems = await getAllItems(nextPage, excludedIds, PAGE_SIZE);
 			} else if (currentCategory.id === 'search' && currentCategory.params.query) {
-				newItems = await getCategoryItems(currentCategory.id, nextPage, PAGE_SIZE, excludedIds, currentCategory.params.query);
+				newItems = await getCategoryItems(
+					currentCategory.id,
+					nextPage,
+					PAGE_SIZE,
+					excludedIds,
+					currentCategory.params.query,
+				);
 			} else {
-				newItems = await getCategoryItems(currentCategory.id, nextPage, PAGE_SIZE, excludedIds);
+				newItems = await getCategoryItems(
+					currentCategory.id,
+					nextPage,
+					PAGE_SIZE,
+					excludedIds,
+				);
 			}
 		}
 
@@ -300,7 +322,7 @@ export async function loadMoreItems() {
  */
 export function favoriteItem(item: NormalizedItem) {
 	const { favorites, currentCategory } = stateManager.getState();
-	const existingIndex = favorites.findIndex(f => f.id === item.id);
+	const existingIndex = favorites.findIndex((f) => f.id === item.id);
 	const cardElement = document.querySelector(`.item-card[data-id="${item.id}"]`);
 	const isFavoritesView = currentCategory?.id === 'favorites';
 
@@ -318,19 +340,25 @@ export function favoriteItem(item: NormalizedItem) {
 						// If the toast was not undone, start the removal animation.
 						setTimeout(() => {
 							cardElement.classList.add('is-removing');
-							cardElement.addEventListener('transitionend', () => {
-								// AFTER the animation, remove the item from the state.
-								const currentFavorites = stateManager.getState().favorites;
-								const newFavorites = currentFavorites.filter(f => f.id !== item.id);
-								stateManager.setState({ favorites: newFavorites });
-							}, { once: true });
+							cardElement.addEventListener(
+								'transitionend',
+								() => {
+									// AFTER the animation, remove the item from the state.
+									const currentFavorites = stateManager.getState().favorites;
+									const newFavorites = currentFavorites.filter(
+										(f) => f.id !== item.id,
+									);
+									stateManager.setState({ favorites: newFavorites });
+								},
+								{ once: true },
+							);
 						}, 200); // 200ms delay after toast closes
 					}
 				},
 			});
 		} else {
 			// If not in favorites view, remove immediately from the state.
-			const newFavorites = favorites.filter(f => f.id !== item.id);
+			const newFavorites = favorites.filter((f) => f.id !== item.id);
 			stateManager.setState({ favorites: newFavorites });
 			notification?.show('Removed from favorites.');
 		}
@@ -360,15 +388,18 @@ export function hideItem(id: string) {
 				if (!didUndo) {
 					// Animate out, then update state
 					cardElement.classList.add('is-removing');
-					cardElement.addEventListener('transitionend', () => {
-						stateManager.setState({ hiddenItems: [...hiddenItems, id] });
-					}, { once: true });
+					cardElement.addEventListener(
+						'transitionend',
+						() => {
+							stateManager.setState({ hiddenItems: [...hiddenItems, id] });
+						},
+						{ once: true },
+					);
 				}
 			},
 		});
 	}
 }
-
 
 /**
  * Renders the user's hidden items.
@@ -377,7 +408,7 @@ function hiddenItemsView() {
 	// This is a placeholder for the hidden items view.
 	// In a real application, you would fetch the full item details.
 	const { hiddenItems } = stateManager.getState();
-	const items = hiddenItems.map(id => ({
+	const items = hiddenItems.map((id) => ({
 		id,
 		title: `Hidden Item: ${id}`,
 		url: '#',
@@ -391,7 +422,6 @@ router.addRoute('/:id', categoryView);
 router.addRoute('/search', (params) => categoryView({ ...params, id: 'search' }));
 router.addRoute('/hidden', hiddenItemsView);
 
-
 /**
  * Adds a click event listener to the logo to refresh the current category.
  */
@@ -400,17 +430,21 @@ if (logo) {
 
 	logo.addEventListener('mousedown', (e) => {
 		const mouseEvent = e as MouseEvent;
-		if (mouseEvent.button === 2) { // Right-click
+		if (mouseEvent.button === 2) {
+			// Right-click
 			logoEl?.classList.add('no-animation');
 		}
-		
+
 		if (logoWrapper) {
 			logoWrapper.addEventListener('mouseover', () => {
 				const { lastUpdated, currentCategory } = stateManager.getState();
 				const currentPath = window.location.pathname;
 				// Only show on logo if we are on the root path
 				if (lastUpdated && (currentPath === '/' || currentCategory?.id === 'favorites')) {
-					tooltip.show(logoWrapper as HTMLElement, `Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`);
+					tooltip.show(
+						logoWrapper as HTMLElement,
+						`Last updated: ${new Date(lastUpdated).toLocaleTimeString()}`,
+					);
 				}
 			});
 			logoWrapper.addEventListener('mouseout', () => {
@@ -508,7 +542,6 @@ if (searchBackButton && controls) {
 	});
 }
 
-
 stateManager.subscribe((newState, oldState) => {
 	// Check what has changed
 	const favoritesChanged = newState.favorites.length !== oldState.favorites.length;
@@ -533,11 +566,11 @@ stateManager.subscribe((newState, oldState) => {
 		if (favoritesChanged) {
 			// Update favorite icons without re-rendering the whole list
 			const allCards = document.querySelectorAll('.item-card[data-id]');
-			allCards.forEach(card => {
+			allCards.forEach((card) => {
 				const cardId = card.getAttribute('data-id');
 				if (cardId) {
 					const favoriteButton = card.querySelector('.favorite-button');
-					const isFavorited = newState.favorites.some(f => f.id === cardId);
+					const isFavorited = newState.favorites.some((f) => f.id === cardId);
 					favoriteButton?.classList.toggle('is-favorited', isFavorited);
 				}
 			});
@@ -562,7 +595,7 @@ async function initializeApp() {
 	try {
 		// 1. Fetch essential data (category presets)
 		const dynamicCategories: Preset[] = await getCategories();
-		
+
 		// 2. Create static client-side categories
 		const allCategory: Preset = {
 			id: '/',
@@ -612,16 +645,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const trendingPanel = new TrendingPanel('trending-panel');
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
 
-	
-	fetchTrendingWithCache().then(data => {
+	fetchTrendingWithCache().then((data) => {
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Client] Received trending data sections:', Object.keys(data).length);
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Client] Rendering Trending with data?', !!data, data && Object.keys(data));
-		trendingPanel.render(data || {} as any);
+		trendingPanel.render(data || ({} as any));
 	});
 
-	getTopTrends().then(data => {
+	getTopTrends().then((data) => {
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Client] Received top trends items:', data.items.length);
 		topTrendsPanel.render(data);
@@ -645,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	backToTopButton?.addEventListener('click', () => {
 		mainContent?.scrollTo({
 			top: 0,
-			behavior: 'smooth'
+			behavior: 'smooth',
 		});
 	});
 
@@ -664,7 +696,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 });
-
 
 /**
  * -----------------------------------------------------------------------------

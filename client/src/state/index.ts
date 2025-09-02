@@ -67,15 +67,15 @@ export interface AppState {
 	};
 
 	/**
-		* Whether the application is currently fetching items.
-		*/
+	 * Whether the application is currently fetching items.
+	 */
 	isLoading: boolean;
 	showTrending: boolean;
 }
 
 /**
-	* The initial state of the application.
-	*/
+ * The initial state of the application.
+ */
 const initialState: AppState = {
 	categories: [],
 	currentCategory: null,
@@ -127,7 +127,7 @@ class StateManager {
 	setState(newState: Partial<AppState>) {
 		const oldState = { ...this.state };
 		this.state = { ...this.state, ...newState };
-		this.listeners.forEach(listener => listener(this.state, oldState));
+		this.listeners.forEach((listener) => listener(this.state, oldState));
 
 		// Persist the relevant parts of the state to local storage
 		storage.set('favorites', this.state.favorites);

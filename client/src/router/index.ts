@@ -92,10 +92,13 @@ class Router {
 			const match = this.currentPath.match(new RegExp(regexPath));
 
 			if (match) {
-				const params = paramNames.reduce((acc, name, index) => {
-					acc[name] = match[index + 1];
-					return acc;
-				}, {} as Record<string, string>);
+				const params = paramNames.reduce(
+					(acc, name, index) => {
+						acc[name] = match[index + 1];
+						return acc;
+					},
+					{} as Record<string, string>,
+				);
 
 				route.view(params);
 				return;

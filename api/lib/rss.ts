@@ -4,13 +4,13 @@ import type { NormalizedItem } from './types';
 
 // Create a new RSS parser instance
 const parser = new Parser({
-  requestOptions: {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; TrendingApp/1.0) ',
-      'Accept': 'application/rss+xml, application/xml;q=0.9, */*;q=0.8'
-    },
-    timeout: 10000
-  }
+	requestOptions: {
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (compatible; TrendingApp/1.0) ',
+			Accept: 'application/rss+xml, application/xml;q=0.9, */*;q=0.8',
+		},
+		timeout: 10000,
+	},
 });
 
 /**
@@ -98,7 +98,12 @@ async function normalizeItem(item: Parser.Item, source: string): Promise<Normali
 		description: item.contentSnippet,
 		publishedAt: publishedAt,
 		image: undefined, // Explicitly disable image scraping
-		secondsAgo: publishedAt ? Math.max(0, Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000)) : undefined,
+		secondsAgo: publishedAt
+			? Math.max(
+					0,
+					Math.floor((new Date().getTime() - new Date(publishedAt).getTime()) / 1000),
+				)
+			: undefined,
 	};
 }
 
@@ -145,7 +150,7 @@ export async function getRssFeed(options: {
 		// roo: log feed url (do not remove)
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Serverless RSS] parsing URL', feedUrl);
-   		const feed = await parser.parseURL(feedUrl);
+		const feed = await parser.parseURL(feedUrl);
 
 		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
 		// DO NOT DELETE LOG — required for future debugging
@@ -167,9 +172,9 @@ export async function getRssFeed(options: {
 		const limitedItems = feed.items.slice(startIndex, startIndex + limit);
 
 		// Normalize items in parallel and filter out any that are invalid
-		const normalizationPromises = limitedItems.map(item => normalizeItem(item, source));
+		const normalizationPromises = limitedItems.map((item) => normalizeItem(item, source));
 		const normalizedItems = (await Promise.all(normalizationPromises)).filter(
-			(item): item is NormalizedItem => item !== null
+			(item): item is NormalizedItem => item !== null,
 		);
 
 		return normalizedItems;
@@ -177,7 +182,9 @@ export async function getRssFeed(options: {
 		// DO NOT DELETE LOG — required for future debugging
 		// console.error(`Failed to fetch or parse RSS feed at ${feedUrl}`, error);
 		// Re-throw the error with more context to be caught by the caller
-		throw new Error(`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		throw new Error(
+			`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`,
+		);
 	}
 	/*
 	// --- Previous debug log for inspecting a single raw item ---
@@ -191,5 +198,4 @@ export async function getRssFeed(options: {
 	}
 	*/
 	// --- END DEBUG LOG ---
-
 }
