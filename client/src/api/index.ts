@@ -111,8 +111,17 @@ export function getTrending(): Promise<TrendingData> {
 	return get<TrendingData>(`${API_BASE_URL}/trending`);
 }
 
-export async function fetchAll(options?: { id?: string }) {
-	const qs = options?.id ? `?id=${encodeURIComponent(options.id)}` : '';
+export async function fetchAll(options?: {
+	page?: number;
+	limit?: number;
+	excludedIds?: string[];
+}) {
+	const q: string[] = [];
+	if (typeof options?.page === 'number') q.push(`page=${options.page}`);
+	if (typeof options?.limit === 'number') q.push(`limit=${options.limit}`);
+	if (options?.excludedIds?.length)
+		q.push(`excludedIds=${encodeURIComponent(options.excludedIds.join(','))}`);
+	const qs = q.length ? `?${q.join('&')}` : '';
 	const r = await fetch(`${API_BASE_URL}/all${qs}`);
 	if (!r.ok) throw new Error(`/all failed: ${r.status}`);
 	return r.json();

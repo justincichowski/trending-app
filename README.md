@@ -211,12 +211,20 @@ This avoids the hard 50‑item stop and ensures consistent behavior with your `l
 
 \n\n### Center column API (`/api/all`)
 
-- **`GET /api/all`** → returns only the category list (presets). Cached 60 minutes.
-- **`GET /api/all?id=<presetId>`** → returns items for that single category. Cached 5 minutes.
-- This route **does not** fetch the left (`/api/toptrends`) or right (`/api/trending`) columns.
+- **`GET /api/all`** → returns a shuffled mix aggregated across all non‑local categories (center column). Cached 5 minutes.
+- Supports `page`, `limit`, and `excludedIds` (CSV) for endless scroll.
+- **Does not** accept `id` — use `GET /api/presets?id=<category>` for per‑category items.
 - Client helper available at `client/src/api/index.ts`:
 
 ````ts
+import { fetchAll } from './api';
+
+// aggregate mix, first page (5 default)
+const items = await fetchAll();
+
+// next page w/ exclusions
+const more = await fetchAll({ page: 1, limit: 5, excludedIds: items.map(i => i.id) });
+```ts
 import { fetchAll } from './api';
 
 // categories
@@ -225,4 +233,7 @@ const { presets } = await fetchAll();
 // items for a category
 const { id, name, items } = await fetchAll({ id: 'news' });
 ```\n
+
+### Further reading
+- See `docs/CENTER_COLUMN_AND_CACHING.md` for the full center column, categories, caching & quota guide.
 ````
