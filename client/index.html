@@ -7,20 +7,20 @@
 (function () {
   try {
     var saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
-    var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
-    var root = document.documentElement;
-    if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
-    root.setAttribute('data-theme', theme);
-    var bg = theme === 'dark' ? '#0B0F17' : '#FFFFFF';
-    var fg = theme === 'dark' ? '#FFFFFF' : '#0B0F17';
-    root.style.setProperty('--bg', bg);
-    root.style.setProperty('--fg', fg);
-    root.style.backgroundColor = 'var(--bg)';
-    document.addEventListener('DOMContentLoaded', function(){
-      document.body.style.backgroundColor = 'var(--bg)';
-      document.body.style.color = 'var(--fg)';
-    });
+    // var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // var theme = (saved === 'dark' || saved === 'light') ? saved : sys;
+    // var root = document.documentElement;
+    // if (theme === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+    // root.setAttribute('data-theme', theme);
+    // var bg = theme === 'dark' ? '#0B0F17' : '#FFFFFF';
+    // var fg = theme === 'dark' ? '#FFFFFF' : '#0B0F17';
+    // root.style.setProperty('--bg', bg);
+    // root.style.setProperty('--fg', fg);
+    // root.style.backgroundColor = 'var(--bg)';
+    // document.addEventListener('DOMContentLoaded', function(){
+    //   document.body.style.backgroundColor = 'var(--bg)';
+    //   document.body.style.color = 'var(--fg)';
+    // });
   } catch (e) {}
 })();
 </script>
