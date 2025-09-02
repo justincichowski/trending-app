@@ -101,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60'); // 5m
 
 	// Build candidate category list (non-local only), shuffled deterministically by page
-	const candidates = PRESET_CONFIG.filter((p) => p.source !== 'local');
+	const candidates = PRESET_CONFIG.filter((p) => p.source === 'rss' || p.source === 'youtube');
 	const ordered = seededShuffle(candidates, pageNumber + 1); // +1 to avoid seed=0 bias
 
 	// How many categories do we need to touch for this limit?
