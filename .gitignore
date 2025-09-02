@@ -2,4 +2,32 @@ node_modules
 .env
 .env.*
 !.env.example
-.js
+
+# deps
+node_modules/
+# env
+# build outputs
+dist/
+build/
+out/
+.next/
+.vercel/
+api/.vercel/
+server/dist/
+client/dist/
+client/.vite/
+# compiled JS emitted near TS sources (avoid TS/JS duplicates in deploys)
+server/**/*.js
+server/**/*.js.map
+client/src/**/*.js
+client/src/**/*.js.map
+api/**/*.js
+api/**/*.js.map
+# keep common JS configs tracked
+!tailwind.config.js
+!postcss.config.js
+!vite.config.js
+!eslint.config.js
+!eslint.config.cjs
+!prettier.config.js
+!prettier.config.cjs

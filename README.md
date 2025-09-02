@@ -174,3 +174,11 @@ This avoids the hard 50‑item stop and ensures consistent behavior with your `l
 - Regular preset sections request **max=15** items each; **TopTrends** requests **max=50**.
 - Pagination is handled on the server and sliced to your requested max.
 
+
+
+## Deploy hygiene
+
+- **Avoid TS/JS duplicates**: `.gitignore` now ignores compiled `.js` alongside `.ts` in `api/`, `server/`, and `client/src/`.
+- **Vercel deploys**: `.vercelignore` trims build artifacts (`dist/`, `.next/`, `client/.vite/`, etc.).
+- **Bootstrap**: run `npm run bootstrap` once locally to install root + client deps.
+- **Start/Build**: keep your current `start`/`build` flow; Vercel builds serverless functions from the TypeScript in `api/`.

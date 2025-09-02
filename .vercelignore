@@ -1,0 +1,9 @@
+node_modules/
+*.log
+dist/
+build/
+out/
+.next/
+client/.vite/
+server/dist/
+# Let Vercel build from source; don't upload local build output

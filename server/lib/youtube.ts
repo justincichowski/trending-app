@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { NormalizedItem } from './types';
-import { getCache, setCache, getInflight, setInflight, hashKey } from './cache';
+import { getCache, setCache, getInflight, setInflight, hashKey } from './persist';
 
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 

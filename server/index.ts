@@ -25,7 +25,7 @@ import { getYouTubeVideos } from './lib/youtube';
 import { presets } from './lib/presets';
 import { fetchTopTrends } from './lib/toptrends';
 import type { NormalizedItem, TopTrendsData } from './lib/types';
-import { readFromCache, writeToCache } from './lib/cache';
+import { readFromCache, writeToCache } from './lib/persist';
 
 
 // Create a new Fastify server instance
