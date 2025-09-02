@@ -91,3 +91,12 @@ export function setInflight<T>(key: string, p: Promise<T>): void {
 export function hashKey(obj: any): string {
   try { return JSON.stringify(obj); } catch { return String(obj); }
 }
+
+
+// Compat wrappers for older code expecting sync getCache/setCache
+export function getCache<T>(key: string): T | undefined {
+  return readFromMemory<T>(key);
+}
+export function setCache<T>(key: string, value: T, ttlMs: number): void {
+  writeToMemory<T>(key, value, ttlMs);
+}
