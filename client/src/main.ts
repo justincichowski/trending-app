@@ -20,6 +20,11 @@
 // 	return ytReadyPromise;
 // }
 // ===== Trending (Right Panel) Fetch + Cache with Logging =====
+/** RIGHT PANEL: localStorage TTL cache
+ *  - Key: trending_cache_v2
+ *  - TTL: 15 minutes
+ *  - Behavior: serve directly from localStorage within TTL; on miss/expiry, fetch then cache.
+ */
 async function fetchTrendingWithCache() {
 	const KEY = 'trending_cache_v2';
 	const TTL = 15 * 60 * 1000;
@@ -90,6 +95,22 @@ async function fetchTrendingOnce() {
 		return null;
 	}
 }
+
+async function fetchTopTrendsOnce() {
+	const base = import.meta.env.DEV
+		? 'http://localhost:3000/api'
+		: (window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api';
+	const u = new URL(base + '/toptrends', window.location.origin);
+	try {
+		const res = await fetch(u.toString());
+		if (!res.ok) return null;
+		const data = await res.json();
+		return data;
+	} catch {
+		return null;
+	}
+}
+
 window.enableTrendingDebug = function (on = true) {
 	sessionStorage.setItem('trending_debug', on ? '1' : '0');
 	console.log('[Client] trending debug', on);
@@ -102,7 +123,7 @@ import 'swiper/css';
 import { CategoryNav } from './components/CategoryNav';
 import { router } from './router';
 import { stateManager } from './state';
-import { getCategoryItems, getCategories, getAllItems, getTopTrends } from './api';
+import { getCategoryItems, getCategories, getAllItems } from './api';
 import { renderItems } from './renderer';
 import type { NormalizedItem, Preset } from './types';
 import { showPageLoader, hidePageLoader } from './components/PageLoader';
@@ -669,6 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const trendingPanel = new TrendingPanel('trending-panel');
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
 
+	// Right column uses 15m TTL localStorage; no network within window
 	fetchTrendingWithCache().then((data) => {
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Client] Received trending data sections:', Object.keys(data).length);
@@ -677,7 +699,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		trendingPanel.render(data || ({} as any));
 	});
 
-	getTopTrends().then((data) => {
+	// Left column uses 60m TTL localStorage; no network within window
+	fetchTopTrendsWithCache().then((data) => {
 		// DO NOT DELETE LOG — required for future debugging
 		// console.log('[Client] Received top trends items:', data.items.length);
 		topTrendsPanel.render(data);
@@ -767,3 +790,40 @@ document.addEventListener('contextmenu', (event) => {
 window.addEventListener('load', () => {
 	document.body.classList.remove('preload');
 });
+
+// ===== TopTrends (Left Panel) Fetch + Cache =====
+/** LEFT PANEL: localStorage TTL cache
+ *  - Key: toptrends_cache_v1
+ *  - TTL: 60 minutes
+ *  - Behavior: serve directly from localStorage within TTL; on miss/expiry, fetch then cache.
+ */
+async function fetchTopTrendsWithCache() {
+	const KEY = 'toptrends_cache_v1';
+	const TTL = 60 * 60 * 1000; // 60 minutes
+	const now = Date.now();
+	try {
+		const raw = localStorage.getItem(KEY);
+		if (raw) {
+			const { t, data } = JSON.parse(raw);
+			if (
+				t &&
+				now - t < TTL &&
+				data &&
+				data.items &&
+				Array.isArray(data.items) &&
+				data.items.length > 0
+			) {
+				return data;
+			}
+		}
+	} catch (e) {}
+	const data = await fetchTopTrendsOnce();
+	if (data && data.items && Array.isArray(data.items) && data.items.length > 0) {
+		try {
+			localStorage.setItem(KEY, JSON.stringify({ t: now, data }));
+		} catch {}
+		return data;
+	}
+	return data;
+}
+// ===== End TopTrends (Left Panel) =====

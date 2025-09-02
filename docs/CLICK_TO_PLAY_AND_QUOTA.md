@@ -28,3 +28,9 @@ To push it to first click instead:
     // if (typeof LAZY_LOAD_YT !== 'undefined' && LAZY_LOAD_YT) { await loadYTOnce(); }
     ```
     This keeps cards API-dead until a user clicks, and avoids loading the YT script until it’s needed.
+
+## Left/Right panel caching (client TTL)
+
+- **Right panel** uses a 15‑minute localStorage cache to avoid any network within the window.
+- **Left panel** now uses a 60‑minute localStorage cache as well.
+- When TTL expires, the next request refreshes the cache; otherwise the UI renders immediately from localStorage.
