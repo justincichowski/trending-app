@@ -1,39 +1,21 @@
-# Trending App — Vercel-Ready Refactor (Summary)
+# Refactor Summary – Server → Serverless · 2025-09-02
 
-## What changed (and why)
+## Goals
+- Preserve original behavior (routing, endless scroll, category semantics).
+- Improve quota safety and caching in a serverless model.
 
-- **Serverless-first API (`/api/*`)**: All backend logic now runs as Vercel Functions (stateless, no `fs`). This matches production _and_ local via `vercel dev`.
-- **No Node `fs` caching**: Removed disk caching used by the old serverless runtime server. Functions set CDN cache headers instead. If you want persistent caching, use Redis/KV later.
-- **Single-page app routing**: `vercel.json` rewrites unknown paths to `index.html` for client-side routing.
-- **Local parity**: `vite` serves the frontend; `vercel dev` serves functions. The client calls `/api/*` in both envs.
-- **Theme default = dark**: Initial state now uses `'dark'` when nothing is stored.
-- **Simpler build**: `npm run build` only builds the client. Vercel compiles functions automatically.
+## Key Changes
+- Replaced server routes with Vercel **serverless functions** in `api/*.ts`.
+- **/api/all** is aggregator-only (rejects `id`); seeded shuffle + per-cat cap (~5); honors `excludedIds`; 5m cache + ETag.
+- **/api/presets** keeps RSS native paging; **YouTube overfetch+slice** to return exactly `limit` items; items 5m + ETag; list 60m + ETag.
+- **Side panels**: set `public, max-age` + `s-maxage` + SWR headers.
 
-## Scripts you’ll run
+## Improvements vs Original
+- **Client TTLs**: left 60m, right 15m → SPA renders from localStorage; **no fetch** inside TTL.
+- **ETags** on `/api/all` & `/api/presets` for cheap 304s.
+- Optional **KV-backed persist**; simple in-memory cache available.
+- Clearer inline docs (quota strategy, seeded shuffle, click‑to‑play).
 
-- `npm run dev` — runs **client + API** together (Vite on 5173, Vercel dev on 3000; Vite proxies `/api` to 3000).
-- `npm run dev:client` — **frontend only** (still points to `/api`; if API isn’t running, calls will 404).
-- `npm run dev:api` — **API only** using `vercel dev` (helpful for debugging functions).
-- `npm run build` — production client build.
-- `npm run preview` — serve the built client locally to preview the production bundle.
-
-## Environment variables
-
-- Set `YOUTUBE_API_KEY` in **Vercel → Project → Settings → Environment Variables**.
-- For local: put it in `./.env.local` (not committed). Vercel CLI will load it for functions.
-- Do **not** store secrets in `client/.env.*` (only `VITE_*` go there and are public).
-
-## Deploy checklist (1 page)
-
-1. Push to GitHub.
-2. Vercel: Framework **Vite**, Build Command `npm run build`, Output `client/dist`.
-3. Add `YOUTUBE_API_KEY` (Production + Preview envs).
-4. Deploy → open `/api/health`, `/api/presets`, `/api/toptrends`, `/api/trending` to smoke test.
-5. Open the root URL → app loads; toggle theme works; lists render.
-6. If any API 500s, check the function logs in Vercel & verify `YOUTUBE_API_KEY`.
-
-## Notes on serverless constraints
-
-- Functions are stateless; the filesystem is ephemeral and read-only. We removed `fs` caching.
-- Use Cache-Control headers (already added) for CDN caching.
-- For background jobs, queues, or persistent cache, consider Upstash Redis/KV or Neon/PlanetScale.
+## Notes
+- Click‑to‑play only for YouTube embeds; gallery isolated.
+- TypeScript: Vite env types + Swiper CSS shim committed.

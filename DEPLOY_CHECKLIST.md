@@ -1,15 +1,11 @@
-# Deploy & Run — Quick Checklist
+# Deploy Checklist (Serverless) · 2025-09-02
 
-- [ ] `npm run dev` (Terminal A: Vite; Terminal B: `npm run dev:api` automatically via concurrently)
-- [ ] Visit http://localhost:5173 — app loads in dark theme
-- [ ] API smoke tests:
-    - [ ] http://localhost:3000/api/health (ok)
-    - [ ] http://localhost:3000/api/presets (list)
-    - [ ] http://localhost:3000/api/toptrends (needs YOUTUBE_API_KEY)
-    - [ ] http://localhost:3000/api/trending
-- [ ] `npm run build`
-- [ ] `npm run preview` → http://localhost:5174
-- [ ] Push to GitHub → Vercel project
-- [ ] Vercel settings: Framework = Vite; Build = `npm run build`; Output = `client/dist`
-- [ ] Add `YOUTUBE_API_KEY` in Vercel env
-- [ ] Deploy → verify endpoints and UI
+- [ ] **Env:** set any required secrets; optional `VITE_API_URL` for client override.
+- [ ] **Build:** `npm run build` passes; `npm run typecheck` clean.
+- [ ] **Routes:** `vercel.json` rewrites in place for `/api/*` and SPA paths.
+- [ ] **/api/all:** aggregator-only, rejects `id`; seeded mix + per-cat cap (~5); honors `excludedIds`; 5m cache + ETag.
+- [ ] **/api/presets:** categories (60m + ETag) and `id=<cat>` items (RSS native paging, YouTube overfetch+slice; 5m + ETag).
+- [ ] **Side panels:** `Cache-Control`: `public, max-age` + `s-maxage` + `stale-while-revalidate` set.
+- [ ] **Client TTLs:** left 60m (`toptrends_cache_v1`), right 15m (`trending_cache_v2`); confirm **no network** within TTL.
+- [ ] **YouTube:** click‑to‑play only; no autoplay on list render.
+- [ ] **Smoke test:** `curl -I /api/all` and `/api/presets?id=sports` show `ETag` and expected `Cache-Control`.
