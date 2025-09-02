@@ -84,7 +84,12 @@ export default async function handler(request: VercelRequest, response: VercelRe
 			setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 			const out = filtered.slice(offset, offset + limitNumber);
 			setWeakEtag(response, out.map((i) => i.id).filter(Boolean));
-			return response.status(200).json(out);
+			const __payload = out;
+			setWeakEtag(
+				response,
+				Array.isArray(__payload) ? out.map((i) => i.id).filter(Boolean) : [],
+			);
+			return response.status(200).json(__payload);
 		}
 
 		const preset = presets.find((p) => p.id === id);
@@ -117,7 +122,12 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
 		setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 		setWeakEtag(response, items.map((i) => i.id).filter(Boolean));
-		return response.status(200).json(items);
+		const __payload = items;
+		setWeakEtag(
+			response,
+			Array.isArray(__payload) ? items.map((i) => i.id).filter(Boolean) : [],
+		);
+		return response.status(200).json(__payload);
 	} catch (error) {
 		console.error(error);
 		return response.status(500).json({ error: `Failed to fetch data for preset: ${id}.` });

@@ -144,7 +144,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const result = shuffled.slice(0, limitNumber);
 
 		setWeakEtag(res, result.map((i) => i.id).filter(Boolean));
-		return res.status(200).json(result);
+		const __payload = result;
+		setWeakEtag(res, Array.isArray(__payload) ? result.map((i) => i.id).filter(Boolean) : []);
+		return res.status(200).json(__payload);
 	} catch (err: any) {
 		console.error('[API /all] error', err);
 		return res.status(500).json({ error: 'Failed to fetch items' });
