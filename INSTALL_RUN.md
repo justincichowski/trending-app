@@ -14,6 +14,8 @@ npm install && cd client && npm install && cd .. && npm run dev && npm run build
 
 # Windows PowerShell
 npm install; cd client; npm install; cd ..; npm run dev; npm run build
+"start": "npm install && cd client && npm install && cd .. && npm run dev && npm run build",
+
 
 ### What this does:
 1. Installs root dependencies (serverless functions).
