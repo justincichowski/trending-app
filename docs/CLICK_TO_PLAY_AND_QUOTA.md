@@ -1,19 +1,30 @@
-# Click‑to‑Play & Quota Behavior
+# Click‑to‑Play & Quota (Client)
 
-## TL;DR
-
-- Cards are **dead** until clicked. No players are created on list render.
-- The **YouTube IFrame Player** is created **only on image click**.
+- Cards are **dead** until clicked — no players created at render.
+- The YouTube IFrame Player is created **only on image click** in `main.ts`.
 - Switching categories (All ↔ Sports, etc.) **does not** create players.
-- The loader script (IFrame API) **does not use** YouTube **Data API quota**.
-- Data API calls are **server-side only**, and already optimized & cached.
+- The IFrame loader script **does not** use YouTube **Data API** quota.
+- Data API calls are **server-side only** and cached/optimized.
 
-## Why this protects quotas
+**Tip:** For zero script until first play, lazy-load the IFrame API on demand.
 
-- No per-card players, no preloading → minimal embed activity.
-- Server calls are throttled by `/api/all` sampling and endpoint TTLs.
+## Enable optional lazy-load
 
-## Optional enhancements
+By default, the YouTube IFrame API script is loaded at startup for snappy first play.
+To push it to first click instead:
 
-- **Lazy-load** the IFrame API script on first click for zero script until play.
-- Reserve aspect ratio with CSS (`aspect-ratio: 16/9`) to avoid layout jump.
+1. Remove this tag from `client/index.html`:
+    ```html
+    <script src="https://www.youtube.com/iframe_api"></script>
+    ```
+2. In `client/src/main.ts`, uncomment the **OPTIONAL LAZY-LOAD** block:
+    ```ts
+    // const LAZY_LOAD_YT = true;
+    // let ytReadyPromise: Promise<void> | null = null;
+    // function loadYTOnce() { /* ... inject iframe_api then resolve on ready ... */ }
+    ```
+3. Also uncomment the line right above `playYouTubeVideo(...)` to await readiness:
+    ```ts
+    // if (typeof LAZY_LOAD_YT !== 'undefined' && LAZY_LOAD_YT) { await loadYTOnce(); }
+    ```
+    This keeps cards API-dead until a user clicks, and avoids loading the YT script until it’s needed.

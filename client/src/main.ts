@@ -1,3 +1,24 @@
+/*
+ * OPTIONAL LAZY-LOAD (commented out by default)
+ *
+ * How to enable:
+ * 1) Remove the <script src="https://www.youtube.com/iframe_api"></script> tag from client/index.html
+ * 2) Uncomment the block below (LAZY_LOAD_YT + loadYTOnce)
+ * 3) In playYouTubeVideo(), uncomment the await load line
+ */
+
+// const LAZY_LOAD_YT = true;
+// let ytReadyPromise: Promise<void> | null = null;
+// function loadYTOnce(): Promise<void> {
+// 	if (ytReadyPromise) return ytReadyPromise;
+// 	ytReadyPromise = new Promise<void>((resolve) => {
+// 		const tag = document.createElement('script');
+// 		tag.src = 'https://www.youtube.com/iframe_api';
+// 		(window as any).onYouTubeIframeAPIReady = () => resolve();
+// 		document.head.appendChild(tag);
+// 	});
+// 	return ytReadyPromise;
+// }
 // ===== Trending (Right Panel) Fetch + Cache with Logging =====
 async function fetchTrendingWithCache() {
 	const KEY = 'trending_cache_v2';
@@ -146,6 +167,8 @@ export function destroyCurrentPlayer() {
  * @param itemId - The ID of the item (used to derive the video ID).
  */
 /** Create a player only when needed (on click). No preloading on card render. */
+// OPTIONAL: lazy-load IFrame API
+// if (typeof LAZY_LOAD_YT !== 'undefined' && LAZY_LOAD_YT) { await loadYTOnce(); }
 export function playYouTubeVideo(imageContainer: HTMLElement, itemId: string) {
 	// Destroy the previous player if it exists
 	if (currentPlayer) {
