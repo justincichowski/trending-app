@@ -1,27 +1,35 @@
 
-/**
- * In-memory TTL cache for serverless warm instances.
- * NOTE: This survives only while the function instance is warm,
- * and does not persist across regions/instances.
- */
-const store = new Map<string, { expires: number; value: any }>();
+// Simple in-memory TTL cache with in-flight de-duplication.
+// Works on Vercel serverless: per-warm instance, ephemeral, but reduces thrash and cost.
+type CacheEntry<T> = { value: T; expiresAt: number };
+const _cache = new Map<string, CacheEntry<any>>();
+const _inflight = new Map<string, Promise<any>>();
 
-// Guard: never cache empty results
-export async function cached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promise<T> {
-  const now = Date.now();
-  const hit = store.get(key);
-  if (hit && hit.expires > now) {
-    return hit.value as T;
+export function getCache<T>(key: string): T | undefined {
+  const hit = _cache.get(key);
+  if (!hit) return undefined;
+  if (hit.expiresAt < Date.now()) { _cache.delete(key); return undefined; }
+  return hit.value as T;
+}
+
+export function setCache<T>(key: string, value: T, ttlMs: number): void {
+  _cache.set(key, { value, expiresAt: Date.now() + ttlMs });
+}
+
+export function getInflight<T>(key: string): Promise<T> | undefined {
+  const p = _inflight.get(key);
+  return p as Promise<T> | undefined;
+}
+
+export function setInflight<T>(key: string, p: Promise<T>): void {
+  _inflight.set(key, p);
+  p.finally(() => _inflight.delete(key));
+}
+
+export function hashKey(obj: any): string {
+  try {
+    return JSON.stringify(obj);
+  } catch {
+    return String(obj);
   }
-  const value = await fn();
-  // Only cache if value is "meaningful" (not empty/null)
-const isEmptyObject = value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0;
-const isEmptyArray = Array.isArray(value) && value.length === 0;
-if (value != null && !isEmptyObject && !isEmptyArray) {
-  store.set(key, { expires: now + ttlMs, value });
 }
-return value;
-}
-
-// Optional: a way to clear for tests
-export function _clear() { store.clear(); }

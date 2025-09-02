@@ -1,9 +1,15 @@
 import axios, { AxiosError } from 'axios';
 import type { NormalizedItem } from './types';
+import { getCache, setCache, getInflight, setInflight, hashKey } from './cache';
 
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 
 const apiKey = process.env.YOUTUBE_API_KEY;
+const YT_CACHE_TTL_MS = Number(process.env.YT_CACHE_TTL_MS || 5 * 60 * 1000); // 5 min default
+const YT_CACHE_EMPTY_TTL_MS = Number(process.env.YT_CACHE_EMPTY_TTL_MS || 60 * 1000); // 1 min for empty results
+const YT_CIRCUIT_TTL_MS = Number(process.env.YT_CIRCUIT_TTL_MS || 10 * 60 * 1000); // 10 min when quotaExceeded
+let YT_CIRCUIT_TRIPPED_UNTIL = 0;
+
 if (!apiKey) {
   console.warn('Missing YOUTUBE_API_KEY in server environment. YouTube requests may fail.');
 }
@@ -44,6 +50,24 @@ export async function getYouTubeVideos(params: {
   max?: number;
   pageToken?: string;
 }): Promise<NormalizedItem[]> {
+
+// Circuit breaker: short-circuit if quota exceeded recently
+if (Date.now() < YT_CIRCUIT_TRIPPED_UNTIL) {
+  const key = hashKey({ params, _circuit: true });
+  const cached = getCache<NormalizedItem[]>(key);
+  if (cached) return cached;
+  setCache(key, [], YT_CACHE_EMPTY_TTL_MS);
+  return [];
+}
+
+// Cache key & in-flight de-duplication
+const key = hashKey({ params });
+const cached = getCache<NormalizedItem[]>(key);
+if (cached) return cached;
+const inflight = getInflight<NormalizedItem[]>(key);
+if (inflight) return inflight;
+                const _promise = (async () => {
+
   const { playlistId, query, pageToken } = params;
   const requested = (typeof params.max === 'number' ? params.max : params.limit);
   const effectiveMax = clampMax(requested, 15);
@@ -75,6 +99,7 @@ export async function getYouTubeVideos(params: {
         .filter((x): x is NormalizedItem => x !== null)
         .slice(0, effectiveMax);
 
+      setCache(key, normalized, normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS);
       return normalized;
     }
 
@@ -96,6 +121,7 @@ export async function getYouTubeVideos(params: {
         .filter((x): x is NormalizedItem => x !== null)
         .slice(0, effectiveMax);
 
+      setCache(key, normalized, normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS);
       return normalized;
     }
 
@@ -109,6 +135,18 @@ export async function getYouTubeVideos(params: {
       console.error('YT ERROR status', status);
       console.error('YT ERROR data', JSON.stringify(data, null, 2));
     } catch {}
-    throw err;
+    
+// Quota handling: trip circuit and cache empty to avoid hammering
+const reason = (e?.response?.data as any)?.error?.errors?.[0]?.reason;
+if (reason === 'quotaExceeded') {
+  YT_CIRCUIT_TRIPPED_UNTIL = Date.now() + YT_CIRCUIT_TTL_MS;
+  setCache(key, [], YT_CACHE_EMPTY_TTL_MS);
+  return [];
+}
+throw err;
+
   }
+                })();
+                setInflight(key, _promise);
+                return _promise;
 }

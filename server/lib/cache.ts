@@ -1,59 +1,35 @@
-import fs from 'fs/promises';
-import path from 'path';
-import type { TopTrendsData } from './types';
-import type { NormalizedItem } from './types';
 
-const CACHE_DIR = path.resolve(__dirname, '../.cache');
+// Simple in-memory TTL cache with in-flight de-duplication.
+// Works on Vercel serverless: per-warm instance, ephemeral, but reduces thrash and cost.
+type CacheEntry<T> = { value: T; expiresAt: number };
+const _cache = new Map<string, CacheEntry<any>>();
+const _inflight = new Map<string, Promise<any>>();
 
-// Ensure the cache directory exists
-fs.mkdir(CACHE_DIR, { recursive: true });
-
-type CacheData = TopTrendsData | Record<string, NormalizedItem[]>;
-
-function isMeaningful(data:any):boolean{
-  if (data == null) return false;
-  if (Array.isArray(data)) return data.length>0;
-  if (typeof data === 'object') return Object.keys(data).length>0;
-  return true;
+export function getCache<T>(key: string): T | undefined {
+  const hit = _cache.get(key);
+  if (!hit) return undefined;
+  if (hit.expiresAt < Date.now()) { _cache.delete(key); return undefined; }
+  return hit.value as T;
 }
 
-/**
- * Writes data to a cache file.
- * @param key The cache key (e.g., 'topTrends', 'trending').
- * @param data The data to write to the cache.
- */
-export async function writeToCache(key: string, data: CacheData): Promise<void> {
-    const cacheFile = path.join(CACHE_DIR, `${key}.json`);
-    if (!isMeaningful(data)) {
-        return; // do not write empty
-    }
-    const cacheEntry = {
-        lastFetched: Date.now(),
-        data: data,
-    };
-    await fs.writeFile(cacheFile, JSON.stringify(cacheEntry, null, 2));
+export function setCache<T>(key: string, value: T, ttlMs: number): void {
+  _cache.set(key, { value, expiresAt: Date.now() + ttlMs });
 }
 
-/**
- * Reads data from a cache file.
- * @param key The cache key.
- * @param maxAge The maximum age of the cache in milliseconds.
- * @returns The cached data, or null if it's stale or doesn't exist.
- */
-export async function readFromCache<T extends CacheData>(key: string, maxAge: number): Promise<T | null> {
-    const cacheFile = path.join(CACHE_DIR, `${key}.json`);
-    try {
-        const fileContent = await fs.readFile(cacheFile, 'utf-8');
-        const cacheEntry = JSON.parse(fileContent);
-        const now = Date.now();
+export function getInflight<T>(key: string): Promise<T> | undefined {
+  const p = _inflight.get(key);
+  return p as Promise<T> | undefined;
+}
 
-        if (now - cacheEntry.lastFetched < maxAge) {
-            if (!isMeaningful(cacheEntry.data)) return null;
-            return cacheEntry.data as T;
-        }
-        return null;
-    } catch (error) {
-        // If the file doesn't exist or is invalid, return null
-        return null;
-    }
+export function setInflight<T>(key: string, p: Promise<T>): void {
+  _inflight.set(key, p);
+  p.finally(() => _inflight.delete(key));
+}
+
+export function hashKey(obj: any): string {
+  try {
+    return JSON.stringify(obj);
+  } catch {
+    return String(obj);
+  }
 }
