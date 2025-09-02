@@ -11,8 +11,8 @@ A lightweight single‑page app (vanilla TypeScript + Vite) with a **serverless*
 - **No long‑running servers.** You do **not** call `server.listen(...)` in functions.
 - API endpoints live in `api/*.ts` and are deployed as **serverless functions**.
 - **Routing** is handled by `vercel.json`:
-  - Requests to `/api/*` map to `api/*.ts`.
-  - All other routes rewrite to the SPA index so the client router can handle them.
+    - Requests to `/api/*` map to `api/*.ts`.
+    - All other routes rewrite to the SPA index so the client router can handle them.
 
 ---
 
@@ -23,6 +23,7 @@ A lightweight single‑page app (vanilla TypeScript + Vite) with a **serverless*
 ```bash
 npm run start
 ```
+
 This follows our “start ideology”: root + client installs, format pass, run dev, then build.
 
 ### Day‑to‑day development
@@ -55,19 +56,22 @@ npm run typecheck
 ## API Overview
 
 ### Center column — `/api/all` (Aggregator Only)
+
 - **Purpose:** Returns a shuffled mix for the center feed.
-- **Important:** *Does not accept* `id`. For categories use `/api/presets?id=...`.
+- **Important:** _Does not accept_ `id`. For categories use `/api/presets?id=...`.
 - **Quota‑safe:** Uses a **seeded shuffle** across categories with a **per‑category cap (~5)** to fill a page (default `limit=15`).
 - **No duplicates:** `excludedIds` is honored to prevent repeats across endless scroll pages.
 - **Caching:** 5‑minute TTL + **ETag** for cheap revalidation.
 
 ### Per‑category — `/api/presets`
+
 - `GET /api/presets` → returns categories (cached ~60m, with ETag).
 - `GET /api/presets?id=<cat>&page&limit&excludedIds` → items for the given category.
-- **RSS** uses native paging; **YouTube** uses **overfetch + slice** to guarantee exactly `limit` items (and filters `excludedIds`). 
+- **RSS** uses native paging; **YouTube** uses **overfetch + slice** to guarantee exactly `limit` items (and filters `excludedIds`).
 - **Caching:** Items 5m + **ETag**; Category list 60m + **ETag**.
 
 ### Side panels
+
 - **Left (`/api/toptrends`)** — 60m TTL.
 - **Right (`/api/trending`)** — 15m TTL.
 - **Headers:** `public, max-age`, `s-maxage`, and `stale-while-revalidate` are set on both.
@@ -106,4 +110,3 @@ npm run typecheck
 - **Per‑category (`/api/presets`)**: RSS paging; YouTube overfetch + slice; 5m items / 60m list; **ETag**.
 - **Side panels**: client TTL (60m left / 15m right) + browser/CDN cache headers; **no fetch** inside TTL.
 - **ETag everywhere it matters** for cheap revalidation.
-

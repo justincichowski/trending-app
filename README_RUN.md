@@ -5,30 +5,35 @@
 ## Scripts
 
 - **Start (one-shot):**
-  ```bash
-  npm run start
-  ```
-  Installs deps (root + client), runs formatter, starts dev, and then runs a build.
+
+    ```bash
+    npm run start
+    ```
+
+    Installs deps (root + client), runs formatter, starts dev, and then runs a build.
 
 - **Dev (functions + client concurrently):**
-  ```bash
-  npm run dev
-  ```
+
+    ```bash
+    npm run dev
+    ```
 
 - **Client-only dev:**
-  ```bash
-  npm run dev:client
-  ```
+
+    ```bash
+    npm run dev:client
+    ```
 
 - **Build:**
-  ```bash
-  npm run build
-  ```
+
+    ```bash
+    npm run build
+    ```
 
 - **Typecheck (no emit):**
-  ```bash
-  npm run typecheck
-  ```
+    ```bash
+    npm run typecheck
+    ```
 
 ## API Map
 

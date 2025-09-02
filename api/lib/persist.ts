@@ -9,6 +9,14 @@ const inflight = new Map<string, Promise<any>>();
 const KV_URL = process.env.KV_REST_API_URL || process.env.VERCEL_KV_REST_API_URL || '';
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.VERCEL_KV_REST_API_TOKEN || '';
 
+// Optional KV switch (OFF by default).
+// To enable KV caching, set ENABLE_KV=1 and provide KV_REST_API_URL/KV_REST_API_TOKEN.
+// NOTE: Enabling KV may incur costs (reads/writes/storage) depending on your plan.
+const ENABLE_KV = process.env.ENABLE_KV === '1';
+function kvEnabled(): boolean {
+	return ENABLE_KV && !!KV_URL && !!KV_TOKEN;
+}
+
 function now() {
 	return Date.now();
 }
