@@ -7,6 +7,7 @@ html, body { background: var(--bg); color: var(--fg); min-height: 100%; }
 
 :root {
 	--background-color: #ffffff;
+	--background-color-input: rgba(255, 255, 255, 0.5);
 	--text-color: #333333;
 	--accent-color: #007bff;
 	--card-background-color: #f8f9fa;
@@ -25,6 +26,7 @@ html, body { background: var(--bg); color: var(--fg); min-height: 100%; }
 
 html.dark-theme {
 	--background-color: #121212;
+	--background-color-input: rgba(0, 0, 0, 0.5);
 	--text-color: #ffffff;
 	--accent-color: #bb86fc;
 	--card-background-color: #1e1e1e;
@@ -908,7 +910,6 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -926,7 +927,9 @@ body {
 .settings-panel.is-visible .settings-panel-content {
 	transform: scale(1);
 }
-
+.settings-panel {
+	background-color: var(--background-color-input);
+}
 .settings-panel-content {
 	background-color: var(--background-color);
 	padding: 2rem;
