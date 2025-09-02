@@ -106,3 +106,4 @@ export function renderItems(tooltip: Tooltip) {
 		mainContent.scrollTop = scrollPositions[currentCategory.id];
 	}
 }
+ 

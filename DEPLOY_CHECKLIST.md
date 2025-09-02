@@ -13,3 +13,4 @@
 - [ ] Vercel settings: Framework = Vite; Build = `npm run build`; Output = `client/dist`
 - [ ] Add `YOUTUBE_API_KEY` in Vercel env
 - [ ] Deploy → verify endpoints and UI
+ 

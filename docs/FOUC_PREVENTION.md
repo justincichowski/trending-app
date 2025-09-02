@@ -8,3 +8,4 @@ We apply the theme **before CSS/JS** in `client/index.html` using an inline scri
 - Base CSS in `client/src/style.css` consumes these vars.
 
 **Do not remove** this bootstrap. Vercel (serverless) cannot SSR the theme, so this is required to prevent the white flash.
+ 

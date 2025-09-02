@@ -11,3 +11,4 @@ export default function handler(request: VercelRequest, response: VercelResponse
 		message: 'Hello, World!',
 	});
 }
+ 

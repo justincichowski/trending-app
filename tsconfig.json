@@ -12,3 +12,4 @@
 	"include": ["api/**/*", "client/src/**/*"],
 	"exclude": ["node_modules", "client/node_modules"]
 }
+ 

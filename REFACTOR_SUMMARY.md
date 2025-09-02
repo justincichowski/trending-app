@@ -37,3 +37,4 @@
 - Functions are stateless; the filesystem is ephemeral and read-only. We removed `fs` caching.
 - Use Cache-Control headers (already added) for CDN caching.
 - For background jobs, queues, or persistent cache, consider Upstash Redis/KV or Neon/PlanetScale.
+ 

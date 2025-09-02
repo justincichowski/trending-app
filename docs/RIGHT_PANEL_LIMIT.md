@@ -20,3 +20,4 @@
 
 - Serverless logs the section keys it returns: `[API /trending] returning sections: [...]`.
 - Client logs cache hits/misses and retry behavior in the browser console.
+ 
