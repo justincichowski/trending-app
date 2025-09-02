@@ -4,6 +4,7 @@
   "description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
   "main": "index.js",
   "scripts": {
+    "start": "npm install && cd client && npm install && cd .. && npm run dev && npm run build",
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
     "dev:client": "npm --prefix client run dev",
     "dev:split": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
@@ -11,12 +12,11 @@
     "preview": "npm --prefix client run preview",
     "dev:server": "tsx server_local.ts",
     "client:install": "npm --prefix client install",
-    "start": "npm run dev",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildv": "npm --prefix client run build",
     "postinstall": "npm --prefix client ci || npm --prefix client i",
-    "typecheck": "tsc -p tsconfig.json && tsc -p client/tsconfig.json && tsc -p server/tsconfig.json && tsc -p api/tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit && tsc -p server/tsconfig.json --noEmit && tsc -p api/tsconfig.json --noEmit"
   },
   "keywords": [],
   "author": "",
