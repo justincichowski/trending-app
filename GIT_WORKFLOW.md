@@ -61,4 +61,3 @@ This will refuse to push if the remote has moved forward since you last fetched.
 ---
 
 ✅ Tip: If you ever see _“stale info”_, it means your local view of the remote is out of date. Run `git fetch origin` first, then push with `--force-with-lease`.
- 

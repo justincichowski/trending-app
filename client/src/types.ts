@@ -107,4 +107,3 @@ export interface TopTrendsData {
 export interface TrendingData {
 	[key: string]: NormalizedItem[];
 }
- 

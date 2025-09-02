@@ -40,4 +40,3 @@ export function timeAgo(seconds?: number): string {
 	const years = Math.floor(days / 365);
 	return `${years} Year${years > 1 ? 's' : ''} Ago`;
 }
- 

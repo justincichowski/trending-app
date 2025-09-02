@@ -61,4 +61,3 @@ export class Tooltip {
 		this.element.classList.remove('is-visible');
 	}
 }
- 

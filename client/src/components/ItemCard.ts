@@ -247,4 +247,3 @@ export function createItemCard(
 
 	return card;
 }
- 

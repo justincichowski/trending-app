@@ -38,4 +38,3 @@ export default async function handler(request: VercelRequest, response: VercelRe
 		});
 	}
 }
- 

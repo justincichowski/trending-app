@@ -47,4 +47,3 @@ npm run preview
 - `npm run start` now runs **`npm run format`** after installing dependencies (root + client) and **before** launching dev/build.
 - `npm run build` also formats via the **`prebuild`** hook.
 - Prettier is configured for **tabs=4** (see `.prettierrc`, `.editorconfig`, and `.vscode/settings.json`).
- 

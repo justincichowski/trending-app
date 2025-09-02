@@ -46,4 +46,3 @@ export function hidePageLoader() {
 		loader.remove();
 	}
 }
- 

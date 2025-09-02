@@ -30,4 +30,3 @@ A theme toggle will allow users to switch between light and dark modes.
 - **Theme Switching:** A button will toggle a class (e.g., `dark-theme`) on the `<html>` or `<body>` element. The CSS will use this class to apply the appropriate theme.
 - **Persistence:** The user's selected theme will be saved in `localStorage` to persist across sessions.
 - **System Preference:** On the first visit, the app will respect the user's system-level color scheme preference using the `prefers-color-scheme` media query.
- 
