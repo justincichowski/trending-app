@@ -213,7 +213,7 @@ else if (p.source === 'youtube') {
     }
     items = merged;
   } else {
-    items = await getYouTubeVideos({ ...p.params, max: p.params.limit || 20 });
+    items = await getYouTubeVideos({ ...p.params, max: 5 });
   }
 }
 

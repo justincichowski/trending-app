@@ -288,7 +288,7 @@ const main = async () => {
 			for (const preset of remotePresets) {
 				switch (preset.source) {
 					case 'youtube':
-						fetchPromises.push(getYouTubeVideos({ ...preset.params,max: limitNumber }));
+						fetchPromises.push(getYouTubeVideos({ ...preset.params, max: limitNumber }));
 						break;
 				}
 			}
