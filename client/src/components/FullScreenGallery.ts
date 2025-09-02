@@ -8,6 +8,13 @@ import { playYouTubeVideo, destroyCurrentPlayer } from '../main';
 import { stateManager } from '../state';
 import { Notification } from './Notification';
 
+/**
+ * MAINTAINER NOTES — GALLERY CLICK-TO-PLAY
+ * ---------------------------------------
+ * - Gallery thumbnails are inert; a YouTube player is created ONLY on image click.
+ * - The gallery does not auto-play on open, and does not trigger main page players.
+ * - This keeps YouTube Data API usage low and avoids cross-context playback.
+ */
 export class FullScreenGallery {
 	private container: HTMLElement | null = null;
 	private swiperInstance: Swiper | null = null;

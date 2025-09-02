@@ -145,6 +145,7 @@ export function destroyCurrentPlayer() {
  * @param imageContainer - The container element for the video.
  * @param itemId - The ID of the item (used to derive the video ID).
  */
+/** Create a player only when needed (on click). No preloading on card render. */
 export function playYouTubeVideo(imageContainer: HTMLElement, itemId: string) {
 	// Destroy the previous player if it exists
 	if (currentPlayer) {
@@ -685,6 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const target = event.target as HTMLElement;
 
 		// Handle inline video playback
+		// click → inline play (no auto)
 		if (target.classList.contains('item-image')) {
 			const itemCard = target.closest('.item-card');
 			const imageContainer = target.closest('.item-image-container') as HTMLElement;
@@ -711,6 +713,7 @@ document.addEventListener('contextmenu', (event) => {
 	const target = event.target as HTMLElement;
 
 	// Check if the right-clicked element is an item image
+	// click → inline play (no auto)
 	if (target.classList.contains('item-image')) {
 		event.preventDefault();
 		const imageUrl = target.getAttribute('src');

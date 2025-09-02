@@ -236,4 +236,8 @@ const { id, name, items } = await fetchAll({ id: 'news' });
 
 ### Further reading
 - See `docs/CENTER_COLUMN_AND_CACHING.md` for the full center column, categories, caching & quota guide.
+
+
+### Video behavior & quotas
+- See `docs/CLICK_TO_PLAY_AND_QUOTA.md` for how click‑to‑play avoids quota issues.
 ````
