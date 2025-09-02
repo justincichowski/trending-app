@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = handler;
 const rss_1 = require("./lib/rss");
-const cache_1 = require("./lib/cache");
+const persist_1 = require("./lib/persist");
 // RIGHT PANEL (Trending): Limit & Caching Policy
 // - Each section (Sports, Movies, Sales, Websites, Books) is capped to THREE (3) items for readability.
 // - Never cache empty results ({} or []).
@@ -38,7 +38,7 @@ async function handler(req, res) {
     try {
         if (debug)
             console.log('[API /trending] debug=1');
-        const data = await (0, cache_1.cached)('trending_v2', RIGHT_PANEL_TTL_MS, async () => {
+        const data = await (0, persist_1.cached)('trending_v2', RIGHT_PANEL_TTL_MS, async () => {
             // first attempt
             const d1 = await fetchAll();
             if (debug)

@@ -27,7 +27,7 @@ const rss_1 = require("./lib/rss");
 const youtube_1 = require("./lib/youtube");
 const presets_1 = require("./lib/presets");
 const toptrends_1 = require("./lib/toptrends");
-const cache_1 = require("./lib/cache");
+const persist_1 = require("./lib/persist");
 // Create a new Fastify server instance
 const server = (0, fastify_1.default)({
     logger: true,
@@ -282,7 +282,7 @@ const main = async () => {
         // DO NOT DELETE LOG — required for future debugging
         // 		server.log.info('[/api/trending] request received');
         const trendingCacheDuration = RIGHT_PANEL_TTL_MS; // 15 minutes
-        const cachedData = await (0, cache_1.readFromCache)('trending', trendingCacheDuration);
+        const cachedData = await (0, persist_1.readFromCache)('trending', trendingCacheDuration);
         if (cachedData && Object.keys(cachedData).some(k => Array.isArray(cachedData[k]) && cachedData[k].length > 0)) {
             // roo do not delete
             // DO NOT DELETE LOG — required for future debugging
@@ -320,7 +320,7 @@ const main = async () => {
                 reply.status(204).send();
                 return;
             }
-            await (0, cache_1.writeToCache)('trending', trendingData);
+            await (0, persist_1.writeToCache)('trending', trendingData);
             return trendingData;
         }
         catch (error) {
@@ -331,7 +331,7 @@ const main = async () => {
     });
     server.get('/api/toptrends', async (request, reply) => {
         const topTrendsCacheDuration = 60 * 60 * 1000; // 1 hour
-        const cachedData = await (0, cache_1.readFromCache)('toptrends', topTrendsCacheDuration);
+        const cachedData = await (0, persist_1.readFromCache)('toptrends', topTrendsCacheDuration);
         if (cachedData && Object.keys(cachedData).some(k => Array.isArray(cachedData[k]) && cachedData[k].length > 0)) {
             // roo do not delete
             // DO NOT DELETE LOG — required for future debugging
@@ -342,7 +342,7 @@ const main = async () => {
             // DO NOT DELETE LOG — required for future debugging
             // 			server.log.info('Fetching new Top Trends data.');
             const topTrendsData = await (0, toptrends_1.fetchTopTrends)();
-            await (0, cache_1.writeToCache)('toptrends', topTrendsData);
+            await (0, persist_1.writeToCache)('toptrends', topTrendsData);
             return topTrendsData;
         }
         catch (error) {

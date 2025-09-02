@@ -1,5 +1,5 @@
 import { getRssFeed } from './lib/rss';
-import { cached } from './lib/cache';
+import { cached } from './lib/persist';
 // RIGHT PANEL (Trending): Limit & Caching Policy
 // - Each section (Sports, Movies, Sales, Websites, Books) is capped to THREE (3) items for readability.
 // - Never cache empty results ({} or []).

@@ -1,28 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cached = cached;
-exports._clear = _clear;
-/**
- * In-memory TTL cache for serverless warm instances.
- * NOTE: This survives only while the function instance is warm,
- * and does not persist across regions/instances.
- */
-const store = new Map();
-// Guard: never cache empty results
-async function cached(key, ttlMs, fn) {
-    const now = Date.now();
-    const hit = store.get(key);
-    if (hit && hit.expires > now) {
-        return hit.value;
+exports.getCache = getCache;
+exports.setCache = setCache;
+exports.getInflight = getInflight;
+exports.setInflight = setInflight;
+exports.hashKey = hashKey;
+const _cache = new Map();
+const _inflight = new Map();
+function getCache(key) {
+    const hit = _cache.get(key);
+    if (!hit)
+        return undefined;
+    if (hit.expiresAt < Date.now()) {
+        _cache.delete(key);
+        return undefined;
     }
-    const value = await fn();
-    // Only cache if value is "meaningful" (not empty/null)
-    const isEmptyObject = value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0;
-    const isEmptyArray = Array.isArray(value) && value.length === 0;
-    if (value != null && !isEmptyObject && !isEmptyArray) {
-        store.set(key, { expires: now + ttlMs, value });
-    }
-    return value;
+    return hit.value;
 }
-// Optional: a way to clear for tests
-function _clear() { store.clear(); }
+function setCache(key, value, ttlMs) {
+    _cache.set(key, { value, expiresAt: Date.now() + ttlMs });
+}
+function getInflight(key) {
+    const p = _inflight.get(key);
+    return p;
+}
+function setInflight(key, p) {
+    _inflight.set(key, p);
+    p.finally(() => _inflight.delete(key));
+}
+function hashKey(obj) {
+    try {
+        return JSON.stringify(obj);
+    }
+    catch {
+        return String(obj);
+    }
+}

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getRssFeed } from './lib/rss';
-import { cached } from './lib/cache';
+import { cached } from './lib/persist';
 import type { NormalizedItem } from './lib/types';
 
 
