@@ -1,3 +1,4 @@
+const PRESETS_TTL_MS = 5 * 60 * 1000; // items TTL 5m
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { presets } from './lib/presets';
 import { getRssFeed } from './lib/rss';

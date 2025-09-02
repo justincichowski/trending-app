@@ -1,3 +1,71 @@
+## Local development & start
+
+- **`npm run start`**
+  - Installs root & client deps
+  - Launches dev servers
+  - Builds a demo preview
+  - Matches the original INSTALL_RUN flow you prefer.
+
+- **`npm run dev`**
+  - Runs **both**:
+    - `vercel dev` (serverless functions on http://localhost:3000)
+    - `npm run dev:client` (Vite on http://localhost:5173, proxying `/api` → 3000)
+  - Note: `dev:server` and `dev:split` have been removed to avoid confusion.
+
+- **`npm run dev:client`** — Vite-only.
+
+- **`npm run build`** — Builds client assets and typechecks API.
+
+- **`npm run preview`** — Previews the built client.
+
+> Requires Vercel CLI available in your PATH for `vercel dev`.
+
+
+## Updated local development and start workflow (simplified)
+
+- **`npm run start`**  
+  Installs dependencies (root + client), runs the dev servers, and then builds the client preview.  
+  Use this for first-time setup or a full demo preview.
+
+- **`npm run dev`**  
+  Runs both:  
+  • `vercel dev` (serverless functions at http://localhost:3000)  
+  • `npm run dev:client` (Vite at http://localhost:5173, proxying /api → 3000).
+
+- **`npm run dev:client`** runs the client dev server only.  
+- **`npm run build`** builds the client and TypeScript for API functions.  
+- **`npm run preview`** previews the built client.
+
+Removed legacy aliases (`dev:server`, `dev:split`) to avoid confusion. Everything now uses `vercel dev` for the backend.
+
+
+## Updated local development and start workflow
+
+- **`npm run start`**  
+  Installs dependencies (root + client), runs the dev servers, and then builds the client preview.  
+  Useful for first-time setup or demo preview as described in INSTALL_RUN.md.
+
+- **`npm run dev`**  
+  Runs both:  
+  • `vercel dev` (serverless functions on http://localhost:3000)  
+  • `npm run dev:client` (Vite on http://localhost:5173, proxying /api → 3000).
+
+- **`npm run dev:server`** is now mapped to `vercel dev` (no Fastify).  
+- **`npm run build`** builds the client and TypeScript for API functions.  
+- **`npm run preview`** previews the built client.
+
+This replaces the old Fastify-based flow. All API routes are now Vercel serverless functions.
+
+
+
+## Updated local development (serverless-only)
+- In one terminal, run: `vercel dev` (serves /api at http://localhost:3000)
+- In a second terminal, run: `npm --prefix client run dev` (Vite at http://localhost:5173)
+Vite proxies `/api` → `http://localhost:3000`.
+
+The legacy Fastify server and `server_local.ts` have been removed.
+
+
 # Trending App — Run & Deploy Instructions
 
 This project is now wired to run consistently in three modes:

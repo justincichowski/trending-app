@@ -5,5 +5,5 @@ build/
 out/
 .next/
 client/.vite/
-server/dist/
+dist/
 # Let Vercel build from source; don't upload local build output
