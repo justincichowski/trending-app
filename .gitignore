@@ -31,3 +31,4 @@ api/**/*.js.map
 !eslint.config.cjs
 !prettier.config.js
 !prettier.config.cjs
+.vercel
