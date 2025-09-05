@@ -7,7 +7,7 @@
 		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev && npm run build",
 		"dev": "concurrently \"npm run dev:client\" \"npm run dev:vercel\"",
 		"dev:client": "npm --prefix client run dev",
-		"dev:vercel": "vercel dev --yes",
+		"dev:vercel": "vercel dev --yes --no-verify",
 		"build": "tsc --project api/tsconfig.json && npm --prefix client run build",
 		"preview": "npm --prefix client run preview",
 		"client:install": "npm --prefix client install",
