@@ -43,14 +43,20 @@ import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/ut
 	--------------------------------------------------------------------
 */
 
-export default async function handler(request: VercelRequest, response: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+
+	// Enable CORS
+	res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins (adjust as needed)
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
 	const {
 		id,
 		page,
 		limit,
 		excludedIds: excludedIdsQuery,
 		query,
-	} = request.query as {
+	} = req.query as {
 		id?: string;
 		page?: string;
 		limit?: string;

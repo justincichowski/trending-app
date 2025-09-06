@@ -4,10 +4,8 @@
 	"description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
 	"main": "index.js",
 	"scripts": {
-		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev && npm run build",
-		"dev": "npm run dev:client",
+		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev:client",
 		"dev:client": "npm --prefix client run dev",
-		"dev:vercel": "vercel dev --yes",
 		"build": "tsc --project api/tsconfig.json && npm --prefix client run build",
 		"preview": "npm --prefix client run preview",
 		"client:install": "npm --prefix client install",
@@ -20,7 +18,6 @@
 		"format:check": "prettier --check .",
 		"prebuild": "npm run format"
 	},
-
 	"keywords": [],
 	"author": "",
 	"license": "ISC",

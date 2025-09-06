@@ -5,22 +5,28 @@ import { getRssFeed } from './lib/rss';
  * An API endpoint that fetches and normalizes an RSS feed.
  * It can be called with either a `url` or a `query` parameter.
  *
- * @param {VercelRequest} request - The incoming request object.
- * @param {VercelResponse} response - The outgoing response object.
+ * @param {VercelRequest} req - The incoming req object.
+ * @param {VercelResponse} res - The outgoing res object.
  */
-export default async function handler(request: VercelRequest, response: VercelResponse) {
-	const { url, query, source, limit } = request.query;
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+
+	// Enable CORS
+	res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins (adjust as needed)
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+	
+	const { url, query, source, limit } = req.query;
 
 	// Validate that either a URL or a query is provided
 	if (!url && !query) {
-		return response.status(400).json({
+		return res.status(400).json({
 			error: 'Either a `url` or a `query` parameter must be provided.',
 		});
 	}
 
 	try {
 		// Set caching headers
-		response.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
+		res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
 
 		// Fetch and return the feed
 		const feed = await getRssFeed({
@@ -29,11 +35,11 @@ export default async function handler(request: VercelRequest, response: VercelRe
 			source: Array.isArray(source) ? source[0] : source,
 			limit: limit ? parseInt(Array.isArray(limit) ? limit[0] : limit, 10) : undefined,
 		});
-		response.status(200).json(feed);
+		res.status(200).json(feed);
 	} catch (error) {
 		// Handle any errors that occur during the fetch
 		console.error(error);
-		response.status(500).json({
+		res.status(500).json({
 			error: 'Failed to fetch RSS feed.',
 		});
 	}
