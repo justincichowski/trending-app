@@ -147,26 +147,7 @@ export async function getRssFeed(options: {
 	}
 
 	try {
-		// roo: log feed url (do not remove)
-		// DO NOT DELETE LOG — required for future debugging
-		// console.log('[Serverless RSS] parsing URL', feedUrl);
 		const feed = await parser.parseURL(feedUrl);
-
-		// --- DEBUG LOG: Confirm number of items fetched from RSS feed ---
-		// DO NOT DELETE LOG — required for future debugging
-		// console.log(`Fetched ${feed.items.length} raw items from RSS feed: ${feedUrl}`);
-		/*
-		// --- Previous debug log for inspecting a single raw item ---
-		if (feed.items.length > 0) {
-			// DO NOT DELETE LOG — required for future debugging
-			// console.log('--- RAW RSS ITEM DEBUG ---');
-			// DO NOT DELETE LOG — required for future debugging
-			// console.log(JSON.stringify(feed.items[0], null, 2));
-			// DO NOT DELETE LOG — required for future debugging
-			// console.log('--------------------------');
-		}
-		*/
-		// --- END DEBUG LOG ---
 
 		const startIndex = page * limit;
 		const limitedItems = feed.items.slice(startIndex, startIndex + limit);
@@ -186,16 +167,4 @@ export async function getRssFeed(options: {
 			`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`,
 		);
 	}
-	/*
-	// --- Previous debug log for inspecting a single raw item ---
-	if (feed.items.length > 0) {
-		// DO NOT DELETE LOG — required for future debugging
-		// console.log('--- RAW RSS ITEM DEBUG ---');
-		// DO NOT DELETE LOG — required for future debugging
-		// console.log(JSON.stringify(feed.items[0], null, 2));
-		// DO NOT DELETE LOG — required for future debugging
-		// console.log('--------------------------');
-	}
-	*/
-	// --- END DEBUG LOG ---
 }

@@ -81,68 +81,72 @@ export async function getYouTubeVideos(params: {
 		const effectiveMax = clampMax(requested, 15);
 
 		try {
-			if (playlistId) {
-				const items: any[] = [];
-				let token: string | undefined = pageToken || undefined;
 
-				while (items.length < effectiveMax) {
-					const resp = await axios.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
-						params: {
-							part: 'snippet',
-							playlistId,
-							maxResults: Math.min(50, effectiveMax - items.length) || effectiveMax,
-							pageToken: token,
-							key: apiKey,
-						},
-						timeout: 5000,
-					});
-					const raw: any[] = resp.data?.items || [];
-					items.push(...raw);
-					token = resp.data?.nextPageToken;
-					if (!token) break;
-				}
 
-				const normalized: NormalizedItem[] = items
-					.map(normalizeAny)
-					.filter((x): x is NormalizedItem => x !== null)
-					.slice(0, effectiveMax);
+			console.log('get youtube videos'); return [];
+			
+			// if (playlistId) {
+			// 	const items: any[] = [];
+			// 	let token: string | undefined = pageToken || undefined;
 
-				setCache(
-					key,
-					normalized,
-					normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS,
-				);
-				return normalized;
-			}
+			// 	while (items.length < effectiveMax) {
+			// 		const resp = await axios.get(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+			// 			params: {
+			// 				part: 'snippet',
+			// 				playlistId,
+			// 				maxResults: Math.min(50, effectiveMax - items.length) || effectiveMax,
+			// 				pageToken: token,
+			// 				key: apiKey,
+			// 			},
+			// 			timeout: 5000,
+			// 		});
+			// 		const raw: any[] = resp.data?.items || [];
+			// 		items.push(...raw);
+			// 		token = resp.data?.nextPageToken;
+			// 		if (!token) break;
+			// 	}
 
-			if (query) {
-				const resp = await axios.get(`${YOUTUBE_API_BASE_URL}/search`, {
-					params: {
-						part: 'snippet',
-						type: 'video',
-						q: query,
-						maxResults: effectiveMax,
-						key: apiKey,
-					},
-					timeout: 5000,
-				});
+			// 	const normalized: NormalizedItem[] = items
+			// 		.map(normalizeAny)
+			// 		.filter((x): x is NormalizedItem => x !== null)
+			// 		.slice(0, effectiveMax);
 
-				const raw: any[] = resp.data?.items || [];
-				const normalized: NormalizedItem[] = raw
-					.map(normalizeAny)
-					.filter((x): x is NormalizedItem => x !== null)
-					.slice(0, effectiveMax);
+			// 	setCache(
+			// 		key,
+			// 		normalized,
+			// 		normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS,
+			// 	);
+			// 	return normalized;
+			// }
 
-				setCache(
-					key,
-					normalized,
-					normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS,
-				);
-				return normalized;
-			}
+			// if (query) {
+			// 	const resp = await axios.get(`${YOUTUBE_API_BASE_URL}/search`, {
+			// 		params: {
+			// 			part: 'snippet',
+			// 			type: 'video',
+			// 			q: query,
+			// 			maxResults: effectiveMax,
+			// 			key: apiKey,
+			// 		},
+			// 		timeout: 5000,
+			// 	});
 
-			console.error('Neither playlistId nor query was provided for YouTube fetch.');
-			return [];
+			// 	const raw: any[] = resp.data?.items || [];
+			// 	const normalized: NormalizedItem[] = raw
+			// 		.map(normalizeAny)
+			// 		.filter((x): x is NormalizedItem => x !== null)
+			// 		.slice(0, effectiveMax);
+
+			// 	setCache(
+			// 		key,
+			// 		normalized,
+			// 		normalized.length ? YT_CACHE_TTL_MS : YT_CACHE_EMPTY_TTL_MS,
+			// 	);
+			// 	return normalized;
+			// }
+
+			// console.error('Neither playlistId nor query was provided for YouTube fetch.');
+			// return [];
 		} catch (err: any) {
 			const e = err as AxiosError<any>;
 			const status = e?.response?.status;

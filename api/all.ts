@@ -69,15 +69,6 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173/');
-	res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	res.setHeader('Access-Control-Allow-Credentials', 'true');
-	res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-
-	if (req.method === 'OPTIONS') {
-		return res.status(200).end();
-	}
 
 	const {
 		id,
@@ -114,6 +105,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const usedIndexes = new Set<number>();
 	let collected: NormalizedItem[] = [];
 
+
+
+	
+	// return res.status(200).json({ what: true });
+
+
 	async function fetchFromPreset(idx: number): Promise<void> {
 		const p = ordered[idx];
 		if (!p) return;
@@ -127,6 +124,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 			collected.push(...items);
 		} else if (p.source === 'youtube') {
+
+			
+
+
 			// Fetch up to PER_CAT_MAX, avoid heavy overfetch; rely on excludedIds to remove dups
 			const items = await getYouTubeVideos({ ...(p.params as any), max: PER_CAT_MAX });
 			collected.push(...items);

@@ -9,15 +9,6 @@ import { getRssFeed } from './lib/rss';
  * @param {VercelResponse} res - The outgoing res object.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173/');
-	res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-	res.setHeader('Access-Control-Allow-Credentials', 'true');
-	res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-
-	if (req.method === 'OPTIONS') {
-		return res.status(200).end();
-	}
 
 	const { url, query, source, limit } = req.query;
 

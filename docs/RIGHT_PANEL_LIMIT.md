@@ -13,7 +13,7 @@
 ## Where to change the limit
 
 - Serverless endpoint: `api/trending.ts` → `LIMIT_PER_SECTION` constant.
-- Local dev server: `server/index.ts` → uses `RIGHT_PANEL_LIMIT` for slicing.
+- Local dev server: `server/index.ts` → uses `TRENDING_LIMIT` for slicing.
 - Client fallback rendering: `client/src/components/TrendingPanel.ts` (slices to 3 defensively).
 
 ## Logging
