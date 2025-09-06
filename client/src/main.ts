@@ -288,7 +288,7 @@ export async function categoryView(params: Record<string, string>) {
 		
 		console.log('category json:'); 
 		console.log('id', id, items);
-		return;
+		// return;
 
 		// Update the state with the new items and turn off loading
 		stateManager.setState({
