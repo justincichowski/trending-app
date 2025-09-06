@@ -77,7 +77,12 @@ async function fetchTrendingOnce() {
 	const u = new URL(base + '/trending', window.location.origin);
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log('[Client] Trending request URL', u.toString());
-	const res = await fetch(u.toString());
+	const res = await fetch(u.toString(), {
+		method: 'GET', // or 'POST', depending on your API
+		headers: {
+			'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
+		},
+	});
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log('[Client] Trending response status', res.status);
 	if (res.status === 204) return null;
@@ -102,7 +107,12 @@ async function fetchTopTrendsOnce() {
 		: (window as any).VITE_API_URL || import.meta.env.VITE_API_URL || '/api';
 	const u = new URL(base + '/toptrends', window.location.origin);
 	try {
-		const res = await fetch(u.toString());
+		const res = await fetch(u.toString(), {
+			method: 'GET', // or 'POST', depending on your API
+			headers: {
+				'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
+			},
+		});
 		if (!res.ok) return null;
 		const data = await res.json();
 		return data;

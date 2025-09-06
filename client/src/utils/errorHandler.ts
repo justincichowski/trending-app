@@ -15,9 +15,7 @@ export function showLoaderAndRetryOnce() {
 	mainContent.innerHTML = `<div class="loader-container">${loaderSVG}</div>`;
 
 	// Retry reloading the page once after 5 seconds.
-	setTimeout(() => {
-		window.location.reload();
-	}, 5000);
+	// setTimeout(() => { window.location.reload(); }, 5000);
 }
 
 /**

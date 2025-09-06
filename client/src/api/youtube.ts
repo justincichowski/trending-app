@@ -40,7 +40,12 @@ export async function fetchPlaylistItems(
 	url.searchParams.set('key', key);
 	if (pageToken) url.searchParams.set('pageToken', pageToken);
 
-	const res = await fetch(url.toString(), { method: 'GET' });
+	const res = await fetch(url.toString(), {
+		method: 'GET', // or 'POST', depending on your API
+		headers: {
+			'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
+		},
+	});
 	if (!res.ok) {
 		const text = await res.text();
 		throw new Error(`YouTube API error ${res.status}: ${text}`);

@@ -27,7 +27,12 @@ const API_BASE_URL = import.meta.env.DEV
 export async function get<T>(url: string): Promise<T> {
 	// DO NOT DELETE LOG — required for future debugging
 	// console.log(`[Client] Sending request to: ${url}`);
-	const response = await fetch(url);
+	const response = await fetch(url, {
+		method: 'GET', // or 'POST', depending on your API
+		headers: {
+			'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
+		},
+	});
 	if (response.status === 204) {
 		// treat as empty result
 		// @ts-ignore
@@ -122,7 +127,12 @@ export async function fetchAll(options?: {
 	if (options?.excludedIds?.length)
 		q.push(`excludedIds=${encodeURIComponent(options.excludedIds.join(','))}`);
 	const qs = q.length ? `?${q.join('&')}` : '';
-	const r = await fetch(`${API_BASE_URL}/all${qs}`);
+	const r = await fetch(`${API_BASE_URL}/all${qs}`, {
+		method: 'GET', // or 'POST', depending on your API
+		headers: {
+			'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
+		},
+	});
 	if (!r.ok) throw new Error(`/all failed: ${r.status}`);
 	return r.json();
 }
