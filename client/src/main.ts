@@ -59,18 +59,6 @@ async function initTopTrends() {
                 return data; // ✅ serve from cache
             }
 		}
-	} catch (e) {}
-
-	
-
-	try {
-		const cachedRaw = localStorage.getItem(KEY);
-		if (cachedRaw) {
-			let { t, data } = JSON.parse(cachedRaw);
-			if (t && (now - t) < TTL && isMeaningfulData(data)) {
-                return data; // ✅ serve from cache
-            }
-		}
 	} catch (e) {
 		// console.warn('[Client] Toptrends cache read error', e);
 	}
