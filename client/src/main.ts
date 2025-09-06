@@ -253,6 +253,8 @@ export async function categoryView(params: Record<string, string>) {
 
 	const { favorites, categories } = stateManager.getState();
 
+	console.log('category view');
+
 	// Find the new category first
 	let newCurrentCategory: Preset | null = categories.find((c) => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
@@ -268,11 +270,16 @@ export async function categoryView(params: Record<string, string>) {
 		};
 	}
 
+	console.log('category view2');
+
 	// Set the new category and loading state immediately for instant UI feedback
 	stateManager.setState({
 		currentCategory: newCurrentCategory,
 		isLoading: true,
 	});
+
+
+	console.log('category view id', id);
 
 	try {
 		let items: NormalizedItem[] = [];

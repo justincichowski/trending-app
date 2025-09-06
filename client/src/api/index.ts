@@ -12,7 +12,7 @@ import type { TopTrendsData, TrendingData } from '../types';
 
 // The base URL for the API, read from environment variables
 const API_BASE_URL = import.meta.env.DEV
-	? 'http://localhost:3000/api'
+	? 'http://localhost:5173/api'
 	: import.meta.env.VITE_API_URL || '/api';
 // roo: default logs, do not delete
 // DO NOT DELETE LOG — required for future debugging
@@ -65,6 +65,10 @@ export function getAllItems(
 	if (limit) {
 		url += `&limit=${limit}`;
 	}
+
+	console.log();
+	console.log('get url', url);
+	console.log();
 	return get<NormalizedItem[]>(url);
 }
 

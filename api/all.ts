@@ -7,6 +7,9 @@ import { presets } from './lib/presets';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 
+	console.log('we made it');
+
+	
 	const { page, excludedIds: excludedIdsQuery, limit } = req.query as { page?: string, excludedIds?: string, limit?: string };
 	const excludedIds = excludedIdsQuery ? excludedIdsQuery.split(',') : [];
 		
