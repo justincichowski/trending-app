@@ -111,8 +111,12 @@ export async function getYouTubeVideos(options: {
 	query?: string;
 	limit?: number;
 	page?: number;
+	excludeIds?: string[];
 }): Promise<NormalizedItem[]> {
 
+	const excludePlain = new Set(
+		(options.excludeIds ?? []).map(id => (id.startsWith('yt-') ? id.slice(3) : id))
+	);
 	function clamp(n: number | undefined, def = 15, lo = 1, hi = 50): number {
 		const x = typeof n === 'number' && !isNaN(n) ? Math.floor(n) : def;
 		return Math.max(lo, Math.min(hi, x));
@@ -164,7 +168,7 @@ export async function getYouTubeVideos(options: {
 			const videoIds = [...new Set(
 			response.data.items
 			.map(item => item.snippet?.resourceId?.videoId)
-			.filter((id): id is string => !!id)
+			.filter((id): id is string => !!id && !excludePlain.has(id)) 
 			)].join(',');
 			if (!videoIds) return [];
 			const videoDetailsResponse = await axios.get<{ items: YouTubeVideoResource[] }>(
@@ -208,7 +212,7 @@ export async function getYouTubeVideos(options: {
 			const ids = [...new Set(
 			(response.data?.items ?? [])
 			.map(i => i?.id?.videoId)
-			.filter((id): id is string => !!id)
+			.filter((id): id is string => !!id && !excludePlain.has(id))
 			)];
 			if (ids.length === 0) return [];
 			const videoIds = ids.join(',');

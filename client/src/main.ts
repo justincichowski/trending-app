@@ -314,24 +314,26 @@ export async function loadMoreItems() {
 	const { currentCategory, items, pages } = stateManager.getState();
 	if (!currentCategory) return;
 
-	const nextPage = (pages[currentCategory.id] || 0) + 1;
+	const id = currentCategory.id;
+
+	const nextPage = (pages[id] || 0) + 1;
 
 	showPageLoader();
 
 	try {
 		let newItems: NormalizedItem[] = [];
-		if (currentCategory.id === 'favorites') {
+		if (id === 'favorites') {
 			const { favorites } = stateManager.getState();
 			const reversedFavorites = [...favorites].reverse();
 			const startIndex = nextPage * PAGE_SIZE;
 			newItems = reversedFavorites.slice(startIndex, startIndex + PAGE_SIZE);
 		} else {
 			const excludedIds = items.map((item) => item.id);
-			if (currentCategory.id === '/') {
+			if (id === '/') {
 				newItems = await getAllItems(nextPage, excludedIds, PAGE_SIZE);
-			} else if (currentCategory.id === 'search' && currentCategory.params.query) {
+			} else if (id === 'search' && currentCategory.params.query) {
 				newItems = await getCategoryItems(
-					currentCategory.id,
+					id,
 					nextPage,
 					PAGE_SIZE,
 					excludedIds,
@@ -339,7 +341,7 @@ export async function loadMoreItems() {
 				);
 			} else {
 				newItems = await getCategoryItems(
-					currentCategory.id,
+					id,
 					nextPage,
 					PAGE_SIZE,
 					excludedIds,
@@ -347,15 +349,18 @@ export async function loadMoreItems() {
 			}
 		}
 
+		console.log('load more', id, newItems.length);
+
+
 		if (newItems.length > 0) {
 			stateManager.setState({
 				items: [...items, ...newItems],
-				pages: { ...pages, [currentCategory.id]: nextPage },
+				pages: { ...pages, [id]: nextPage },
 			});
 		}
 	} catch (error) {
 		// DO NOT DELETE LOG — required for future debugging
-		// console.error(`Failed to fetch more items for category ${currentCategory.id}:`, error);
+		// console.error(`Failed to fetch more items for category ${id}:`, error);
 	} finally {
 		hidePageLoader();
 	}
