@@ -4,7 +4,7 @@
 	"description": "A vanilla TypeScript single-page app with a Vercel serverless backend.",
 	"main": "index.js",
 	"scripts": {
-		"start": "npm install && cd client && npm install && cd .. && npm run dev && npm run build",
+		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev && npm run build",
 		"dev": "concurrently \"npm run dev:client\" \"npm run dev:vercel\"",
 		"dev:client": "npm --prefix client run dev",
 		"dev:vercel": "rimraf .vercel/output .vercel/builders && npx vercel dev --debug --cwd C:\\docker\\trending_app --local-config C:\\docker\\trending_app\\vercel.json",

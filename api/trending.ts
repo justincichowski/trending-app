@@ -11,13 +11,16 @@ import type { NormalizedItem } from './lib/types';
 // - Serverless cache TTL for the right column is 15 minutes.
 // TRENDING_TTL_MS from config // 15 minutes // 10 minutes // 15 minutes
 
-
 const TRENDING_FEEDS = [
-  { title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
-  { title: 'Movies', source: 'The New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml' },
-  { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
-  { title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
-  { title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
+	{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
+	{
+		title: 'Movies',
+		source: 'The New York Times',
+		url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
+	},
+	{ title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
+	{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
+	{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 ];
 
 function isMeaningful(obj: Record<string, NormalizedItem[]>): boolean {
@@ -28,7 +31,9 @@ function isMeaningful(obj: Record<string, NormalizedItem[]>): boolean {
 async function fetchTrending(): Promise<Record<string, NormalizedItem[]>> {
 	async function fetchAll(): Promise<Record<string, NormalizedItem[]>> {
 		const trendingResults = await Promise.allSettled(
-			TRENDING_FEEDS.map(feed => getRssFeed({ url: feed.url, source: feed.source, limit: 3 }))
+			TRENDING_FEEDS.map((feed) =>
+				getRssFeed({ url: feed.url, source: feed.source, limit: 3 }),
+			),
 		);
 		const data: Record<string, NormalizedItem[]> = {};
 		trendingResults.forEach((res, index) => {
@@ -36,35 +41,40 @@ async function fetchTrending(): Promise<Record<string, NormalizedItem[]>> {
 			if (res.status === 'fulfilled') {
 				data[title] = res.value;
 			} else {
-				console.error(`[API /trending] Failed to fetch trending feed for ${title}:`, res.reason);
+				console.error(
+					`[API /trending] Failed to fetch trending feed for ${title}:`,
+					res.reason,
+				);
 			}
 		});
 		return data;
 	}
-	
+
 	const d1 = await fetchAll();
-	if (isMeaningful(d1)) { return d1; }
-	await new Promise(r => setTimeout(r, 1000));
+	if (isMeaningful(d1)) {
+		return d1;
+	}
+	await new Promise((r) => setTimeout(r, 1000));
 	return await fetchAll();
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    try {
-        res.setHeader(
-            'Cache-Control',
-            `s-maxage=${TRENDING_TTL_S}, stale-while-revalidate=${SWR_TTL_S}`,
-        );
+	try {
+		res.setHeader(
+			'Cache-Control',
+			`s-maxage=${TRENDING_TTL_S}, stale-while-revalidate=${SWR_TTL_S}`,
+		);
 
-        // use cached() with your fetchTrending
-        const data = await cached('trending', TRENDING_TTL_MS, fetchTrending);
+		// use cached() with your fetchTrending
+		const data = await cached('trending', TRENDING_TTL_MS, fetchTrending);
 
-        if (!data || Object.keys(data).length === 0) {
-            return res.status(204).end();
-        }
+		if (!data || Object.keys(data).length === 0) {
+			return res.status(204).end();
+		}
 
-        return res.status(200).json(data);
-    } catch (err: any) {
-        console.error('[API /trending] Failed to fetch trending data:', err);
-        return res.status(500).json({ error: 'Failed to fetch trending data' });
-    }
+		return res.status(200).json(data);
+	} catch (err: any) {
+		console.error('[API /trending] Failed to fetch trending data:', err);
+		return res.status(500).json({ error: 'Failed to fetch trending data' });
+	}
 }

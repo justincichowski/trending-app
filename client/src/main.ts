@@ -39,7 +39,6 @@ import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandle
 // 	return ytReadyPromise;
 // }
 
-
 function isMeaningfulData(obj: any) {
 	return obj && Object.values(obj).some((arr) => Array.isArray(arr) && arr.length > 0);
 }
@@ -55,9 +54,9 @@ async function initTopTrends() {
 		const cachedRaw = localStorage.getItem(KEY);
 		if (cachedRaw) {
 			let { t, data } = JSON.parse(cachedRaw);
-			if (t && (now - t) < TTL && isMeaningfulData(data)) {
-                return data; // ✅ serve from cache
-            }
+			if (t && now - t < TTL && isMeaningfulData(data)) {
+				return data; // ✅ serve from cache
+			}
 		}
 	} catch (e) {
 		// console.warn('[Client] Toptrends cache read error', e);
@@ -69,13 +68,13 @@ async function initTopTrends() {
 	if (data && Array.isArray(data.items) && data.items.length > 0) {
 		try {
 			localStorage.setItem(KEY, JSON.stringify({ t: now, data }));
-		} catch { /* storage quota, private mode, etc. */ }
+		} catch {
+			/* storage quota, private mode, etc. */
+		}
 	}
 	return data;
-
 }
 // ===== End TopTrends (Left Panel) =====
-
 
 /** // ===== Trending (Right Panel) Fetch + Cache with Logging =====
  *  - Key: trending_cache_v2 - TTL: 15 minutes - Behavior: serve directly from localStorage within TTL; on miss/expiry, fetch then cache. */
@@ -88,15 +87,14 @@ async function initTrending() {
 		const cachedRaw = localStorage.getItem(KEY);
 		if (cachedRaw) {
 			let { t, data } = JSON.parse(cachedRaw);
-			if (t && (now - t) < TTL && isMeaningfulData(data)) {
-                return data; // ✅ serve from cache
-            }
+			if (t && now - t < TTL && isMeaningfulData(data)) {
+				return data; // ✅ serve from cache
+			}
 		}
 	} catch (e) {
 		// console.warn('[Client] Trending cache read error', e);
 	}
 
-	
 	// get server data fetch
 	const data1 = await getTrending();
 
@@ -106,7 +104,7 @@ async function initTrending() {
 		} catch {}
 		return data1;
 	}
-	
+
 	await new Promise((r) => setTimeout(r, 1500));
 
 	// get server data fetch
@@ -117,19 +115,15 @@ async function initTrending() {
 		} catch {}
 		return data2;
 	}
-	
+
 	return null;
-
 }
-
 
 window.enableTrendingDebug = function (on = true) {
 	sessionStorage.setItem('trending_debug', on ? '1' : '0');
 	console.log('[Client] trending debug', on);
 };
 // ===== End Trending (Right Panel) =====
-
-
 
 /**
  * -----------------------------------------------------------------------------
@@ -274,7 +268,6 @@ export async function categoryView(params: Record<string, string>) {
 		isLoading: true,
 	});
 
-
 	// console.log('category view id', id);
 
 	try {
@@ -288,8 +281,8 @@ export async function categoryView(params: Record<string, string>) {
 		} else {
 			items = await getCategoryItems(id, 0, PAGE_SIZE); // Fetch first page for a regular category
 		}
-		
-		// console.log('category json:'); 
+
+		// console.log('category json:');
 		console.log('id', id, items.length);
 		// return;
 
@@ -340,17 +333,11 @@ export async function loadMoreItems() {
 					currentCategory.params.query,
 				);
 			} else {
-				newItems = await getCategoryItems(
-					id,
-					nextPage,
-					PAGE_SIZE,
-					excludedIds,
-				);
+				newItems = await getCategoryItems(id, nextPage, PAGE_SIZE, excludedIds);
 			}
 		}
 
 		console.log('load more', id, newItems.length);
-
 
 		if (newItems.length > 0) {
 			stateManager.setState({
@@ -696,21 +683,20 @@ document.addEventListener('DOMContentLoaded', () => {
 	const trendingPanel = new TrendingPanel('trending-panel');
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');
 
-
 	// Right column uses 15m TTL localStorage; no network within window
 	Promise.all([
-		(function() {
-			return initTrending().then(data => {
+		(function () {
+			return initTrending().then((data) => {
 				// console.log('[Client] Received trending data sections:', Object.keys(data).length);
 				trendingPanel.render(data);
 			});
 		})(),
-		(function() {
-			return initTopTrends().then(data => {
+		(function () {
+			return initTopTrends().then((data) => {
 				// console.log('[Client] Received top trends items:', data.items.length);
 				topTrendsPanel.render(data);
 			});
-		})()
+		})(),
 	]);
 
 	if (stateManager.getState().showTrending) {

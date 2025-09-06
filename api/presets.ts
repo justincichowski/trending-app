@@ -22,7 +22,6 @@ function randomShuffle<T>(arr: T[]): T[] {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-
 	console.log('API called with method:', req.method); // Log request method
 
 	const {
@@ -54,7 +53,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		if (id === 'search') {
 			if (!query) {
-				return res.status(400).json({ error: 'A `query` parameter must be provided for search.' });
+				return res
+					.status(400)
+					.json({ error: 'A `query` parameter must be provided for search.' });
 			}
 
 			// modest overfetch + single top-up attempt, honoring excludeIds on the server
@@ -93,10 +94,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			}
 
 			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
-			setWeakEtag(res, pool.map(i => i.id).filter(Boolean));
+			setWeakEtag(res, pool.map((i) => i.id).filter(Boolean));
 			return res.status(200).json(pool.slice(0, limitNumber));
-			}
-
+		}
 
 		const preset = presets.find((p) => p.id === id);
 		if (!preset) {
@@ -105,7 +105,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		console.log('pageNumber', pageNumber);
 		console.log('limit', limitNumber);
-
 
 		switch (preset.source) {
 			case 'rss': {
@@ -119,48 +118,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				break;
 			}
 			case 'youtube': {
-				// We don’t rely on overfetch/slice here. Instead, we sample across
-				// (potentially many) playlists for every page to keep results fresh
-				// and avoid empty pages. excludeIds is honored on the server to save quota.
-				
-				// 1) Parse the category’s playlist list
+				// Parse the category’s playlist list
 				const allIds = String((preset.params as any).playlistId || '')
 					.split(',')
-					.map(s => s.trim())
+					.map((s) => s.trim())
 					.filter(Boolean);
-				  
+
 				if (allIds.length === 0) {
 					items = [];
 					break;
 				}
-				
-				// 2) Shuffle the playlists each request (category randomness)
-				const shuffled = randomShuffle(allIds);
-				
-				// 3) Decide how many playlists to touch for this page
-				const PER_PLAYLIST = Math.min(5, Math.max(1, limitNumber)); // keep costs sane
-				const BUFFER_LISTS = 1; // small hedge for dupes/exclusions
+
+				// Shuffle playlists each request for variety
+				const shuffled = (() => {
+					const a = allIds.slice();
+					for (let i = a.length - 1; i > 0; i--) {
+						const j = Math.floor(Math.random() * (i + 1));
+						[a[i], a[j]] = [a[j], a[i]];
+					}
+					return a;
+				})();
+
+				// Pull from several playlists to reach the page size
+				const PER_PLAYLIST = Math.min(5, Math.max(1, limitNumber)); // same cap as elsewhere
+				const BUFFER_LISTS = 1;
 				const neededLists = Math.min(
 					shuffled.length,
-					Math.ceil(limitNumber / PER_PLAYLIST) + BUFFER_LISTS
+					Math.ceil(limitNumber / PER_PLAYLIST) + BUFFER_LISTS,
 				);
-				
-				// 4) Pull batches and fill until we hit `limitNumber`
+
 				const dynamicExclude = new Set<string>(excludedIds);
 				const out: NormalizedItem[] = [];
-				
+
 				for (let i = 0; i < neededLists && out.length < limitNumber; i++) {
 					const pid = shuffled[i];
-					// pass a SINGLE playlistId so youtube.ts won’t re-shuffle the set;
-					// sticky:true is a no-op for a single id but signals “don’t reshuffle a list”.
+
 					const batch = await getYouTubeVideos({
+						// pass a single playlistId so youtube.ts won’t re-shuffle the set internally
 						playlistId: pid,
-						page: pageNumber,             // optional; doesn’t change the single PID
-						sticky: true,                 // stability within this PID
+						// page can still be forwarded; with a single PID it just rotates within that list
+						page: Math.max(0, pageNumber),
+						// categories should stay random across PIDs, but stable within the picked PID
+						sticky: true,
 						limit: PER_PLAYLIST,
 						excludeIds: Array.from(dynamicExclude),
 					}).catch(() => [] as NormalizedItem[]);
-					
+
 					for (const it of batch) {
 						if (!it?.id || dynamicExclude.has(it.id)) continue;
 						dynamicExclude.add(it.id);
@@ -168,8 +171,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 						if (out.length >= limitNumber) break;
 					}
 				}
-				
-				items = out;
+
+				items = out.slice(0, limitNumber);
 				break;
 			}
 
@@ -178,7 +181,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
-		setWeakEtag(res, items.map(i => i.id).filter(Boolean));
+		setWeakEtag(res, items.map((i) => i.id).filter(Boolean));
 		return res.status(200).json(items);
 	} catch (error) {
 		console.error(error);

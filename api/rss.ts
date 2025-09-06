@@ -9,7 +9,6 @@ import { getRssFeed } from './lib/rss';
  * @param {VercelResponse} res - The outgoing res object.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-
 	const { url, query, source, limit } = req.query;
 
 	// Validate that either a URL or a query is provided
