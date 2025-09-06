@@ -63,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	// Categories list
 	if (!id) {
-		setCache(res, PRESETS_LIST_TTL_S, 300);
+		setCache(res, PRESETS_LIST_TTL_S, SWR_TTL_S);
 		return res.status(200).json(presets);
 	}
 
@@ -86,10 +86,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			const offset = pageNumber * limitNumber;
 			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 			const out = filtered.slice(offset, offset + limitNumber);
-			setWeakEtag(res, out.map((i) => i.id).filter(Boolean));
-			const __payload = out;
-			setWeakEtag(res, Array.isArray(__payload) ? out.map((i) => i.id).filter(Boolean) : []);
-			return res.status(200).json(__payload);
+			setWeakEtag(res, out.map(i => i.id).filter(Boolean));
+			return res.status(200).json(out);
 		}
 
 		const preset = presets.find((p) => p.id === id);
@@ -110,7 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			}
 			case 'youtube': {
 				const overfetch = limitNumber * (pageNumber + 1);
-				const y = await getYouTubeVideos({ ...(preset.params as any), limit: overfetch, excludeIds: excludedIds });
+				const y = await getYouTubeVideos({ ...(preset.params as any), page: pageNumber, limit: overfetch, excludeIds: excludedIds });
 				const filtered = y.filter((item) => !excludedIds.includes(item.id));
 				const offset = pageNumber * limitNumber;
 				items = filtered.slice(offset, offset + limitNumber);
@@ -121,10 +119,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
-		setWeakEtag(res, items.map((i) => i.id).filter(Boolean));
-		const __payload = items;
-		setWeakEtag(res, Array.isArray(__payload) ? items.map((i) => i.id).filter(Boolean) : []);
-		return res.status(200).json(__payload);
+		setWeakEtag(res, items.map(i => i.id).filter(Boolean));
+		return res.status(200).json(items);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: `Failed to fetch data for preset: ${id}.` });
