@@ -66,9 +66,6 @@ export function getAllItems(
 		url += `&limit=${limit}`;
 	}
 
-	console.log();
-	console.log('get url', url);
-	console.log();
 	return get<NormalizedItem[]>(url);
 }
 

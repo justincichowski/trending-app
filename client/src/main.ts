@@ -253,8 +253,6 @@ export async function categoryView(params: Record<string, string>) {
 
 	const { favorites, categories } = stateManager.getState();
 
-	console.log('category view');
-
 	// Find the new category first
 	let newCurrentCategory: Preset | null = categories.find((c) => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
@@ -270,8 +268,6 @@ export async function categoryView(params: Record<string, string>) {
 		};
 	}
 
-	console.log('category view2');
-
 	// Set the new category and loading state immediately for instant UI feedback
 	stateManager.setState({
 		currentCategory: newCurrentCategory,
@@ -279,7 +275,7 @@ export async function categoryView(params: Record<string, string>) {
 	});
 
 
-	console.log('category view id', id);
+	// console.log('category view id', id);
 
 	try {
 		let items: NormalizedItem[] = [];
@@ -293,8 +289,8 @@ export async function categoryView(params: Record<string, string>) {
 			items = await getCategoryItems(id, 0, PAGE_SIZE); // Fetch first page for a regular category
 		}
 		
-		console.log('category json:'); 
-		console.log('id', id, items);
+		// console.log('category json:'); 
+		console.log('id', id, items.length);
 		// return;
 
 		// Update the state with the new items and turn off loading
