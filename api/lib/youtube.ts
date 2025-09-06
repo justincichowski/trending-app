@@ -64,17 +64,17 @@ function normalizeItem(item: YouTubeVideoResource): NormalizedItem | null {
 		return t?.high?.url ?? t?.default?.url;
 	}
 	const image = pickThumb(item.snippet.thumbnails);
-	const title = item.snippet.title?.toLowerCase() || '';
-	const description = item.snippet.description?.toLowerCase() || '';
+	const titleLC = item.snippet.title?.toLowerCase() || '';
+	const descLC  = item.snippet.description?.toLowerCase() || '';
 
 	// Filter out videos that are genuinely unavailable or lack essential content.
 	if (
 		!image ||
-		title.indexOf('private video') === 0 ||
-		description.indexOf('this video is unavailable') === 0 ||
-		(title.indexOf('deleted video') === 0 && !item.snippet.description)
+		titleLC.startsWith('private video') ||
+		descLC.startsWith('this video is unavailable') ||
+		(titleLC.startsWith('deleted video') && !item.snippet.description)
 	) {
-		return null;
+	return null;
 	}
 
 	const videoId = item.id; // The ID is directly on the item for a video resource
@@ -169,7 +169,8 @@ export async function getYouTubeVideos(options: {
 			response.data.items
 			.map(item => item.snippet?.resourceId?.videoId)
 			.filter((id): id is string => !!id && !excludePlain.has(id)) 
-			)].join(',');
+			)].slice(0, limit).join(',');
+			
 			if (!videoIds) return [];
 			const videoDetailsResponse = await axios.get<{ items: YouTubeVideoResource[] }>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
@@ -213,7 +214,7 @@ export async function getYouTubeVideos(options: {
 			(response.data?.items ?? [])
 			.map(i => i?.id?.videoId)
 			.filter((id): id is string => !!id && !excludePlain.has(id))
-			)];
+			)].slice(0, limit);
 			if (ids.length === 0) return [];
 			const videoIds = ids.join(',');
 
