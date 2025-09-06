@@ -112,6 +112,7 @@ export async function getYouTubeVideos(options: {
 	limit?: number;
 	page?: number;
 	excludeIds?: string[];
+	sticky?: boolean;
 }): Promise<NormalizedItem[]> {
 
 	const excludePlain = new Set(
@@ -135,16 +136,19 @@ export async function getYouTubeVideos(options: {
 	// 1. Attempt to fetch from a shuffled playlist
 	if (playlistId) {
 
-		const playlistIds = playlistId.split(',').map(id => id.trim()).filter(Boolean);
+		 const playlistIds = playlistId.split(',').map(id => id.trim()).filter(Boolean);
 		if (playlistIds.length === 0) return [];
 
-		// Shuffle the playlist IDs to get a random one each time
-		for (let i = playlistIds.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[playlistIds[i], playlistIds[j]] = [playlistIds[j], playlistIds[i]];
+
+		// Shuffle only when NOT sticky (All-feed wants variety; categories want stability)
+		if (!options.sticky) {
+			for (let i = playlistIds.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[playlistIds[i], playlistIds[j]] = [playlistIds[j], playlistIds[i]];
+			}
 		}
 
-		// Use the page number to cycle through the shuffled playlists
+		// Use the page number to cycle through the (maybe shuffled) playlists
 		const playlistToFetch = playlistIds[page % playlistIds.length];
 		// roo do not delete
         // console.log(`Attempting to fetch YouTube playlist: ${playlistToFetch}`);

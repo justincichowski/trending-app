@@ -12,36 +12,14 @@ import {
 } from './lib/config';
 import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/utils';
 
-/**
-	MAINTAINER NOTES — PER-CATEGORY ENDLESS SCROLL (/api/presets)
-	--------------------------------------------------------------------
-	Purpose
-	- Powers center column when a *specific category* is selected.
-	- Also returns the *category list* (`GET /api/presets` without `id`).
-
-	Contract:
-	- `GET /api/presets` (no id): returns array of presets (cached 60 min).
-	- `GET /api/presets?id=<cat>&page&limit&excludedIds` returns one page of items.
-	- Client sends `excludedIds` from items already shown to avoid duplicates.
-
-	Paging & Sources:
-	- RSS: supports `page` + `limit` natively in getRssFeed().
-	- YouTube: uses *overfetch + slice* because the API pages differently.
-	  For page N and limit L, we fetch `L * (N + 1)` then slice the last L after filtering.
-
-	Caching:
-	- Categories list: s-maxage=3600, stale-while-revalidate=300 (60 min).
-	- Category items: s-maxage=300, stale-while-revalidate=60 (5 min).
-
-	Separation of Concerns:
-	- This endpoint does NOT fetch left (/api/toptrends) or right (/api/trending) data.
-	- Those columns manage their own TTLs (60 min left, 15 min right).
-
-	AI/Reviewer Tip:
-	- If you change the default `limit`, confirm client infinite-scroll increments match.
-	- Keep the `excludedIds` contract intact to prevent duplicates on scroll.
-	--------------------------------------------------------------------
-*/
+function randomShuffle<T>(arr: T[]): T[] {
+	const a = arr.slice();
+	for (let i = a.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[a[i], a[j]] = [a[j], a[i]];
+	}
+	return a;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 
@@ -76,24 +54,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		if (id === 'search') {
 			if (!query) {
-				return res
-					.status(400)
-					.json({ error: 'A `query` parameter must be provided for search.' });
+				return res.status(400).json({ error: 'A `query` parameter must be provided for search.' });
 			}
-			const overfetch = limitNumber * (pageNumber + 1);
-			const y = await getYouTubeVideos({ query: String(query), limit: overfetch, excludeIds: excludedIds });
-			const filtered = y.filter((item) => !excludedIds.includes(item.id));
-			const offset = pageNumber * limitNumber;
+
+			// modest overfetch + single top-up attempt, honoring excludeIds on the server
+			const EXTRA = Math.min(20, Math.max(5, Math.ceil(limitNumber * 0.5)));
+			const dynamicExclude = new Set<string>(excludedIds);
+			const pool: NormalizedItem[] = [];
+
+			// attempt #1
+			const first = await getYouTubeVideos({
+				query: String(query),
+				limit: Math.min(50, limitNumber + EXTRA),
+				excludeIds: Array.from(dynamicExclude),
+			}).catch(() => [] as NormalizedItem[]);
+
+			for (const it of first) {
+				if (!it?.id || dynamicExclude.has(it.id)) continue;
+				dynamicExclude.add(it.id);
+				pool.push(it);
+				if (pool.length >= limitNumber) break;
+			}
+
+			// top-up once if still short
+			if (pool.length < limitNumber) {
+				const second = await getYouTubeVideos({
+					query: String(query),
+					limit: Math.min(50, limitNumber + EXTRA * 2),
+					excludeIds: Array.from(dynamicExclude),
+				}).catch(() => [] as NormalizedItem[]);
+
+				for (const it of second) {
+					if (!it?.id || dynamicExclude.has(it.id)) continue;
+					dynamicExclude.add(it.id);
+					pool.push(it);
+					if (pool.length >= limitNumber) break;
+				}
+			}
+
 			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
-			const out = filtered.slice(offset, offset + limitNumber);
-			setWeakEtag(res, out.map(i => i.id).filter(Boolean));
-			return res.status(200).json(out);
-		}
+			setWeakEtag(res, pool.map(i => i.id).filter(Boolean));
+			return res.status(200).json(pool.slice(0, limitNumber));
+			}
+
 
 		const preset = presets.find((p) => p.id === id);
 		if (!preset) {
 			return res.status(404).json({ error: `Unknown preset id: ${id}` });
 		}
+
+		console.log('pageNumber', pageNumber);
+		console.log('limit', limitNumber);
+
 
 		switch (preset.source) {
 			case 'rss': {
@@ -107,13 +119,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				break;
 			}
 			case 'youtube': {
-				const overfetch = limitNumber * (pageNumber + 1);
-				const y = await getYouTubeVideos({ ...(preset.params as any), page: pageNumber, limit: overfetch, excludeIds: excludedIds });
-				const filtered = y.filter((item) => !excludedIds.includes(item.id));
-				const offset = pageNumber * limitNumber;
-				items = filtered.slice(offset, offset + limitNumber);
+				// We don’t rely on overfetch/slice here. Instead, we sample across
+				// (potentially many) playlists for every page to keep results fresh
+				// and avoid empty pages. excludeIds is honored on the server to save quota.
+				
+				// 1) Parse the category’s playlist list
+				const allIds = String((preset.params as any).playlistId || '')
+					.split(',')
+					.map(s => s.trim())
+					.filter(Boolean);
+				  
+				if (allIds.length === 0) {
+					items = [];
+					break;
+				}
+				
+				// 2) Shuffle the playlists each request (category randomness)
+				const shuffled = randomShuffle(allIds);
+				
+				// 3) Decide how many playlists to touch for this page
+				const PER_PLAYLIST = Math.min(5, Math.max(1, limitNumber)); // keep costs sane
+				const BUFFER_LISTS = 1; // small hedge for dupes/exclusions
+				const neededLists = Math.min(
+					shuffled.length,
+					Math.ceil(limitNumber / PER_PLAYLIST) + BUFFER_LISTS
+				);
+				
+				// 4) Pull batches and fill until we hit `limitNumber`
+				const dynamicExclude = new Set<string>(excludedIds);
+				const out: NormalizedItem[] = [];
+				
+				for (let i = 0; i < neededLists && out.length < limitNumber; i++) {
+					const pid = shuffled[i];
+					// pass a SINGLE playlistId so youtube.ts won’t re-shuffle the set;
+					// sticky:true is a no-op for a single id but signals “don’t reshuffle a list”.
+					const batch = await getYouTubeVideos({
+						playlistId: pid,
+						page: pageNumber,             // optional; doesn’t change the single PID
+						sticky: true,                 // stability within this PID
+						limit: PER_PLAYLIST,
+						excludeIds: Array.from(dynamicExclude),
+					}).catch(() => [] as NormalizedItem[]);
+					
+					for (const it of batch) {
+						if (!it?.id || dynamicExclude.has(it.id)) continue;
+						dynamicExclude.add(it.id);
+						out.push(it);
+						if (out.length >= limitNumber) break;
+					}
+				}
+				
+				items = out;
 				break;
 			}
+
 			default:
 				items = [];
 		}
