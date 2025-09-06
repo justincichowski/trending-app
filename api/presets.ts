@@ -44,9 +44,8 @@ import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/ut
 */
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-
 	// Enable CORS
-	res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins (adjust as needed)
+	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -66,8 +65,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 	// Categories list
 	if (!id) {
-		setCache(response, PRESETS_LIST_TTL_S, 300);
-		return response.status(200).json(presets);
+		setCache(res, PRESETS_LIST_TTL_S, 300);
+		return res.status(200).json(presets);
 	}
 
 	const pageNumber = parseIntParam(page, 0, 0, 1_000_000);
@@ -79,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		if (id === 'search') {
 			if (!query) {
-				return response
+				return res
 					.status(400)
 					.json({ error: 'A `query` parameter must be provided for search.' });
 			}
@@ -87,20 +86,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			const y = await getYouTubeVideos({ query: String(query), max: overfetch });
 			const filtered = y.filter((item) => !excludedIds.includes(item.id));
 			const offset = pageNumber * limitNumber;
-			setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
+			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 			const out = filtered.slice(offset, offset + limitNumber);
-			setWeakEtag(response, out.map((i) => i.id).filter(Boolean));
+			setWeakEtag(res, out.map((i) => i.id).filter(Boolean));
 			const __payload = out;
 			setWeakEtag(
-				response,
+				res,
 				Array.isArray(__payload) ? out.map((i) => i.id).filter(Boolean) : [],
 			);
-			return response.status(200).json(__payload);
+			return res.status(200).json(__payload);
 		}
 
 		const preset = presets.find((p) => p.id === id);
 		if (!preset) {
-			return response.status(404).json({ error: `Unknown preset id: ${id}` });
+			return res.status(404).json({ error: `Unknown preset id: ${id}` });
 		}
 
 		switch (preset.source) {
@@ -126,16 +125,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				items = [];
 		}
 
-		setCache(response, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
-		setWeakEtag(response, items.map((i) => i.id).filter(Boolean));
+		setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
+		setWeakEtag(res, items.map((i) => i.id).filter(Boolean));
 		const __payload = items;
 		setWeakEtag(
-			response,
+			res,
 			Array.isArray(__payload) ? items.map((i) => i.id).filter(Boolean) : [],
 		);
-		return response.status(200).json(__payload);
+		return res.status(200).json(__payload);
 	} catch (error) {
 		console.error(error);
-		return response.status(500).json({ error: `Failed to fetch data for preset: ${id}.` });
+		return res.status(500).json({ error: `Failed to fetch data for preset: ${id}.` });
 	}
 }

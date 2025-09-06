@@ -43,12 +43,11 @@ async function fetchAll(): Promise<Record<string, NormalizedItem[]>> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-
 	// Enable CORS
-	res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins (adjust as needed)
+	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-	
+
 	const debug = req.query?.debug === '1';
 	try {
 		if (debug) console.log('[API /trending] debug=1');
