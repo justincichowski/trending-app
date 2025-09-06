@@ -8,12 +8,5 @@
 			"source": "/(.*)",
 			"destination": "/index.html"
 		}
-	],
-	"builds": [
-		{
-			"src": "client/dist/**/*",
-			"use": "@vercel/static"
-		}
-	],
-	"outputDirectory": "client/dist"
+	]
 }
