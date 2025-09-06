@@ -17,7 +17,7 @@ export interface Preset {
 	/**
 	 * The data source to use for this category.
 	 */
-	source: 'rss' | 'youtube';
+	source: 'rss' | 'youtube' | 'local';
 
 	/**
 	 * The parameters to pass to the data source service.

@@ -81,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 					.json({ error: 'A `query` parameter must be provided for search.' });
 			}
 			const overfetch = limitNumber * (pageNumber + 1);
-			const y = await getYouTubeVideos({ query: String(query), max: overfetch });
+			const y = await getYouTubeVideos({ query: String(query), limit: overfetch });
 			const filtered = y.filter((item) => !excludedIds.includes(item.id));
 			const offset = pageNumber * limitNumber;
 			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
@@ -110,7 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			}
 			case 'youtube': {
 				const overfetch = limitNumber * (pageNumber + 1);
-				const y = await getYouTubeVideos({ ...(preset.params as any), max: overfetch });
+				const y = await getYouTubeVideos({ ...(preset.params as any), limit: overfetch });
 				const filtered = y.filter((item) => !excludedIds.includes(item.id));
 				const offset = pageNumber * limitNumber;
 				items = filtered.slice(offset, offset + limitNumber);

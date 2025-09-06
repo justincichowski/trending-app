@@ -42,7 +42,7 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 		// console.log(`Attempting to fetch from playlist: ${randomPlaylistId}`);
 
 		try {
-			const rawItems = await getYouTubeVideos({ playlistId: randomPlaylistId, max: 50 });
+			const rawItems = await getYouTubeVideos({ playlistId: randomPlaylistId, limit: 50 });
 
 			for (const item of rawItems) {
 				const title = extractKeyword(item.title);
