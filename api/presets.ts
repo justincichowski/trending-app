@@ -44,6 +44,8 @@ import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/ut
 */
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+	console.log('API called with method:', req.method);  // Log request method
+
 	// Enable CORS
 	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');

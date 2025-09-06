@@ -1,9 +1,9 @@
 node_modules/
 *.log
-dist/
+# dist/
 build/
 out/
 .next/
 client/.vite/
-dist/
+# dist/
 # Let Vercel build from source; don't upload local build output
