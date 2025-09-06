@@ -58,7 +58,10 @@ async function kvSetRaw(key: string, value: string, ttlSeconds?: number): Promis
 			: `${KV_URL}/set/${encodeURIComponent(key)}`;
 		const res = await fetch(url, {
 			method: 'POST',
-			headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'text/plain' },
+			headers: {
+				Authorization: `Bearer ${KV_TOKEN}`,
+				'Content-Type, Authorization': 'text/plain',
+			},
 			body: value,
 		});
 		return res.ok;

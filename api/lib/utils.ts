@@ -20,7 +20,15 @@ export function parseExcludedIds(csv?: string): string[] {
 
 /** set Cache-Control header for CDN caching */
 export function setCache(res: VercelResponse, sMaxage: number, swr: number): void {
+	console.log('hello');
 	res.setHeader('Cache-Control', `s-maxage=${sMaxage}, stale-while-revalidate=${swr}`);
+	// Enable CORS
+	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+	//if (req.method === 'OPTIONS') {
+	//return res.status(200).end();
+	//}
 }
 
 /** attach a weak ETag based on returned item ids */

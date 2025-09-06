@@ -44,15 +44,17 @@ import { parseIntParam, parseExcludedIds, setCache, setWeakEtag } from './lib/ut
 */
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-	console.log('API called with method:', req.method);  // Log request method
+	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173/');
+	res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+	res.setHeader('Access-Control-Allow-Credentials', 'true');
+	res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
 
-	// Enable CORS
-	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 	if (req.method === 'OPTIONS') {
 		return res.status(200).end();
 	}
+
+	console.log('API called with method:', req.method); // Log request method
 
 	const {
 		id,

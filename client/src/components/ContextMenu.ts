@@ -64,12 +64,7 @@ export class ContextMenu {
 
 	private async saveImage(url: string) {
 		try {
-			const response = await fetch(url, {
-				method: 'GET', // or 'POST', depending on your API
-				headers: {
-					'Content-Type': 'application/json', // Make sure this header is allowed in CORS settings
-				},
-			});
+			const response = await fetch(url);
 			const blob = await response.blob();
 			const link = document.createElement('a');
 			link.href = URL.createObjectURL(blob);

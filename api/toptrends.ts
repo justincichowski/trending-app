@@ -5,13 +5,16 @@ import { readFromCache, writeToCache } from './lib/persist';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	try {
-		// Enable CORS
-		res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
-		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-		res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173/');
+		res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+		res.setHeader('Access-Control-Allow-Credentials', 'true');
+		res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+
 		if (req.method === 'OPTIONS') {
 			return res.status(200).end();
 		}
+
 		const ttl = TOP_TRENDS_TTL_MS;
 		const cached = await readFromCache('toptrends', ttl);
 		if (cached) return res.status(200).json(cached);
