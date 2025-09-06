@@ -48,6 +48,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins (adjust as needed)
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+	if (req.method === 'OPTIONS') {
+		return res.status(200).end();
+	}
 
 	const {
 		id,
@@ -90,10 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			const out = filtered.slice(offset, offset + limitNumber);
 			setWeakEtag(res, out.map((i) => i.id).filter(Boolean));
 			const __payload = out;
-			setWeakEtag(
-				res,
-				Array.isArray(__payload) ? out.map((i) => i.id).filter(Boolean) : [],
-			);
+			setWeakEtag(res, Array.isArray(__payload) ? out.map((i) => i.id).filter(Boolean) : []);
 			return res.status(200).json(__payload);
 		}
 
@@ -128,10 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 		setWeakEtag(res, items.map((i) => i.id).filter(Boolean));
 		const __payload = items;
-		setWeakEtag(
-			res,
-			Array.isArray(__payload) ? items.map((i) => i.id).filter(Boolean) : [],
-		);
+		setWeakEtag(res, Array.isArray(__payload) ? items.map((i) => i.id).filter(Boolean) : []);
 		return res.status(200).json(__payload);
 	} catch (error) {
 		console.error(error);
