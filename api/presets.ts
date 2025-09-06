@@ -130,17 +130,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				}
 
 				// Shuffle playlists each request for variety
-				const shuffled = (() => {
-					const a = allIds.slice();
-					for (let i = a.length - 1; i > 0; i--) {
-						const j = Math.floor(Math.random() * (i + 1));
-						[a[i], a[j]] = [a[j], a[i]];
-					}
-					return a;
-				})();
+				const shuffled = randomShuffle(allIds);
 
 				// Pull from several playlists to reach the page size
-				const PER_PLAYLIST = Math.min(5, Math.max(1, limitNumber)); // same cap as elsewhere
+				const PER_PLAYLIST = Math.min(4, Math.max(1, limitNumber)); // same cap as elsewhere
 				const BUFFER_LISTS = 1;
 				const neededLists = Math.min(
 					shuffled.length,
@@ -150,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 				const dynamicExclude = new Set<string>(excludedIds);
 				const out: NormalizedItem[] = [];
 
-				for (let i = 0; i < neededLists && out.length < limitNumber; i++) {
+				for (let i = 0; i < shuffled.length && out.length < limitNumber; i++) {
 					const pid = shuffled[i];
 
 					const batch = await getYouTubeVideos({
