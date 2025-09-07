@@ -9,7 +9,7 @@
 
 import type { NormalizedItem } from '../types';
 import { stateManager } from '../state';
-import { favoriteItem, hideItem, unhideItem } from '../main';
+import { favoriteItem, hideUnhideItem } from '../main';
 import { formatNumber, timeAgo } from '../utils/format';
 import { Tooltip } from './Tooltip';
 
@@ -140,13 +140,7 @@ export function createItemCard(
 		`;
 
 		hideButton.addEventListener('click', () => {
-			if (isHiddenView) {
-				// On /hidden the button UNHIDES
-				unhideItem(item.id);
-			} else {
-				// Everywhere else, it HIDES
-				hideItem(item.id);
-			}
+			hideUnhideItem(item.id);
 		});
 
 		hideButton.addEventListener('mouseover', () =>

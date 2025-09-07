@@ -243,6 +243,17 @@ body {
 
 /* end colors elements*/
 
+.settings-hiddenlink {
+	display: flex;
+}
+.settings-hiddenlink .btn-secondary {
+	cursor: pointer;
+}
+.settings-hiddenlink .btn-secondary:hover {
+	text-decoration: underline;
+	color: var(--category-button-text);
+}
+
 body,
 html {
 	max-height: 100%;

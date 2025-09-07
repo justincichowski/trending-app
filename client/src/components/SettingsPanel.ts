@@ -64,6 +64,9 @@ export class SettingsPanel {
 					<input type="checkbox" id="auto-scroll-toggle" />
 					<input type="number" id="auto-scroll-interval" value="5000" />
 				</div>
+				<div class="setting settings-hiddenlink">
+					<div id="toggle-hidden-btn" class="btn-secondary">Hidden Items</div>
+				</div>
 			</div>
 		`;
 	}
@@ -97,6 +100,38 @@ export class SettingsPanel {
 				);
 				// Manually dispatch a hashchange event to trigger the router
 				this.hide();
+			});
+		}
+
+		// AFTER the closeButton handler
+		const hiddenLink = this.element.querySelector('.settings-hiddenlink') as
+			| HTMLAnchorElement
+			| HTMLButtonElement
+			| null;
+		if (hiddenLink) {
+			hiddenLink.addEventListener('click', (e) => {
+				e.preventDefault();
+
+				// normalize current path (strip trailing slashes)
+				const curPath = location.pathname.replace(/\/+$/, '') || '/';
+				const search = location.search || '';
+
+				if (curPath === '/hidden') {
+					// already on /hidden — just remove the hash and close the panel
+					history.pushState({}, '', `/hidden${search}`);
+					this.hide();
+				} else {
+					// go to /hidden (no #settings), let the router react, then close the panel
+					// if you have a SPA router with navigate(), prefer that:
+					const r = (window as any).router;
+					if (r && typeof r.navigate === 'function') {
+						r.navigate('/hidden');
+					} else {
+						history.pushState({}, '', '/hidden');
+						window.dispatchEvent(new PopStateEvent('popstate'));
+					}
+					this.hide();
+				}
 			});
 		}
 
