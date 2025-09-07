@@ -425,11 +425,11 @@ export async function loadMoreItems() {
  */
 export function favoriteItem(item: NormalizedItem) {
 	const { favorites, currentCategory } = stateManager.getState();
-	const existingFavoriteItem = favorites.findIndex((f) => f.id === item.id);
+	const existingFavoriteItem = favorites.findIndex((f) => f.id === item.id) > -1;
 	const cardElement = document.querySelector(`.item-card[data-id="${item.id}"]`);
 	const isFavoritesView = currentCategory?.id === 'favorites';
 
-	if (existingFavoriteItem > -1) {
+	if (existingFavoriteItem) {
 		// --- Unfavoriting ---
 		if (isFavoritesView && cardElement) {
 			// In favorites view, we handle itemCard removal and a toast and animation.
@@ -469,17 +469,16 @@ export function favoriteItem(item: NormalizedItem) {
 }
 
 /**
- * Hides an item from the user's view. 
+ * Hides an item from the user's view.
  */
-
 
 export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 	// unhideUnhideItem
 	const { hiddenItems, currentCategory } = stateManager.getState(); // NormalizedItem[]
 	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
-	
-	const existingHiddenItem = hiddenItems.findIndex((f) => f.id === id);
-	
+
+	const existingHiddenItem = (hiddenItems.findIndex((f) => f.id === id)) > -1;
+
 	const st = stateManager.getState();
 	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
 	const isHiddenView = currentCategory?.id === 'hidden';
@@ -494,19 +493,20 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 		// Last-resort placeholder (won’t break rendering)
 		item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
 	}
-	
-	
+
 	if (isHiddenView && cardElement) {
 		// In hiddenItems view
-		if (existingHiddenItem > -1) {
 
+		console.log('existingHiddenItem', existingHiddenItem);
+		
+		if (existingHiddenItem) {
 			// --- Unhiding --- handle itemCard removal and a toast and animation.
 
 			// add to Unhidden // give time to undo
 			const currentHidden = stateManager.getState().hiddenItems;
 			const newHidden = currentHidden.filter((f) => f.id !== item.id);
 			stateManager.setState({ favorites: newHidden });
-			
+
 			notification?.show?.('Item unhidden.', {
 				onUndo: () => {
 					// User clicked Undo. Re Hide item. stop transition
@@ -523,31 +523,25 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 					}
 				},
 			});
-
 		} else {
-
 			// --- Hiding --- cancel
 
 			const { hiddenItems: curHidden } = stateManager.getState();
 			stateManager.setState({ hiddenItems: [...curHidden, item!] });
-
 		}
-		
 	} else {
 		// If not in hiddenItems view handle toggle
 		// Non Hidden Items Window
 
-		if (existingHiddenItem > -1) {
+		if (existingHiddenItem) {
 			// --- Unhiding ---
 			// If not in hiddenItems view, remove immediately from the state.
 			const newHidden = hiddenItems.filter((h) => h.id !== id);
 			stateManager.setState({ hiddenItems: newHidden });
 			notification?.show?.('Item unhidden.');
-
 		} else {
-
 			// --- Hiding ---
-			
+
 			// Already hidden or no card element to animate
 			if (st.hiddenItems.some((h) => h.id === id) || !cardElement) return;
 
@@ -571,11 +565,8 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 					}
 				},
 			});
-
 		}
-
 	}
-
 }
 
 // Set up the application routes
