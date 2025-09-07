@@ -24,6 +24,13 @@
 		--background-color: #121212;
 		--background-color-input: rgba(0, 0, 0, 0.5);
 		--text-color: #ffffff;
+		--mbl-view-switcher-bkgrnd: rgba(20, 20, 20, 0.85);
+		--mbl-view-switcher-border: 1px solid rgba(255, 255, 255, 0.08);
+		--mbl-view-switcher-boxshadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+		--mvs-button-background: #343a40;
+		--mvs-button-text: #e9ecef;
+		--mvs-btn-text-color: #dddddd;
+		--mvs-btn-text-color-hover: #ffffff;
 		--accent-color: #bb86fc;
 		--card-background-color: #1e1e1e;
 		--border-color: #333333;
@@ -44,6 +51,13 @@
 		--background-color: #ffffff;
 		--background-color-input: rgba(255, 255, 255, 0.5);
 		--text-color: #333333;
+		--mbl-view-switcher-bkgrnd: rgba(235, 235, 235, 0.85);
+		--mbl-view-switcher-border: 1px solid rgba(0, 0, 0, 0.08);
+		--mbl-view-switcher-boxshadow: 0 8px 24px rgba(255, 255, 255, 0.35);
+		--mvs-button-background: #343a40;
+		--mvs-button-text: #e9ecef;
+		--mvs-btn-text-color: #000000;
+		--mvs-btn-text-color-hover: #444444;
 		--accent-color: #007bff;
 		--card-background-color: #f8f9fa;
 		--border-color: #dee2e6;
@@ -58,6 +72,23 @@
 		--context-menu-active-bg: #0056b3;
 		color-scheme: light;
 	}
+	.mobile-view-switcher {
+		background: var(--mbl-view-switcher-bkgrnd);
+		border: var(--mbl-view-switcher-border);
+		box-shadow: var(--mbl-view-switcher-boxshadow);
+	}
+	.mvs-btn {
+		color: var(--mvs-btn-text-color);
+	}
+	.mvs-btn[aria-selected="false"]:hover {
+		color: var(--mvs-btn-text-color-hover);
+	}
+	[data-view="left"]  .mvs-btn[data-view="left"],
+	[data-view="center"] .mvs-btn[data-view="center"],
+	[data-view="right"] .mvs-btn[data-view="right"] {
+		background-color: var(--mvs-button-background);
+		color: var(--mvs-button-text);
+	}
 	`;
 
 					var style = document.createElement('style');
@@ -69,6 +100,9 @@
 
 					// setup transition after load
 					window.addEventListener('DOMContentLoaded', function () {
+						var v =  JSON.parse(localStorage.getItem('mobileView') || 'center');
+						document.documentElement.setAttribute('data-view', v);
+
 						// update search field
 						const searchParams = new URLSearchParams(window.location.search);
 						const query = searchParams.get('q'); // Get 'q' from query params
@@ -122,7 +156,7 @@
 				<a href="/" onclick="event.preventDefault()" class="logo-link">
 					<div class="logo-wrapper" data-tooltip="Trending">
 						<div class="logo">
-							<svg class="logo-svg" viewBox="0 0 220 50">
+							<svg class="logo-svg" viewBox="0 0 180 50">
 								<text class="logo-letter" y="35" x="0">T</text>
 								<text class="logo-letter" y="35" x="22">r</text>
 								<text class="logo-letter" y="35" x="40">e</text>
@@ -219,6 +253,35 @@
 			</div>
 			<div id="notification-container"></div>
 			<div id="settings-panel" class="settings-panel" hidden></div>
+			<div class="mobile-view-switcher" role="tablist" aria-label="View switcher" hidden>
+				<button
+					class="mvs-btn"
+					data-view="left"
+					role="tab"
+					aria-selected="false"
+					title="Top Trends"
+				>
+					Top 25
+				</button>
+				<button
+					class="mvs-btn"
+					data-view="center"
+					role="tab"
+					aria-selected="true"
+					title="Feed"
+				>
+					Feed
+				</button>
+				<button
+					class="mvs-btn"
+					data-view="right"
+					role="tab"
+					aria-selected="false"
+					title="Trending"
+				>
+					Trending
+				</button>
+			</div>
 		</div>
 		<script id="trending-data" type="application/json"></script>
 		<script id="top-trends-data" type="application/json"></script>

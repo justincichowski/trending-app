@@ -9,7 +9,9 @@ export const storage = {
 	 * @returns {T | null} The parsed item, or null if not found.
 	 */
 	get<T>(key: string): T | null {
-		const item = localStorage.getItem(key);
+		let item = localStorage.getItem(key);
+
+		// debug if( item == 'right' ){ item = JSON.stringify(item); }
 		return item ? JSON.parse(item) : null;
 	},
 

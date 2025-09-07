@@ -19,6 +19,7 @@ import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandle
 
 // clear local storage if needed
 // localStorage.clear();
+// stateManager.setState({ mobileView: 'center' });
 
 /*
  * OPTIONAL LAZY-LOAD (commented out by default)
@@ -41,6 +42,78 @@ import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandle
 // 	});
 // 	return ytReadyPromise;
 // }
+
+const PAGE_SIZE = 15;
+const categoryNavContainer = document.getElementById('category-nav');
+const settingsButton = document.getElementById('settings-button');
+const themeToggleButton = document.getElementById('theme-toggle-button');
+const logo = document.querySelector('.logo-link');
+const logoWrapper = document.querySelector('.logo-wrapper');
+const searchInput = document.querySelector<HTMLInputElement>('#search-input');
+const sortSelect = document.getElementById('sort-select');
+const searchBarWrapper = document.querySelector('.search-bar-wrapper');
+const clearSearchButton = document.getElementById('clear-search-button');
+const searchToggleButton = document.getElementById('search-toggle-button');
+const searchBackButton = document.getElementById('search-back-button');
+const controls = document.querySelector('.controls');
+
+const mainContent = document.getElementById('main-content');
+const settingsPanelContainer = document.getElementById('settings-panel');
+const notification = new Notification('notification-container');
+let settingsPanel: SettingsPanel | null = null;
+let contextMenu: ContextMenu | null = null;
+const tooltip = new Tooltip();
+let autocomplete: Autocomplete | null = null;
+let currentPlayer: any | null = null;
+
+type MobileView = 'left' | 'center' | 'right';
+
+function isMobileView(v: unknown): v is MobileView {
+	return v === 'left' || v === 'center' || v === 'right';
+}
+
+function initMobileViewSwitcher(): void {
+	const switcherEl = document.querySelector<HTMLElement>('.mobile-view-switcher');
+	if (!switcherEl) return;
+
+	// Use a non-null local so TS keeps the narrowing inside closures
+	const root = switcherEl;
+
+	// Initial from state (and style immediately)
+	setSelected(stateManager.getState().mobileView);
+
+	root.addEventListener('click', (e) => {
+		if (!(e.target instanceof Element)) return;
+		const btnEl = e.target.closest('.mvs-btn');
+		if (!(btnEl instanceof HTMLButtonElement)) return;
+
+		const v = btnEl.dataset.view;
+		const view: MobileView = isMobileView(v) ? v : 'center';
+
+		stateManager.setState({ mobileView: view });
+		setSelected(view);
+	});
+
+	stateManager.subscribe((ns, os) => {
+		if (ns.mobileView !== os.mobileView) setSelected(ns.mobileView);
+	});
+
+	function setSelected(view: MobileView): void {
+		// drive CSS with one attribute
+		document.documentElement.setAttribute('data-view', view);
+
+		// flip ARIA on just the two relevant buttons (typed queries)
+		const current = root.querySelector<HTMLButtonElement>('.mvs-btn[aria-selected="true"]');
+		if (current) current.setAttribute('aria-selected', 'false');
+
+		const next = root.querySelector<HTMLButtonElement>(`.mvs-btn[data-view="${view}"]`);
+		if (next) next.setAttribute('aria-selected', 'true');
+
+		try {
+			stateManager.setState({ mobileView: view });
+		} catch {}
+	}
+}
 
 function isMeaningfulData(obj: any) {
 	return obj && Object.values(obj).some((arr) => Array.isArray(arr) && arr.length > 0);
@@ -137,31 +210,6 @@ window.enableTrendingDebug = function (on = true) {
  * main application logic.
  * -----------------------------------------------------------------------------
  */
-
-const PAGE_SIZE = 15;
-const categoryNavContainer = document.getElementById('category-nav');
-const settingsButton = document.getElementById('settings-button');
-const themeToggleButton = document.getElementById('theme-toggle-button');
-const logo = document.querySelector('.logo-link');
-const logoWrapper = document.querySelector('.logo-wrapper');
-const searchInput = document.querySelector<HTMLInputElement>('#search-input');
-const sortSelect = document.getElementById('sort-select');
-const searchBarWrapper = document.querySelector('.search-bar-wrapper');
-const clearSearchButton = document.getElementById('clear-search-button');
-const searchToggleButton = document.getElementById('search-toggle-button');
-const searchBackButton = document.getElementById('search-back-button');
-const controls = document.querySelector('.controls');
-
-// The favorites button has been removed from the header, so this is no longer needed.
-
-const mainContent = document.getElementById('main-content');
-const settingsPanelContainer = document.getElementById('settings-panel');
-const notification = new Notification('notification-container');
-let settingsPanel: SettingsPanel | null = null;
-let contextMenu: ContextMenu | null = null;
-const tooltip = new Tooltip();
-let autocomplete: Autocomplete | null = null;
-let currentPlayer: any | null = null;
 
 /**
  * Destroys the currently active YouTube player instance.
@@ -701,6 +749,14 @@ async function initializeApp() {
 
 // Start the application once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+	if (
+		!document.body.classList.contains('view-left') &&
+		!document.body.classList.contains('view-center') &&
+		!document.body.classList.contains('view-right')
+	) {
+		document.body.classList.add('view-center');
+	}
+	initMobileViewSwitcher();
 	initializeApp();
 	const trendingPanel = new TrendingPanel('trending-panel');
 	const topTrendsPanel = new TopTrendsPanel('top-trends-panel');

@@ -1,6 +1,6 @@
 import type { NormalizedItem, Preset } from '../types';
 import { storage } from '../utils/storage';
-
+export type MobileView = 'left' | 'center' | 'right';
 /**
  * The shape of the application's state.
  */
@@ -71,6 +71,11 @@ export interface AppState {
 	 */
 	isLoading: boolean;
 	showTrending: boolean;
+
+	/**
+	 * which pane to show on mobile
+	 */
+	mobileView: MobileView;
 }
 
 /**
@@ -96,6 +101,7 @@ const initialState: AppState = {
 		travel: '',
 	},
 	showTrending: storage.get('showTrending') ?? true,
+	mobileView: (storage.get('mobileView') as MobileView) || 'center',
 };
 
 /**
@@ -108,6 +114,8 @@ class StateManager {
 
 	constructor(initialState: AppState) {
 		this.state = initialState;
+		// Keep <body> class in sync at boot
+		this.applyMobileViewClass(this.state.mobileView);
 	}
 
 	/**
@@ -136,6 +144,14 @@ class StateManager {
 		storage.set('autoScroll', this.state.autoScroll);
 		storage.set('youtubePlaylists', this.state.youtubePlaylists);
 		storage.set('showTrending', this.state.showTrending);
+
+		// persist the mobile view
+		storage.set('mobileView', this.state.mobileView);
+
+		// update <body> class if it changed
+		if (newState.mobileView && newState.mobileView !== oldState.mobileView) {
+			this.applyMobileViewClass(this.state.mobileView);
+		}
 	}
 
 	/**
@@ -149,6 +165,13 @@ class StateManager {
 		return () => {
 			this.listeners.delete(listener);
 		};
+	}
+
+	private applyMobileViewClass(view: MobileView) {
+		if (typeof document === 'undefined') return; // SSR/Node safety
+		const cls = ['view-left', 'view-center', 'view-right'];
+		document.body.classList.remove(...cls);
+		document.body.classList.add(`view-${view}`);
 	}
 }
 

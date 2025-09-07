@@ -64,6 +64,13 @@ export class FullScreenGallery {
 		this.container
 			.querySelector('.gallery-overlay')
 			?.addEventListener('click', () => this.hide());
+		this.container.addEventListener('click', (e) => {
+			const el = e.target as Element;
+			// clicked inside a slide but NOT inside an item-card → close
+			if (el.closest('.swiper-slide') && !el.closest('.item-card')) {
+				this.hide();
+			}
+		});
 
 		this.container.addEventListener('mouseover', (event) => {
 			const target = event.target as HTMLElement;

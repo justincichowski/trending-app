@@ -1,5 +1,9 @@
 /* colors only variable elements */
 
+:root {
+	--mvs-h: 28px;
+}
+
 @media (max-width: 550px) {
 	.controls.active {
 		background-color: var(--background-color);
@@ -290,6 +294,21 @@ html {
 	}
 }
 
+.mvs-btn {
+	appearance: none;
+	padding: 0.3rem 0.8rem; /* Further reduced padding */
+	text-decoration: none;
+	border-radius: 999px;
+	transition:
+		background-color 0.1s;
+	border: none; /* Remove the old border */
+	white-space: nowrap; /* Prevent text wrapping */
+	font: inherit;
+	background: transparent;
+	opacity: 0.7;
+	cursor: pointer;
+}
+
 .category-link {
 	display: block;
 	padding: 0.3rem 0.8rem; /* Further reduced padding */
@@ -386,7 +405,7 @@ html {
 .logo {
 	position: relative;
 	cursor: pointer;
-	width: 220px;
+	width: 180px;
 	height: 50px;
 	flex-shrink: 0;
 	transition: transform 0.1s ease-in-out;
@@ -574,7 +593,28 @@ html {
 	}
 }
 
-/* Mobile First */
+/* Bottom pill switcher */
+.mobile-view-switcher {
+	position: fixed;
+	left: 50%;
+	bottom: 12px;
+	transform: translateX(-50%);
+	display: grid;
+	grid-auto-flow: column;
+	gap: 8px;
+	padding: 6px;
+	min-height: var(--mvs-h);
+	align-items: center;
+	backdrop-filter: blur(6px);
+	border-radius: 999px;
+	z-index: 1000;
+}
+
+.mvs-btn[aria-selected='true'] {
+	opacity: 1;
+}
+
+/* Mobile First only on screens smaller than 550px */
 
 /* margin-top (for mobile first) */
 body {
@@ -612,20 +652,130 @@ body {
 	border-radius: 0px;
 }
 
-/**/
+@media (max-width: 750px) {
+	.trending-panel {
+		display: none;
+	}
+	.main-content-wrapper {
+		justify-content: center;
+	}
+}
 
-/* Desktop only on screens wider than 600px */
-@media (min-width: 550px) {
+@media (max-width: 900px) {
+	.top-trends-panel {
+		display: none;
+	}
+}
+
+.trending-panel {
+	/* width: elsewhere */
+	flex-shrink: 0;
+	margin-left: 1rem;
+	margin-bottom: 1rem;
+	position: sticky;
+	top: 1rem;
+	/* height: elsewhere */
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+.top-trends-panel {
+	/* width: elsewhere */
+	flex-shrink: 0;
+	margin-right: 1rem;
+	margin-bottom: 1rem;
+	position: sticky;
+	top: 1rem;
+	/* height: elsewhere */
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+/* MOBILE MODE (pane switcher) */
+@media (max-width: 550px) {
+	/* hide all by default */
+	.top-trends-panel,
+	.main-content,
+	.trending-panel {
+		display: none;
+	}
+
+	/* show exactly one via body class — override earlier 900/750 hides */
+	body.view-left .top-trends-panel {
+		display: block !important;
+	}
+	body.view-center .main-content {
+		display: block !important;
+	}
+	body.view-right .trending-panel {
+		display: block !important;
+	}
+
+	/* space for the bottom switcher */
+	body {
+		padding-bottom: calc(var(--mvs-h, 48px) + 12px);
+	}
+
+	/* requested spacing:
+     - LEFT & RIGHT panes get desktop main-content spacing
+     - CENTER (main-content) has no horizontal margin/padding
+  */
+	.top-trends-panel,
+	.trending-panel {
+		/* fill available width without overflowing */
+		flex: 1 1 auto;
+		min-width: 0;
+		width: auto; /* ← remove 100% */
+		box-sizing: border-box;
+
+		margin-left: 8px;
+		margin-right: 8px;
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.top-trends-panel > :last-child,
+	.trending-panel > :last-child {
+		margin-bottom: 2rem !important;
+	}
+	.main-content-wrapper {
+		/* center pane: remove horizontal margin/padding in mobile */
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	/* show the switcher only in mobile mode */
+	.mobile-view-switcher {
+		display: grid;
+	}
+}
+
+/* Desktop only on screens wider than 550px */
+@media (min-width: 551px) {
+	.trending-panel {
+		width: 300px;
+	}
+	.top-trends-panel {
+		width: 200px;
+	}
+	.mobile-view-switcher {
+		display: none;
+	}
+
+	/* your existing desktop spacing (unchanged) */
 	body {
 		margin-left: 8px;
 		margin-right: 8px;
-		margin: 0px !important; /* always 0 bottom */
+		margin: 0px !important; /* note: this zeroes all margins; keep if intentional */
 	}
 
 	.main-content-wrapper {
 		margin-left: 8px;
 		margin-right: 8px;
-
 		padding-left: 1rem;
 		padding-right: 1rem;
 		padding-bottom: 0;
@@ -635,14 +785,9 @@ body {
 		margin-bottom: 1rem;
 		border-radius: 8px;
 	}
-
-	.app-header {
-		margin-top: 8px;
-		margin-left: 8px;
-		margin-right: 8px;
-	}
-
+	.app-header,
 	#category-nav {
+		margin-top: 8px;
 		margin-left: 8px;
 		margin-right: 8px;
 	}
@@ -1345,15 +1490,6 @@ body:not(.show-trending) .trending-panel {
 	text-decoration: underline;
 }
 
-@media (max-width: 750px) {
-	.trending-panel {
-		display: none;
-	}
-	.main-content-wrapper {
-		justify-content: center;
-	}
-}
-
 .trending-section-header {
 	display: flex;
 	justify-content: space-between;
@@ -1406,32 +1542,6 @@ body:not(.show-trending) .trending-panel {
 	text-decoration: none;
 }
 
-.trending-panel {
-	width: 300px;
-	flex-shrink: 0;
-	margin-left: 1rem;
-	margin-bottom: 1rem;
-	position: sticky;
-	top: 1rem;
-	/* height: elsewhere */
-	overflow-y: auto;
-	scrollbar-width: none; /* Firefox */
-	transition: all 0.3s ease-in-out;
-}
-
-.top-trends-panel {
-	width: 200px;
-	flex-shrink: 0;
-	margin-right: 1rem;
-	margin-bottom: 1rem;
-	position: sticky;
-	top: 1rem;
-	/* height: elsewhere */
-	overflow-y: auto;
-	scrollbar-width: none; /* Firefox */
-	transition: all 0.3s ease-in-out;
-}
-
 .top-trends-section {
 	border-radius: 8px;
 	padding: 1rem;
@@ -1470,12 +1580,6 @@ body:not(.show-trending) .trending-panel {
 	cursor: pointer;
 }
 
-@media (max-width: 900px) {
-	.top-trends-panel {
-		display: none;
-	}
-}
-
 /* --- Fullscreen Gallery --- */
 .fullscreen-gallery {
 	position: fixed;
@@ -1512,7 +1616,7 @@ body:not(.show-trending) .trending-panel {
 
 .gallery-swiper .swiper-slide .item-card {
 	max-width: 750px;
-	width: 90%;
+	width: 100%;
 	height: auto;
 	max-height: 90vh;
 	overflow-y: auto;
