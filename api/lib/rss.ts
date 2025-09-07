@@ -66,7 +66,7 @@ function isGenericGoogleImage(url: string | null | undefined): boolean {
  */
 async function normalizeItem(item: Parser.Item, source: string): Promise<NormalizedItem | null> {
 	// The user rejected the fix for the TS error, so we will log the item instead.
-	console.log(`[Server] Processing raw item from source "${source}"...`);
+	// console.log(`[Server] Processing raw item from source "${source}"...`);
 	if (!item.title || !item.link) {
 		return null;
 	}
@@ -192,16 +192,4 @@ export async function getRssFeed(options: {
 			`Failed to process RSS feed from ${feedUrl}. Reason: ${error instanceof Error ? error.message : 'Unknown error'}`,
 		);
 	}
-	/*
-	// --- Previous debug log for inspecting a single raw item ---
-	if (feed.items.length > 0) {
-		// roo do not delete
-		// console.log('--- RAW RSS ITEM DEBUG ---');
-		// roo do not delete
-		// console.log(JSON.stringify(feed.items[0], null, 2));
-		// roo do not delete
-		// console.log('--------------------------');
-	}
-	*/
-	// --- END DEBUG LOG ---
 }
