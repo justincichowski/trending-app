@@ -299,8 +299,7 @@ html {
 	padding: 0.3rem 0.8rem; /* Further reduced padding */
 	text-decoration: none;
 	border-radius: 999px;
-	transition:
-		background-color 0.1s;
+	transition: background-color 0.1s;
 	border: none; /* Remove the old border */
 	white-space: nowrap; /* Prevent text wrapping */
 	font: inherit;
