@@ -17,6 +17,8 @@ import { TrendingPanel } from './components/TrendingPanel';
 import { TopTrendsPanel } from './components/TopTrendsPanel';
 import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandler';
 
+localStorage.clear();
+
 /*
  * OPTIONAL LAZY-LOAD (commented out by default)
  *

@@ -48,6 +48,11 @@ export async function fetchTopTrends(): Promise<TopTrendsData> {
 				const title = extractKeyword(item.title);
 				const lowerCaseTitle = title.toLowerCase();
 
+				// Skip titles that are empty or contain only numbers or start with more than one number
+				if (!title || /^\d+$/.test(title) || /^\d{2,}/.test(title)) {
+					continue; // Skip invalid titles
+				}
+
 				if (title && !seenTitles.has(lowerCaseTitle)) {
 					seenTitles.add(lowerCaseTitle);
 					uniqueItems.push({
@@ -310,7 +315,19 @@ function extractKeyword(title: string): string {
 		}
 	}
 
-	// 2. Fall back to single significant words
+	// 2. Avoid titles that are only numbers or start with multiple numbers
+	if (/^\d+$/.test(cleanedTitle)) {
+		// If the title is only numbers, return empty string
+		return '';
+	}
+
+	// 3. Check if the title starts with more than one number (e.g., "123 something")
+	if (/^\d{2,}/.test(cleanedTitle)) {
+		// If the title starts with more than one digit, ignore it
+		return '';
+	}
+
+	// 4. Fall back to single significant words
 	const words = cleanedTitle
 		.toLowerCase()
 		.replace(/[^\w\s]/g, '')
@@ -321,7 +338,7 @@ function extractKeyword(title: string): string {
 		}
 	}
 
-	// 3. As a final fallback, find the first word of the original title that isn't a stop word
+	// 5. As a final fallback, find the first word of the original title that isn't a stop word
 	const originalWords = title.split(/\s+/);
 	for (const word of originalWords) {
 		const cleanedWord = word.replace(/[^\w\s]/g, '');

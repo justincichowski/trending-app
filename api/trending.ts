@@ -13,7 +13,11 @@ import type { NormalizedItem } from './lib/types';
 
 const TRENDING_FEEDS = [
 	{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
-	{ title: 'Movies', source: 'The New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml' },
+	{
+		title: 'Movies',
+		source: 'The New York Times',
+		url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
+	},
 	{ title: 'Sales', source: 'Amazon', url: 'https://www.amazon.com/gp/goldbox' },
 	{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
 	{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
