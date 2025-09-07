@@ -5,6 +5,10 @@
 			"destination": "/api/:match*.ts"
 		},
 		{
+			"source": "/search",
+			"destination": "/api/presets?id=search"
+		},
+		{
 			"source": "/:path*",
 			"destination": "/index.html"
 		}

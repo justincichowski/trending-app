@@ -546,6 +546,9 @@ if (searchInput) {
 	searchInput.addEventListener('keydown', (e) => {
 		if (e.key === 'Enter') {
 			const searchTerm = (e.target as HTMLInputElement).value;
+
+			console.log('searchTerm', searchTerm);
+			return;
 			performSearch(searchTerm);
 		}
 	});
