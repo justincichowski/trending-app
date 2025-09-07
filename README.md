@@ -2,8 +2,7 @@
 
 A lightweight single‑page app (vanilla TypeScript + Vite) with a **serverless** backend on Vercel.
 
-> **Status:** Updated for the latest serverless implementation · 2025-09-02
-
+> **Status:** Updated for the latest serverless implementation · 2025-09-07
 ---
 
 ## What “Serverless on Vercel” Means
