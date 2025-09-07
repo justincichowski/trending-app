@@ -528,7 +528,9 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 			stateManager.setState({ hiddenItems: [...hiddenItems, item!] });
 			notification?.show('Item hidden.');
 		}
+
 	} else {
+		
 		// If not in hiddenItems view handle toggle
 		// Non Hidden Items Window
 
@@ -710,13 +712,15 @@ if (searchBackButton && controls) {
 
 stateManager.subscribe((newState, oldState) => {
 	// Check what has changed
+	const favoritesChanged = newState.favorites.length !== oldState.favorites.length;
+	const hiddenItemsChanged = newState.hiddenItems.length !== oldState.hiddenItems.length;
 	const themeChanged = newState.theme !== oldState.theme;
 	const itemsChanged = newState.items !== oldState.items;
 	const categoryChanged = newState.currentCategory?.id !== oldState.currentCategory?.id;
 	const showTrendingChanged = newState.showTrending !== oldState.showTrending;
 
 	// console.log('changed');
-	
+
 	if (categoryChanged && mainContent) {
 		mainContent.scrollTop = 0;
 	}
@@ -725,10 +729,9 @@ stateManager.subscribe((newState, oldState) => {
 		document.body.classList.toggle('show-trending', newState.showTrending);
 	}
 
-
 	// If only the theme we can do a partial update.
-	if (!itemsChanged && themeChanged) {
-
+	const doNotRender = !itemsChanged && themeChanged || favoritesChanged || hiddenItemsChanged;
+	if ( doNotRender ) {
 		document.documentElement.className = `${newState.theme}-theme`;
 
 		return; // Stop here to prevent the full re-render

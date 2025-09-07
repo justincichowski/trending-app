@@ -931,10 +931,7 @@ body {
 	transition: opacity 0.2s ease-in-out;
 }
 
-.hide-button:hover .icon-eye-slash {
-	opacity: 1;
-}
-
+.hide-button:hover .icon-eye-slash,
 .hide-button.is-hidden .icon-eye-slash {
 	opacity: 1;
 }

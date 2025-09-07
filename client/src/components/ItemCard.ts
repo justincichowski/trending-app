@@ -144,9 +144,10 @@ export function createItemCard(
 			hideUnhideItem(item.id);
 		});
 
-		hideButton.addEventListener('mouseover', () =>
-			tooltip.show(hideButton, isHiddenView ? 'Unhide' : 'Hide'),
-		);
+		hideButton.addEventListener('mouseover', () => {
+			const isHidden = hideButton.classList.contains('is-hidden');
+			tooltip.show(hideButton, isHidden ? 'Unhide' : 'Hide');
+		});
 		hideButton.addEventListener('mouseout', () => tooltip.hide());
 
 		actions.appendChild(hideButton);
