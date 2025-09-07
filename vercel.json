@@ -6,7 +6,7 @@
 		},
 		{
 			"source": "/search",
-			"destination": "/api/presets?id=search"
+			"destination": "/api/presets?id=search&q=:query"
 		},
 		{
 			"source": "/:path*",

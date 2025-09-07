@@ -53,12 +53,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		if (id === 'search') {
 			if (!query) {
-				return res
-					.status(400)
-					.json({ error: 'A `query` parameter must be provided for search.' });
+				return res.status(400).json({ error: 'A `query` parameter must be provided for search.' });
 			}
 
-			// modest overfetch + single top-up attempt, honoring excludeIds on the server
 			const EXTRA = Math.min(20, Math.max(5, Math.ceil(limitNumber * 0.5)));
 			const dynamicExclude = new Set<string>(excludedIds);
 			const pool: NormalizedItem[] = [];
@@ -80,23 +77,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			// top-up once if still short
 			if (pool.length < limitNumber) {
 				const second = await getYouTubeVideos({
-					query: String(query),
-					limit: Math.min(50, limitNumber + EXTRA * 2),
-					excludeIds: Array.from(dynamicExclude),
+				query: String(query),
+				limit: Math.min(50, limitNumber + EXTRA * 2),
+				excludeIds: Array.from(dynamicExclude),
 				}).catch(() => [] as NormalizedItem[]);
 
 				for (const it of second) {
-					if (!it?.id || dynamicExclude.has(it.id)) continue;
-					dynamicExclude.add(it.id);
-					pool.push(it);
-					if (pool.length >= limitNumber) break;
+				if (!it?.id || dynamicExclude.has(it.id)) continue;
+				dynamicExclude.add(it.id);
+				pool.push(it);
+				if (pool.length >= limitNumber) break;
 				}
 			}
 
 			setCache(res, PRESETS_ITEMS_TTL_S, SWR_TTL_S);
 			setWeakEtag(res, pool.map((i) => i.id).filter(Boolean));
 			return res.status(200).json(pool.slice(0, limitNumber));
-		}
+			}
+
 
 		const preset = presets.find((p) => p.id === id);
 		if (!preset) {
