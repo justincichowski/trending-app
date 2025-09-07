@@ -520,9 +520,8 @@ if (logo) {
 			}
 		} else {
 			// Otherwise, navigate to the home page
-			
+
 			router.navigate('/');
-			
 		}
 	});
 }
@@ -561,7 +560,7 @@ if (searchInput) {
 			const searchTerm = (e.target as HTMLInputElement).value;
 
 			// console.log('searchTerm', searchTerm);
-			if (!searchTerm) {
+			if (searchTerm) {
 				performSearch(searchTerm);
 			} else if (!searchTerm) {
 				router.navigate(`/`);
@@ -578,11 +577,9 @@ if (clearSearchButton && searchInput) {
 		autocomplete?.hide();
 		renderItems(tooltip);
 		searchInput.focus();
-		
 
 		searchInput.placeholder = 'Search...';
 		router.navigate(`/`);
-		
 	});
 }
 
