@@ -104,47 +104,45 @@ const initialState: AppState = {
 	mobileView: (storage.get('mobileView') as MobileView) || 'center',
 };
 
-
 // helpers (place near the top of the file, outside the class)
 
 type WithId = { id: string };
 
 function dedupBy<T>(arr: T[] | undefined, keyFn: (x: T) => string): T[] {
-  const seen = new Set<string>();
-  const out: T[] = [];
-  for (const v of arr ?? []) {
-    const k = keyFn(v);
-    if (!k || seen.has(k)) continue;
-    seen.add(k);
-    out.push(v);
-  }
-  return out;
+	const seen = new Set<string>();
+	const out: T[] = [];
+	for (const v of arr ?? []) {
+		const k = keyFn(v);
+		if (!k || seen.has(k)) continue;
+		seen.add(k);
+		out.push(v);
+	}
+	return out;
 }
 
 function itemId(x: unknown): string {
-  return typeof x === 'string' ? x : (x && (x as any).id) || '';
+	return typeof x === 'string' ? x : (x && (x as any).id) || '';
 }
 
 function dedupNormalized<T extends WithId>(arr: T[] | undefined): T[] {
-  return dedupBy(arr, (x) => x.id);
+	return dedupBy(arr, (x) => x.id);
 }
 
 function dedupHidden(arr: Array<string | WithId> | undefined): Array<string | WithId> {
-  return dedupBy(arr, itemId);
+	return dedupBy(arr, itemId);
 }
 
 function normalizeState(s: AppState): AppState {
-  return {
-    ...s,
-    // keep order of first occurrence, drop later duplicates
-    favorites: dedupNormalized(s.favorites),
-    hiddenItems: dedupHidden(s.hiddenItems) as any, // supports legacy string[] + new object[]
-    items: dedupNormalized(s.items),
-    categories: dedupBy(s.categories, (c) => c.id),
-    // other fields (theme, youtubePlaylists, etc.) are not arrays or don't have dup semantics
-  };
+	return {
+		...s,
+		// keep order of first occurrence, drop later duplicates
+		favorites: dedupNormalized(s.favorites),
+		hiddenItems: dedupHidden(s.hiddenItems) as any, // supports legacy string[] + new object[]
+		items: dedupNormalized(s.items),
+		categories: dedupBy(s.categories, (c) => c.id),
+		// other fields (theme, youtubePlaylists, etc.) are not arrays or don't have dup semantics
+	};
 }
-
 
 /**
  * A simple state management class that holds the application state
@@ -198,7 +196,6 @@ class StateManager {
 			this.applyMobileViewClass(this.state.mobileView);
 		}
 	}
-
 
 	/**
 	 * Subscribes a listener function to state changes.

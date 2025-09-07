@@ -477,7 +477,7 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 	const { hiddenItems, currentCategory } = stateManager.getState(); // NormalizedItem[]
 	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
 
-	const existingHiddenItem = (hiddenItems.findIndex((f) => f.id === id)) > -1;
+	const existingHiddenItem = hiddenItems.findIndex((f) => f.id === id) > -1;
 
 	const st = stateManager.getState();
 	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
@@ -498,14 +498,14 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 		// In hiddenItems view
 
 		console.log('existingHiddenItem', existingHiddenItem);
-		
+
 		if (existingHiddenItem) {
 			// --- Unhiding --- handle itemCard removal and a toast and animation.
 
 			// add to Unhidden // give time to undo
 			const currentHidden = stateManager.getState().hiddenItems;
 			const newHidden = currentHidden.filter((f) => f.id !== item.id);
-			stateManager.setState({ favorites: newHidden });
+			stateManager.setState({ hiddenItems: newHidden });
 
 			notification?.show?.('Item unhidden.', {
 				onUndo: () => {
@@ -524,10 +524,10 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 				},
 			});
 		} else {
-			// --- Hiding --- cancel
-
-			const { hiddenItems: curHidden } = stateManager.getState();
-			stateManager.setState({ hiddenItems: [...curHidden, item!] });
+			// --- Re Hiding --- 
+			stateManager.setState({ hiddenItems: [...hiddenItems, item!] });
+			notification?.show('Item hidden.');
+			
 		}
 	} else {
 		// If not in hiddenItems view handle toggle
