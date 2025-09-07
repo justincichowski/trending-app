@@ -496,7 +496,6 @@ export function hideItem(idOrItem: string | NormalizedItem) {
 	// Resolve a full NormalizedItem to store
 	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
 	const isHiddenItemsView = currentCategory?.id === 'hidden';
-	console.log('isHiddenItemsView', isHiddenItemsView);
 
 	if (existingIndex > -1) {
 		// --- Unhiding ---
