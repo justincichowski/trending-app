@@ -479,15 +479,14 @@ export function favoriteItem(item: NormalizedItem) {
  * Unhides an item (removes it from the hidden list).
  */
 export function unhideItem(idOrItem: string | NormalizedItem) {
-
 	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
 	const st = stateManager.getState();
 
 	const { hiddenItems, currentCategory } = stateManager.getState();
 	if (!hiddenItems?.length) return;
-	
+
 	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
-	
+
 	// Resolve a full NormalizedItem to store
 	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
 
@@ -531,7 +530,6 @@ export function unhideItem(idOrItem: string | NormalizedItem) {
 		stateManager.setState({ hiddenItems: newHiddenItem });
 		notification?.show('Item unhidden');
 	}
-	
 }
 
 export function hideItem(idOrItem: string | NormalizedItem) {
@@ -556,7 +554,7 @@ export function hideItem(idOrItem: string | NormalizedItem) {
 	// add to hidden // give time to undo
 	const { hiddenItems: curHidden } = stateManager.getState();
 	stateManager.setState({ hiddenItems: [...curHidden, item!] });
-	
+
 	notification?.show?.('Item hidden.', {
 		onUndo: () => {
 			// User clicked Undo.
@@ -565,7 +563,6 @@ export function hideItem(idOrItem: string | NormalizedItem) {
 			stateManager.setState({ hiddenItems: newHidden });
 		},
 		onClose: (didUndo: boolean) => {
-			
 			if (!didUndo) {
 				cardElement.classList.add('is-removing');
 				cardElement.addEventListener('transitionend', () => {}, { once: true });
