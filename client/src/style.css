@@ -49,23 +49,20 @@ body {
 	stroke: var(--category-button-text);
 }
 
-
 /* no border (for mobile first) */
-	.item-card {
-		border: 0px solid var(--border-color);
-		background-color: var(--card-background-color);
-	}
+.item-card {
+	border: 0px solid var(--border-color);
+	background-color: var(--card-background-color);
+}
 
 /**/
 
 /* Desktop only on screens wider than 600px */
 @media (min-width: 550px) {
-
 	.item-card {
 		border: 1px solid var(--border-color);
 		background-color: var(--card-background-color);
 	}
-
 }
 .item-card:hover {
 	background-color: var(--card-hover-background-color);
@@ -579,73 +576,60 @@ html {
 
 /* Mobile First */
 
-	/* margin-top (for mobile first) */
-	body {
-		margin-top: 8px;
-		margin-left: 0px;
-		margin-right: 0px;
-		margin-left: 0px !important; /* always 0 bottom */
-	}
+/* margin-top (for mobile first) */
+body {
+	margin-top: 8px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-left: 0px !important; /* always 0 bottom */
+}
 
-	/* no padding (for mobile first) */
-	.main-content-wrapper {
-		padding-left: 0;
-		padding-right: 0;
-		padding-bottom: 0;
-	}
+/* no margin-left / right / no padding (for mobile first) */
+.main-content-wrapper {
+	margin-left: 0px;
+	margin-right: 0px;
+	padding-left: 0;
+	padding-right: 0;
+	padding-bottom: 0;
+}
 
-	
+/* margin-left / right / top (for mobile first) */
+.app-header {
+	margin-top: 8px;
+	margin-left: 8px;
+	margin-right: 8px;
+}
 
-	/* margin-left / right / top (for mobile first) */
-	.app-header {
-		margin-top: 8px;
-		margin-left: 8px;
-		margin-right: 8px;
-	}
-
-	/* margin-left / right (for mobile first) */
-	#category-nav {
-		margin-left: 8px;
-		margin-right: 8px;
-	}
-
-	/* margin-left / right (for mobile first) */
-	.main-content {
-		margin-left: 0px;
-		margin-right: 0px;
-	}
+/* margin-left / right (for mobile first) */
+#category-nav {
+	margin-left: 8px;
+	margin-right: 8px;
+}
 
 
-	/* no margin-bottom or radius (for mobile first) */
-	.item-card {
-		margin-bottom: 0rem;
-		border-radius: 0px;
-	}
+/* no margin-bottom or radius (for mobile first) */
+.item-card {
+	margin-bottom: 0rem;
+	border-radius: 0px;
+}
 
-	
 /**/
 
 /* Desktop only on screens wider than 600px */
 @media (min-width: 550px) {
-
-	
-
 	body {
 		margin-left: 8px;
 		margin-right: 8px;
 		margin: 0px !important; /* always 0 bottom */
 	}
 
-
 	.main-content-wrapper {
+		margin-left: 8px;
+		margin-right: 8px;
+	
 		padding-left: 1rem;
 		padding-right: 1rem;
 		padding-bottom: 0;
-	}
-
-	.main-content {
-		margin-left: 8px;
-		margin-right: 8px;
 	}
 
 	.item-card {
@@ -666,7 +650,7 @@ html {
 }
 
 .item-card {
-	padding: 0rem!important;
+	padding: 0rem !important;
 	transition: background-color 0.2s ease-in-out;
 	overflow: hidden;
 }
