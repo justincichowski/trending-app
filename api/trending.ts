@@ -26,7 +26,7 @@ const TRENDING_FEEDS = [
 // # Slickdeals (official)
 // https://slickdeals.net/newsearch.php?mode=frontpage&rss=1&searcharea=deals&searchin=first   # Frontpage
 // https://slickdeals.net/newsearch.php?mode=popdeals&rss=1&searcharea=deals&searchin=first    # Popular
-// https://feeds.feedburner.com/SlickdealsnetUP     
+// https://feeds.feedburner.com/SlickdealsnetUP
 
 // { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
 
