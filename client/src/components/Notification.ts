@@ -77,8 +77,8 @@ export class Notification {
 
 		// Set a timer to hide the notification
 		this.hideTimeoutId = window.setTimeout(() => {
-			// console.log('hide timeout debug');
-			this.hide(notificationElement, false, onClose);
+			console.log('hide timeout debug');
+			//this.hide(notificationElement, false, onClose);
 		}, duration);
 	}
 

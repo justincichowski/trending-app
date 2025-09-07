@@ -440,7 +440,7 @@ export function favoriteItem(item: NormalizedItem) {
 			const newFavorites = currentFavorites.filter((f) => f.id !== item.id);
 			stateManager.setState({ favorites: newFavorites });
 
-			// removed from favorites // give time to undo
+			// remove from favories // give time to undo
 			notification?.show('Item removed from favorites.', {
 				onUndo: () => {
 					// User clicked Undo.
@@ -478,89 +478,100 @@ export function favoriteItem(item: NormalizedItem) {
 /**
  * Unhides an item (removes it from the hidden list).
  */
-export function unhideItem(id: string) {
-	const { hiddenItems } = stateManager.getState(); // NormalizedItem[]
-	if (!hiddenItems?.length) return;
+export function unhideItem(idOrItem: string | NormalizedItem) {
 
-	const newHidden = hiddenItems.filter((h) => h.id !== id);
-	stateManager.setState({ hiddenItems: newHidden });
-	notification?.show?.('Item unhidden.');
+	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
+	const st = stateManager.getState();
+
+	const { hiddenItems, currentCategory } = stateManager.getState();
+	if (!hiddenItems?.length) return;
+	
+	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
+	
+	// Resolve a full NormalizedItem to store
+	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
+
+	if (!item) {
+		item = st.items.find((i) => i.id === id) || st.favorites.find((i) => i.id === id);
+	}
+	if (!item) {
+		// Last-resort placeholder (won’t break rendering)
+		item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
+	}
+
+	const isHiddenItemsView = currentCategory?.id === 'hidden';
+
+	// --- Unhiding ---
+	if (isHiddenItemsView && cardElement) {
+		// In hiddenItems view, we handle removal with a toast and animation.
+
+		const currentHiddenItems = stateManager.getState().hiddenItems;
+		const newHiddenItems = currentHiddenItems.filter((f) => f.id !== id);
+		stateManager.setState({ hiddenItems: newHiddenItems });
+
+		// removed from hidden // give time to undo
+		notification?.show('Item removed from hidden.', {
+			onUndo: () => {
+				// User clicked Undo.
+				const { hiddenItems: curHidden } = stateManager.getState();
+				stateManager.setState({ hiddenItems: [...curHidden, item!] });
+			},
+			onClose: (didUndo: boolean) => {
+				if (!didUndo) {
+					// If the toast was not undone, start the removal animation.
+					setTimeout(() => {
+						cardElement.classList.add('is-removing');
+						cardElement.addEventListener('transitionend', () => {}, { once: true });
+					}, 200); // 200ms delay after toast closes
+				}
+			},
+		});
+	} else {
+		const newHiddenItem = hiddenItems.filter((f) => f.id !== id);
+		stateManager.setState({ hiddenItems: newHiddenItem });
+		notification?.show('Item unhidden');
+	}
+	
 }
 
 export function hideItem(idOrItem: string | NormalizedItem) {
 	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
-	const { hiddenItems, currentCategory } = stateManager.getState();
-	const existingIndex = hiddenItems.findIndex((f) => f.id === id);
 	const st = stateManager.getState();
 	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
+
+	// Already hidden or no card element to animate
+	if (st.hiddenItems.some((h) => h.id === id) || !cardElement) return;
+
 	// Resolve a full NormalizedItem to store
 	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
-	const isHiddenItemsView = currentCategory?.id === 'hidden';
 
-	if (existingIndex > -1) {
-		// --- Unhiding ---
-		if (isHiddenItemsView && cardElement) {
-			// In hiddenItems view, we handle removal with a toast and animation.
-
-			const currentHiddenItems = stateManager.getState().hiddenItems;
-			const newHiddenItems = currentHiddenItems.filter((f) => f.id !== id);
-			stateManager.setState({ hiddenItems: newHiddenItems });
-
-			// removed from hidden // give time to undo
-			notification?.show('Item removed from hidden.', {
-				onUndo: () => {
-					// User clicked Undo.
-					const { hiddenItems: curHidden } = stateManager.getState();
-					stateManager.setState({ hiddenItems: [...curHidden, item!] });
-				},
-				onClose: (didUndo: boolean) => {
-					if (!didUndo) {
-						// If the toast was not undone, start the removal animation.
-						setTimeout(() => {
-							cardElement.classList.add('is-removing');
-							cardElement.addEventListener('transitionend', () => {}, { once: true });
-						}, 200); // 200ms delay after toast closes
-					}
-				},
-			});
-		} else {
-			const newHiddenItem = hiddenItems.filter((f) => f.id !== id);
-			stateManager.setState({ hiddenItems: newHiddenItem });
-			notification?.show('Removed from hidden.');
-		}
-	} else {
-		// --- Hiding ---
-
-		// Already hidden or no card element to animate
-		if (st.hiddenItems.some((h) => h.id === id) || !cardElement) return;
-
-		if (!item) {
-			item = st.items.find((i) => i.id === id) || st.favorites.find((i) => i.id === id);
-		}
-		if (!item) {
-			// Last-resort placeholder (won’t break rendering)
-			item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
-		}
-
-		// add to hidden // give time to undo
-		const { hiddenItems: curHidden } = stateManager.getState();
-		stateManager.setState({ hiddenItems: [...curHidden, item!] });
-
-		notification?.show?.('Item hidden.', {
-			onUndo: () => {
-				// User clicked Undo.
-				const currentHidden = stateManager.getState().hiddenItems;
-				const newHidden = currentHidden.filter((f) => f.id !== id);
-				stateManager.setState({ hiddenItems: newHidden });
-			},
-			onClose: (didUndo: boolean) => {
-				if (!didUndo) {
-					cardElement.classList.add('is-removing');
-					cardElement.addEventListener('transitionend', () => {}, { once: true });
-				}
-			},
-		});
+	if (!item) {
+		item = st.items.find((i) => i.id === id) || st.favorites.find((i) => i.id === id);
 	}
+	if (!item) {
+		// Last-resort placeholder (won’t break rendering)
+		item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
+	}
+
+	// add to hidden // give time to undo
+	const { hiddenItems: curHidden } = stateManager.getState();
+	stateManager.setState({ hiddenItems: [...curHidden, item!] });
+	
+	notification?.show?.('Item hidden.', {
+		onUndo: () => {
+			// User clicked Undo.
+			const currentHidden = stateManager.getState().hiddenItems;
+			const newHidden = currentHidden.filter((f) => f.id !== item.id);
+			stateManager.setState({ hiddenItems: newHidden });
+		},
+		onClose: (didUndo: boolean) => {
+			
+			if (!didUndo) {
+				cardElement.classList.add('is-removing');
+				cardElement.addEventListener('transitionend', () => {}, { once: true });
+			}
+		},
+	});
 }
 
 // Set up the application routes
