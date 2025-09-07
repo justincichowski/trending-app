@@ -76,6 +76,10 @@ export function renderItems(tooltip: Tooltip) {
 	if (filteredItems.length === 0) {
 		if (searchInput && searchInput.value) {
 			mainContent.innerHTML = '<p>No items match your search.</p>';
+		} else if (currentCategory?.id == 'favorites') {
+			mainContent.innerHTML = '<p>No favorite items found.</p>';
+		} else if (currentCategory?.id == 'hidden') {
+			mainContent.innerHTML = '<p>No hidden items found.</p>';
 		} else {
 			mainContent.innerHTML =
 				'<p>No items found for this category. The data source may be unavailable or the API key may be missing.</p>';

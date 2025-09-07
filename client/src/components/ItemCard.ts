@@ -53,6 +53,10 @@ export function createItemCard(
 	imageContainer.appendChild(image);
 	card.appendChild(imageContainer);
 
+	const contentWrapper = document.createElement('div');
+	contentWrapper.className = 'item-content-wrapper'; // <- new parent
+	card.appendChild(contentWrapper);
+
 	const controls = document.createElement('div');
 	controls.className = 'item-controls';
 
@@ -84,9 +88,7 @@ export function createItemCard(
 	const actions = document.createElement('div');
 	actions.className = 'item-actions';
 
-
-	if (stateManager.getState().currentCategory?.id !== 'hidden' ) {
-
+	if (stateManager.getState().currentCategory?.id !== 'hidden') {
 		const isFavorited = stateManager
 			.getState()
 			.favorites.some((fav: NormalizedItem) => fav.id === item.id);
@@ -119,7 +121,6 @@ export function createItemCard(
 		}
 
 		actions.appendChild(favoriteButton);
-
 	}
 
 	// Only show the hide/unhide button if not in the favorites category AND not in the gallery
@@ -127,7 +128,7 @@ export function createItemCard(
 		const isHiddenView = stateManager.getState().currentCategory?.id === 'hidden';
 
 		const hideButton = document.createElement('button');
-		hideButton.className = `icon-button hide-button${isHiddenView ? ' is-unhide' : ''}`;
+		hideButton.className = `icon-button hide-button${isHiddenView ? ' is-hidden' : ''}`;
 		hideButton.setAttribute('aria-label', isHiddenView ? 'Unhide' : 'Hide');
 		hideButton.setAttribute('data-mode', isHiddenView ? 'unhide' : 'hide');
 
@@ -146,7 +147,6 @@ export function createItemCard(
 				// Everywhere else, it HIDES
 				hideItem(item.id);
 			}
-			card.remove();
 		});
 
 		hideButton.addEventListener('mouseover', () =>
@@ -157,9 +157,9 @@ export function createItemCard(
 		actions.appendChild(hideButton);
 	}
 
-
 	controls.appendChild(actions);
-	card.appendChild(controls);
+
+	contentWrapper.appendChild(controls);
 
 	const title = document.createElement('div');
 	title.className = 'item-title';
@@ -174,14 +174,15 @@ export function createItemCard(
 	source.className = 'item-source';
 	source.textContent = item.source;
 
-	card.appendChild(title);
-	card.appendChild(source);
+	contentWrapper.appendChild(title);
+	contentWrapper.appendChild(source);
 
 	if (item.description) {
 		const description = document.createElement('p');
 		description.className = 'item-description';
 		const fullText = item.description;
-		card.appendChild(description);
+
+		contentWrapper.appendChild(description);
 
 		const linkify = (text: string) => {
 			const urlRegex =

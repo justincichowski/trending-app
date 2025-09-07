@@ -21,6 +21,7 @@ import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandle
 // localStorage.clear();
 // stateManager.setState({ mobileView: 'center' });
 
+console.log(stateManager.getState().hiddenItems);
 /*
  * OPTIONAL LAZY-LOAD (commented out by default)
  *
@@ -300,6 +301,8 @@ export async function categoryView(params: Record<string, string>) {
 	// console.log('query', query);
 	const { favorites, hiddenItems, categories } = stateManager.getState();
 
+	const excludedIds = Array.from(new Set([...hiddenItems.map((i) => i.id)]));
+
 	// Find the new category first
 	let newCurrentCategory: Preset | null = categories.find((c) => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
@@ -332,11 +335,11 @@ export async function categoryView(params: Record<string, string>) {
 		} else if (id === 'hidden') {
 			items = [...hiddenItems].reverse().slice(0, PAGE_SIZE);
 		} else if (id === '/') {
-			items = await getAllItems(0, [], PAGE_SIZE); // Use the new dedicated endpoint
+			items = await getAllItems(0, excludedIds, PAGE_SIZE); // Use the new dedicated endpoint
 		} else if (id === 'search' && query) {
-			items = await getCategoryItems(id, 0, PAGE_SIZE, [], query);
+			items = await getCategoryItems(id, 0, PAGE_SIZE, excludedIds, query);
 		} else {
-			items = await getCategoryItems(id, 0, PAGE_SIZE); // Fetch first page for a regular category
+			items = await getCategoryItems(id, 0, PAGE_SIZE, excludedIds); // Fetch first page for a regular category
 		}
 
 		// console.log('category json:');
@@ -361,7 +364,7 @@ export async function categoryView(params: Record<string, string>) {
  * Loads more items for the current category.
  */
 export async function loadMoreItems() {
-	const { currentCategory, items, pages } = stateManager.getState();
+	const { currentCategory, items, pages, hiddenItems } = stateManager.getState();
 	if (!currentCategory) return;
 
 	const id = currentCategory.id;
@@ -383,7 +386,9 @@ export async function loadMoreItems() {
 			const startIndex = nextPage * PAGE_SIZE;
 			newItems = reversedHidden.slice(startIndex, startIndex + PAGE_SIZE);
 		} else {
-			const excludedIds = items.map((item) => item.id);
+			const excludedIds = Array.from(
+				new Set([...items.map((i) => i.id), ...hiddenItems.map((i) => i.id)]),
+			);
 			if (id === '/') {
 				newItems = await getAllItems(nextPage, excludedIds, PAGE_SIZE);
 			} else if (id === 'search' && currentCategory.params.query) {
@@ -430,28 +435,24 @@ export function favoriteItem(item: NormalizedItem) {
 		// --- Unfavoriting ---
 		if (isFavoritesView && cardElement) {
 			// In favorites view, we handle removal with a toast and animation.
+
+			const currentFavorites = stateManager.getState().favorites;
+			const newFavorites = currentFavorites.filter((f) => f.id !== item.id);
+			stateManager.setState({ favorites: newFavorites });
+
+			// remove from favories // give time to undo
 			notification?.show('Item removed from favorites.', {
 				onUndo: () => {
-					// User clicked Undo. We don't need to do anything to the state,
-					// as it was never changed. The re-render will fix the icon.
+					// User clicked Undo.
+					const { favorites: curFavorites } = stateManager.getState();
+					stateManager.setState({ favorites: [...curFavorites, item!] });
 				},
 				onClose: (didUndo: boolean) => {
 					if (!didUndo) {
 						// If the toast was not undone, start the removal animation.
 						setTimeout(() => {
 							cardElement.classList.add('is-removing');
-							cardElement.addEventListener(
-								'transitionend',
-								() => {
-									// AFTER the animation, remove the item from the state.
-									const currentFavorites = stateManager.getState().favorites;
-									const newFavorites = currentFavorites.filter(
-										(f) => f.id !== item.id,
-									);
-									stateManager.setState({ favorites: newFavorites });
-								},
-								{ once: true },
-							);
+							cardElement.addEventListener('transitionend', () => {}, { once: true });
 						}, 200); // 200ms delay after toast closes
 					}
 				},
@@ -478,57 +479,61 @@ export function favoriteItem(item: NormalizedItem) {
  * Unhides an item (removes it from the hidden list).
  */
 export function unhideItem(id: string) {
-  const { hiddenItems } = stateManager.getState(); // NormalizedItem[]
-  if (!hiddenItems?.length) return;
+	const { hiddenItems } = stateManager.getState(); // NormalizedItem[]
+	if (!hiddenItems?.length) return;
 
-  const newHidden = hiddenItems.filter(h => h.id !== id);
-  stateManager.setState({ hiddenItems: newHidden });
-  notification?.show?.('Item unhidden.');
+	const newHidden = hiddenItems.filter((h) => h.id !== id);
+	stateManager.setState({ hiddenItems: newHidden });
+	notification?.show?.('Item unhidden.');
 }
 
 export function hideItem(idOrItem: string | NormalizedItem) {
-  const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
-  const st = stateManager.getState();
-  const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
+	const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
+	const { hiddenItems } = stateManager.getState();
+	const existingIndex = hiddenItems.findIndex((f) => f.id === id);
+	const st = stateManager.getState();
+	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
+	// Resolve a full NormalizedItem to store
+	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
 
-  // Already hidden or no card element to animate
-  if (st.hiddenItems.some(h => h.id === id) || !cardElement) return;
+	if (existingIndex <= -1) {
+		// --- Hiding ---
+		// Already hidden or no card element to animate
+		if (st.hiddenItems.some((h) => h.id === id) || !cardElement) return;
 
-  // Resolve a full NormalizedItem to store
-  let item: NormalizedItem | undefined =
-    typeof idOrItem === 'string' ? undefined : idOrItem;
+		if (!item) {
+			item = st.items.find((i) => i.id === id) || st.favorites.find((i) => i.id === id);
+		}
+		if (!item) {
+			// Last-resort placeholder (won’t break rendering)
+			item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
+		}
 
-  if (!item) {
-    item = st.items.find(i => i.id === id) || st.favorites.find(i => i.id === id);
-  }
-  if (!item) {
-    // Last-resort placeholder (won’t break rendering)
-    item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
-  }
+		// add to hidden // give time to undo
+		const { hiddenItems: curHidden } = stateManager.getState();
+		stateManager.setState({ hiddenItems: [...curHidden, item!] });
 
-  notification?.show?.('Item hidden.', {
-    onUndo: () => {
-      // no-op: we never removed it from state yet
-    },
-    onClose: (didUndo: boolean) => {
-      if (!didUndo) {
-        cardElement.classList.add('is-removing');
-        cardElement.addEventListener(
-          'transitionend',
-          () => {
-            // fetch latest state at the moment we commit
-            const { hiddenItems: curHidden } = stateManager.getState();
-            stateManager.setState({ hiddenItems: [...curHidden, item!] });
-          },
-          { once: true },
-        );
-      }
-    },
-  });
+		notification?.show?.('Item hidden.', {
+			onUndo: () => {
+				// User clicked Undo.
+				const currentHidden = stateManager.getState().hiddenItems;
+				const newHidden = currentHidden.filter((f) => f.id !== id);
+				stateManager.setState({ hiddenItems: newHidden });
+			},
+			onClose: (didUndo: boolean) => {
+				if (!didUndo) {
+					cardElement.classList.add('is-removing');
+					cardElement.addEventListener('transitionend', () => {}, { once: true });
+				}
+			},
+		});
+	} else {
+		// --- Unhiding ---
+		const newHiddenItem = hiddenItems.filter((f) => f.id !== id);
+		stateManager.setState({ hiddenItems: newHiddenItem });
+		notification?.show('Removed from hidden.');
+	}
 }
-
-
-
 
 // Set up the application routes
 // search priority
@@ -537,7 +542,6 @@ router.addRoute('/search', (params) => {
 	return categoryView({ ...params, id: 'search', query });
 });
 router.addRoute('/:id', categoryView);
-
 
 /**
  * Adds a click event listener to the logo to refresh the current category.
@@ -674,6 +678,7 @@ if (searchBackButton && controls) {
 stateManager.subscribe((newState, oldState) => {
 	// Check what has changed
 	const favoritesChanged = newState.favorites.length !== oldState.favorites.length;
+	const hiddenItemsChanged = newState.hiddenItems.length !== oldState.hiddenItems.length;
 	const themeChanged = newState.theme !== oldState.theme;
 	const itemsChanged = newState.items !== oldState.items;
 	const categoryChanged = newState.currentCategory?.id !== oldState.currentCategory?.id;
@@ -689,7 +694,7 @@ stateManager.subscribe((newState, oldState) => {
 
 	// If only the theme or favorites have changed, we can do a partial update.
 	// Any other change (like items, hiddenItems, category) requires a full re-render.
-	if (!itemsChanged && (themeChanged || favoritesChanged)) {
+	if (!itemsChanged && (themeChanged || favoritesChanged || hiddenItemsChanged)) {
 		document.documentElement.className = `${newState.theme}-theme`;
 
 		if (favoritesChanged) {
@@ -701,6 +706,19 @@ stateManager.subscribe((newState, oldState) => {
 					const favoriteButton = card.querySelector('.favorite-button');
 					const isFavorited = newState.favorites.some((f) => f.id === cardId);
 					favoriteButton?.classList.toggle('is-favorited', isFavorited);
+				}
+			});
+		}
+
+		if (hiddenItemsChanged) {
+			// Update hiddenItem icons without re-rendering the whole list
+			const allCards = document.querySelectorAll('.item-card[data-id]');
+			allCards.forEach((card) => {
+				const cardId = card.getAttribute('data-id');
+				if (cardId) {
+					const hiddenItemButton = card.querySelector('.hide-button');
+					const isFavorited = newState.hiddenItems.some((f) => f.id === cardId);
+					hiddenItemButton?.classList.toggle('is-hidden', isFavorited);
 				}
 			});
 		}

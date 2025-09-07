@@ -924,8 +924,7 @@ body {
 	opacity: 1;
 }
 
-.hide-button.is-unhide .icon-eye-slash,
-.hide-button[data-mode="unhide"] .icon-eye-slash {
+.hide-button.is-hidden .icon-eye-slash {
 	opacity: 1;
 }
 
