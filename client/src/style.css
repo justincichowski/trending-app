@@ -61,7 +61,7 @@ body {
 
 /**/
 
-/* Desktop only on screens wider than 600px */
+/* Desktop only on screens wider than 550px */
 @media (min-width: 550px) {
 	.item-card {
 		border: 1px solid var(--border-color);
@@ -704,7 +704,7 @@ body {
 }
 
 /* MOBILE MODE (pane switcher) */
-@media (max-width: 550px) {
+@media (max-width: 750px) {
 	/* hide all by default */
 	.top-trends-panel,
 	.main-content,
@@ -765,7 +765,7 @@ body {
 }
 
 /* Desktop only on screens wider than 550px */
-@media (min-width: 551px) {
+@media (min-width: 751px) {
 	.trending-panel {
 		width: 300px;
 	}
