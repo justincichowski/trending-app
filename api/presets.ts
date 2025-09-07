@@ -102,8 +102,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			return res.status(404).json({ error: `Unknown preset id: ${id}` });
 		}
 
-		console.log('pageNumber', pageNumber);
-		console.log('limit', limitNumber);
+		// console.log('pageNumber', pageNumber);
+		// console.log('limit', limitNumber);
 
 		switch (preset.source) {
 			case 'rss': {
