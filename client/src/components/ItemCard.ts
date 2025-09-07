@@ -140,6 +140,7 @@ export function createItemCard(
 		`;
 
 		hideButton.addEventListener('click', () => {
+			hideButton.classList.toggle('is-hidden');
 			hideUnhideItem(item.id);
 		});
 
