@@ -69,6 +69,27 @@
 
 					// setup transition after load
 					window.addEventListener('DOMContentLoaded', function () {
+						// update search field
+						const searchParams = new URLSearchParams(window.location.search);
+						const query = searchParams.get('q'); // Get 'q' from query params
+
+						// Check if the search input field exists
+						const searchInput = document.getElementById('search-input');
+						const clearSearchButton = document.getElementById('clear-search-button');
+						const searchBarWrapper = document.querySelector('.search-bar-wrapper');
+
+						if (searchInput) {
+							if (query) {
+								searchInput.value = decodeURIComponent(query); // Update search input
+								searchBarWrapper?.classList.add('has-text');
+								clearSearchButton?.removeAttribute('hidden'); // Show clear search buttun
+							} else {
+								searchInput.placeholder = 'Search...'; // Set placeholder if no query
+								searchBarWrapper?.classList.remove('has-text');
+								clearSearchButton?.setAttribute('hidden', 'true'); // Hide clear search button
+							}
+						}
+
 						// Add transition rule after page load
 						var style = document.createElement('style');
 						style.textContent = `
@@ -116,7 +137,7 @@
 				</a>
 				<div class="controls">
 					<div class="search-bar-wrapper">
-						<input type="search" id="search-input" placeholder="Search..." />
+						<input type="search" id="search-input" placeholder="" />
 						<button id="clear-search-button" class="clear-button" hidden>
 							<svg viewBox="0 0 24 24">
 								<path

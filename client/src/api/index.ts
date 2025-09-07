@@ -92,6 +92,10 @@ export function getCategoryItems(
 	if (query) {
 		url += `&query=${encodeURIComponent(query)}`;
 	}
+
+	// console.log('url', url);
+	// console.log(id, page, limit);
+	// console.log('query', query);
 	return get<NormalizedItem[]>(url);
 }
 /**

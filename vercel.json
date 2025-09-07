@@ -5,8 +5,8 @@
 			"destination": "/api/:match*.ts"
 		},
 		{
-			"source": "/search",
-			"destination": "/api/presets?id=search&q=:query"
+			"source": "/search:query",
+			"destination": "/api/presets?id=search:query"
 		},
 		{
 			"source": "/:path*",

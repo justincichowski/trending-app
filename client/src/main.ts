@@ -242,9 +242,11 @@ if (settingsButton) {
  * @param {Record<string, string>} params - The route parameters.
  */
 export async function categoryView(params: Record<string, string>) {
-	const { id, q: query } = params;
+	const { id, query } = params;
 	if (!id) return;
 
+	// console.log('params', params);
+	// console.log('query', query);
 	const { favorites, categories } = stateManager.getState();
 
 	// Find the new category first
@@ -283,7 +285,7 @@ export async function categoryView(params: Record<string, string>) {
 		}
 
 		// console.log('category json:');
-		console.log('id', id, items.length);
+		// console.log('id', id, items.length);
 		// return;
 
 		// Update the state with the new items and turn off loading
@@ -337,7 +339,7 @@ export async function loadMoreItems() {
 			}
 		}
 
-		console.log('load more', id, newItems.length);
+		// console.log('load more', id, newItems.length);
 
 		if (newItems.length > 0) {
 			stateManager.setState({
@@ -456,8 +458,13 @@ function hiddenItemsView() {
 }
 
 // Set up the application routes
+// search priority
+router.addRoute('/search', (params) => {
+	const query = new URLSearchParams(window.location.search).get('q') as string; // Assert it's a string
+	return categoryView({ ...params, id: 'search', query });
+});
 router.addRoute('/:id', categoryView);
-router.addRoute('/search', (params) => categoryView({ ...params, id: 'search' }));
+
 router.addRoute('/hidden', hiddenItemsView);
 
 /**
@@ -547,8 +554,7 @@ if (searchInput) {
 		if (e.key === 'Enter') {
 			const searchTerm = (e.target as HTMLInputElement).value;
 
-			console.log('searchTerm', searchTerm);
-			return;
+			// console.log('searchTerm', searchTerm);
 			performSearch(searchTerm);
 		}
 	});
