@@ -144,7 +144,7 @@ const settingsButton = document.getElementById('settings-button');
 const themeToggleButton = document.getElementById('theme-toggle-button');
 const logo = document.querySelector('.logo-link');
 const logoWrapper = document.querySelector('.logo-wrapper');
-const searchInput = document.getElementById('search-input');
+const searchInput = document.querySelector<HTMLInputElement>('#search-input');
 const sortSelect = document.getElementById('sort-select');
 const searchBarWrapper = document.querySelector('.search-bar-wrapper');
 const clearSearchButton = document.getElementById('clear-search-button');
@@ -520,7 +520,9 @@ if (logo) {
 			}
 		} else {
 			// Otherwise, navigate to the home page
+			
 			router.navigate('/');
+			
 		}
 	});
 }
@@ -547,6 +549,7 @@ if (searchInput) {
 			searchBarWrapper?.classList.add('has-text');
 		} else {
 			searchBarWrapper?.classList.remove('has-text');
+			searchInput.placeholder = 'Search...';
 		}
 		// The autocomplete's own input listener will handle showing suggestions.
 		// We just need to trigger the re-render of the items.
@@ -558,7 +561,12 @@ if (searchInput) {
 			const searchTerm = (e.target as HTMLInputElement).value;
 
 			// console.log('searchTerm', searchTerm);
-			performSearch(searchTerm);
+			if (!searchTerm) {
+				performSearch(searchTerm);
+			} else if (!searchTerm) {
+				router.navigate(`/`);
+				searchInput.placeholder = 'Search...';
+			}
 		}
 	});
 }
@@ -570,6 +578,11 @@ if (clearSearchButton && searchInput) {
 		autocomplete?.hide();
 		renderItems(tooltip);
 		searchInput.focus();
+		
+
+		searchInput.placeholder = 'Search...';
+		router.navigate(`/`);
+		
 	});
 }
 
