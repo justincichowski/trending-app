@@ -13,15 +13,13 @@ import type { NormalizedItem } from './lib/types';
 
 const TRENDING_FEEDS = [
 	{ title: 'Sports', source: 'ESPN', url: 'https://www.espn.com/espn/rss/news' },
-	{
-		title: 'Movies',
-		source: 'The New York Times',
-		url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
-	},
-	{ title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
+	{ title: 'Movies', source: 'The New York Times', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml' },
+	{ title: 'Sales', source: 'Amazon', url: 'https://www.amazon.com/gp/goldbox' },
 	{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
 	{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 ];
+
+// { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
 
 function isMeaningful(obj: Record<string, NormalizedItem[]>): boolean {
 	if (!obj) return false;
@@ -41,10 +39,15 @@ async function fetchTrending(): Promise<Record<string, NormalizedItem[]>> {
 			if (res.status === 'fulfilled') {
 				data[title] = res.value;
 			} else {
-				console.error(
-					`[API /trending] Failed to fetch trending feed for ${title}:`,
-					res.reason,
-				);
+				// Gracefully handle specific errors
+				const reason = res.reason;
+				if (reason && reason.message.includes('404')) {
+					// Ignore 404 errors and continue
+					console.log(`[INFO] Feed for ${title} returned a 404. Skipping...`);
+				} else {
+					// Log other errors (e.g., network issues, timeouts, etc.)
+					console.warn(`[WARN] Failed to fetch trending feed for ${title}:`, reason);
+				}
 			}
 		});
 		return data;

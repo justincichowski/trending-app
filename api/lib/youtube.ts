@@ -4,6 +4,10 @@ import type { NormalizedItem } from './types';
 // Base URL for the YouTube Data API
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 
+// Check for Age-Restricted Videos:
+// contentDetails.contentRating.ytRating
+
+
 /* ---------- API Shapes ---------- */
 
 // SEARCH item (id.videoId)
@@ -47,6 +51,11 @@ interface YouTubeVideoResource {
 		publishedAt?: string;
 	};
 	statistics?: { viewCount: string };
+	contentDetails?: {
+		contentRating?: {
+			ytRating?: 'ytAgeRestricted'; // Check for age restriction
+		};
+	};
 }
 
 // axios response helpers
@@ -78,6 +87,11 @@ function normalizeItem(item: YouTubeVideoResource): NormalizedItem | null {
 
 	const videoId = item.id;
 	if (!videoId || !item.snippet.title) return null;
+
+	// Check if the video is age-restricted
+    if (item.contentDetails?.contentRating?.ytRating === "ytAgeRestricted") {
+        return null; // Skip age-restricted videos
+    }
 
 	const publishedAt = item.snippet.publishedAt;
 	return {
@@ -244,7 +258,7 @@ export async function getYouTubeVideos(options: {
 			const { data: vids }: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
-					params: { part: 'snippet,statistics', id: ids.join(','), key: apiKey },
+					params: { part: 'snippet,statistics,contentDetails', id: ids.join(','), key: apiKey },
 					timeout: 5000,
 				},
 			);
@@ -289,7 +303,7 @@ export async function getYouTubeVideos(options: {
 			const { data: vids }: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
-					params: { part: 'snippet,statistics', id: ids.join(','), key: apiKey },
+					params: { part: 'snippet,statistics,contentDetails', id: ids.join(','), key: apiKey },
 					timeout: 5000,
 				},
 			);
