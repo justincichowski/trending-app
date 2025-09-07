@@ -496,17 +496,16 @@ export function hideItem(idOrItem: string | NormalizedItem) {
 	// Resolve a full NormalizedItem to store
 	let item: NormalizedItem | undefined = typeof idOrItem === 'string' ? undefined : idOrItem;
 	const isHiddenItemsView = currentCategory?.id === 'hidden';
-	console.log('isHiddenItemsView', isHiddenItemsView )
+	console.log('isHiddenItemsView', isHiddenItemsView);
 
 	if (existingIndex > -1) {
-		
 		// --- Unhiding ---
 		if (isHiddenItemsView && cardElement) {
-			// In favorites view, we handle removal with a toast and animation.
+			// In hiddenItems view, we handle removal with a toast and animation.
 
 			const currentHiddenItems = stateManager.getState().hiddenItems;
 			const newHiddenItems = currentHiddenItems.filter((f) => f.id !== id);
-			stateManager.setState({ favorites: newHiddenItems });
+			stateManager.setState({ hiddenItems: newHiddenItems });
 
 			// removed from hidden // give time to undo
 			notification?.show('Item removed from hidden.', {
@@ -526,13 +525,10 @@ export function hideItem(idOrItem: string | NormalizedItem) {
 				},
 			});
 		} else {
-			
 			const newHiddenItem = hiddenItems.filter((f) => f.id !== id);
 			stateManager.setState({ hiddenItems: newHiddenItem });
 			notification?.show('Removed from hidden.');
 		}
-
-		
 	} else {
 		// --- Hiding ---
 
