@@ -496,6 +496,12 @@ body {
 	 */
 }
 
+.top-trends-panel, 
+.trending-panel, 
+.main-content {
+	height: calc(100vh - 140px); /* Example height, adjust as needed */
+}
+
 .main-content {
 	/*
 	 * This is the main column for the item cards.
@@ -503,7 +509,7 @@ body {
 	 */
 	max-width: 550px;
 	width: 100%; /* Ensure it takes up available space up to its max-width */
-	height: calc(100vh - 140px); /* Example height, adjust as needed */
+	/* height: elsewhere */
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 }
@@ -1198,29 +1204,7 @@ body {
 	border: 0;
 }
 
-.trending-panel {
-	width: 300px;
-	flex-shrink: 0;
-	margin-left: 1rem;
-	position: sticky;
-	top: 1rem;
-	height: calc(100vh - 155px);
-	overflow-y: auto;
-	scrollbar-width: none; /* Firefox */
-	transition: all 0.3s ease-in-out;
-}
 
-.trending-panel {
-	width: 300px;
-	flex-shrink: 0;
-	margin-left: 1rem;
-	position: sticky;
-	top: 1rem;
-	height: calc(100vh - 155px);
-	overflow-y: auto;
-	scrollbar-width: none; /* Firefox */
-	transition: all 0.3s ease-in-out;
-}
 
 body:not(.show-trending) .trending-panel {
 	width: 0;
@@ -1333,13 +1317,27 @@ body:not(.show-trending) .trending-panel {
 	text-decoration: none;
 }
 
+
+.trending-panel {
+	width: 300px;
+	flex-shrink: 0;
+	margin-left: 1rem;
+	position: sticky;
+	top: 1rem;
+	/* height: elsewhere */
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+	transition: all 0.3s ease-in-out;
+}
+
+
 .top-trends-panel {
 	width: 200px;
 	flex-shrink: 0;
 	margin-right: 1rem;
 	position: sticky;
 	top: 1rem;
-	height: calc(100vh - 155px);
+	/* height: elsewhere */
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
 	transition: all 0.3s ease-in-out;
