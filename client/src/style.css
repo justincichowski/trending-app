@@ -594,11 +594,7 @@ html {
 		padding-bottom: 0;
 	}
 
-	/* margin-left / right (for mobile first) */
-	.item-card {
-		margin-left: 0px;
-		margin-right: 0px;
-	}
+	
 
 	/* margin-left / right / top (for mobile first) */
 	.app-header {
@@ -613,21 +609,26 @@ html {
 		margin-right: 8px;
 	}
 
+	/* margin-left / right (for mobile first) */
+	.main-content {
+		margin-left: 0px;
+		margin-right: 0px;
+	}
+
+
 	/* no margin-bottom or radius (for mobile first) */
 	.item-card {
 		margin-bottom: 0rem;
 		border-radius: 0px;
 	}
 
+	
 /**/
 
 /* Desktop only on screens wider than 600px */
 @media (min-width: 550px) {
 
-	.item-card {
-		margin-bottom: 1rem;
-		border-radius: 8px;
-	}
+	
 
 	body {
 		margin-left: 8px;
@@ -642,9 +643,14 @@ html {
 		padding-bottom: 0;
 	}
 
-	.item-card {
+	.main-content {
 		margin-left: 8px;
 		margin-right: 8px;
+	}
+
+	.item-card {
+		margin-bottom: 1rem;
+		border-radius: 8px;
 	}
 
 	.app-header {
