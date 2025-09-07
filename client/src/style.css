@@ -48,9 +48,24 @@ body {
 .loader-path {
 	stroke: var(--category-button-text);
 }
-.item-card {
-	border: 1px solid var(--border-color);
-	background-color: var(--card-background-color);
+
+
+/* no border (for mobile first) */
+	.item-card {
+		border: 0px solid var(--border-color);
+		background-color: var(--card-background-color);
+	}
+
+/**/
+
+/* Desktop only on screens wider than 600px */
+@media (min-width: 550px) {
+
+	.item-card {
+		border: 1px solid var(--border-color);
+		background-color: var(--card-background-color);
+	}
+
 }
 .item-card:hover {
 	background-color: var(--card-hover-background-color);
@@ -231,13 +246,6 @@ body,
 html {
 	max-height: 100%;
 	overflow: hidden;
-}
-
-body {
-	margin-top: 8px;
-	margin-left: 8px;
-	margin-right: 8px;
-	margin-bottom: 0px !important;
 }
 
 .preload * {
@@ -474,9 +482,9 @@ body {
 	display: flex;
 	justify-content: center;
 	padding-top: 1rem;
-	padding-left: 1rem;
-	padding-right: 1rem;
-	padding-bottom: 0px;
+	/* padding-left: elsewhere;
+	padding-right: elsewhere;
+	padding-bottom: elsewhere; */
 	/*
 	 * FUTURE-PROOFING NOTE:
 	 * This wrapper uses Flexbox to center the main content column.
@@ -569,12 +577,117 @@ body {
 	}
 }
 
+/* Mobile First */
+
+	/* margin-top (for mobile first) */
+	body {
+		margin-top: 8px;
+		margin-left: 0px;
+		margin-right: 0px;
+		margin-left: 0px !important; /* always 0 bottom */
+	}
+
+	/* no padding (for mobile first) */
+	.main-content-wrapper {
+		padding-left: 0;
+		padding-right: 0;
+		padding-bottom: 0;
+	}
+
+	/* margin-left / right (for mobile first) */
+	.item-card {
+		margin-left: 0px;
+		margin-right: 0px;
+	}
+
+	/* margin-left / right / top (for mobile first) */
+	.app-header {
+		margin-top: 8px;
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+
+	/* margin-left / right (for mobile first) */
+	#category-nav {
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+
+	/* no margin-bottom or radius (for mobile first) */
+	.item-card {
+		margin-bottom: 0rem;
+		border-radius: 0px;
+	}
+
+/**/
+
+/* Desktop only on screens wider than 600px */
+@media (min-width: 550px) {
+
+	.item-card {
+		margin-bottom: 1rem;
+		border-radius: 8px;
+	}
+
+	body {
+		margin-left: 8px;
+		margin-right: 8px;
+		margin: 0px !important; /* always 0 bottom */
+	}
+
+
+	.main-content-wrapper {
+		padding-left: 1rem;
+		padding-right: 1rem;
+		padding-bottom: 0;
+	}
+
+	.item-card {
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+
+	.app-header {
+		margin-top: 8px;
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+
+	#category-nav {
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+}
+
 .item-card {
-	/* The item card itself no longer needs a max-width, as its parent (.main-content) now controls it. */
-	padding: 1rem;
-	margin-bottom: 1rem;
-	border-radius: 8px;
+	padding: 0rem!important;
 	transition: background-color 0.2s ease-in-out;
+	overflow: hidden;
+}
+
+.item-image-container {
+	padding-top: 1rem;
+	padding-left: 0rem;
+	padding-right: 0rem;
+	padding-bottom: 0rem;
+	border-radius: 0px;
+	overflow: hidden;
+}
+
+.item-content-wrapper {
+	padding-top: 0rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	padding-bottom: 0rem;
+}
+
+.item-image {
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	border-radius: 0px;
+	/* margin-bottom is removed as requested */
+	cursor: pointer;
 }
 
 .item-card.is-removing {
@@ -742,15 +855,6 @@ body {
 
 /* This was the incorrect rule that was transforming the button itself.
    It has been replaced by the rule above that targets the wrapper. */
-
-.item-image {
-	width: 100%;
-	height: auto;
-	object-fit: cover;
-	border-radius: 4px;
-	/* margin-bottom is removed as requested */
-	cursor: pointer;
-}
 
 .item-title {
 	font-size: 1.17em; /* Standard h3 font-size */
@@ -1190,8 +1294,6 @@ body {
 	/* 16:9 Aspect Ratio */
 	padding-top: 56.25%;
 	background-color: #000;
-	border-radius: 4px;
-	overflow: hidden;
 }
 
 .item-image-container .item-image,
@@ -1350,8 +1452,6 @@ body:not(.show-trending) .trending-panel {
 .top-trends-panel::-webkit-scrollbar {
 	display: none; /* Chrome, Safari, and Opera */
 }
-
-
 
 .top-trends-title {
 	font-size: 1.2em;

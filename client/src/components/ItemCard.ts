@@ -53,6 +53,10 @@ export function createItemCard(
 	imageContainer.appendChild(image);
 	card.appendChild(imageContainer);
 
+	const contentWrapper = document.createElement('div');
+	contentWrapper.className = 'item-content-wrapper'; // <- new parent
+	card.appendChild(contentWrapper);
+
 	const controls = document.createElement('div');
 	controls.className = 'item-controls';
 
@@ -138,7 +142,8 @@ export function createItemCard(
 	}
 
 	controls.appendChild(actions);
-	card.appendChild(controls);
+
+	contentWrapper.appendChild(controls);
 
 	const title = document.createElement('div');
 	title.className = 'item-title';
@@ -153,14 +158,15 @@ export function createItemCard(
 	source.className = 'item-source';
 	source.textContent = item.source;
 
-	card.appendChild(title);
-	card.appendChild(source);
+	contentWrapper.appendChild(title);
+	contentWrapper.appendChild(source);
 
 	if (item.description) {
 		const description = document.createElement('p');
 		description.className = 'item-description';
 		const fullText = item.description;
-		card.appendChild(description);
+
+		contentWrapper.appendChild(description);
 
 		const linkify = (text: string) => {
 			const urlRegex =
