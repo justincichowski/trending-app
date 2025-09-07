@@ -25,7 +25,7 @@ export class TrendingPanel {
 
 	public render(data: TrendingData) {
 		this.container.innerHTML = ''; // Clear existing content
-		if (Object.keys(data).length === 0) {
+		if (!data || (data && Object.keys(data).length === 0)) {
 			this.container.innerHTML =
 				'<div class="error-message">No trending data available.</div>';
 			return;

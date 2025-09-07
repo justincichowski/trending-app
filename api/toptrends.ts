@@ -12,8 +12,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// use cached() with your fetchTopTrends
 		const data = await cached('toptrends', TOP_TRENDS_TTL_MS, fetchTopTrends);
+		// test no cache
+		// const data = fetchTopTrends();
 
-		if (!data || Object.keys(data).length === 0) {
+		if (!data || (data && Object.keys(data).length === 0)) {
 			return res.status(204).end();
 		}
 

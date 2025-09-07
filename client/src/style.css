@@ -606,7 +606,6 @@ body {
 	margin-right: 8px;
 }
 
-
 /* no margin-bottom or radius (for mobile first) */
 .item-card {
 	margin-bottom: 0rem;
@@ -626,7 +625,7 @@ body {
 	.main-content-wrapper {
 		margin-left: 8px;
 		margin-right: 8px;
-	
+
 		padding-left: 1rem;
 		padding-right: 1rem;
 		padding-bottom: 0;

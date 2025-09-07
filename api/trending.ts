@@ -18,10 +18,15 @@ const TRENDING_FEEDS = [
 		source: 'The New York Times',
 		url: 'https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml',
 	},
-	{ title: 'Sales', source: 'Amazon', url: 'https://www.amazon.com/gp/goldbox' },
+	{ title: 'Sales', source: 'Slick Deals', url: 'https://feeds.feedburner.com/SlickdealsnetUP' },
 	{ title: 'Websites', source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
 	{ title: 'Books', source: 'NPR', url: 'https://www.npr.org/rss/rss.php?id=1032' },
 ];
+
+// # Slickdeals (official)
+// https://slickdeals.net/newsearch.php?mode=frontpage&rss=1&searcharea=deals&searchin=first   # Frontpage
+// https://slickdeals.net/newsearch.php?mode=popdeals&rss=1&searcharea=deals&searchin=first    # Popular
+// https://feeds.feedburner.com/SlickdealsnetUP     
 
 // { title: 'Sales', source: 'Slickdeals', url: 'https://slickdeals.net/rss/frontpage.php' },
 
@@ -37,6 +42,7 @@ async function fetchTrending(): Promise<Record<string, NormalizedItem[]>> {
 				getRssFeed({ url: feed.url, source: feed.source, limit: 3 }),
 			),
 		);
+
 		const data: Record<string, NormalizedItem[]> = {};
 		trendingResults.forEach((res, index) => {
 			const { title } = TRENDING_FEEDS[index];
@@ -74,6 +80,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// use cached() with your fetchTrending
 		const data = await cached('trending', TRENDING_TTL_MS, fetchTrending);
+		// test no cache
+		// const data = fetchTrending();
 
 		if (!data || Object.keys(data).length === 0) {
 			return res.status(204).end();

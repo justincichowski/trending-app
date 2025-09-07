@@ -5,8 +5,8 @@
 			"destination": "/api/:match*.ts"
 		},
 		{
-			"source": "/search:query",
-			"destination": "/api/presets?id=search:query"
+			"source": "/search(.*)",
+			"destination": "/api/presets?id=search$1"
 		},
 		{
 			"source": "/:path*",
@@ -28,7 +28,7 @@
 	],
 	"builds": [
 		{
-			"src": "api/*.ts",
+			"src": "api/**/*.ts",
 			"use": "@vercel/node"
 		},
 		{

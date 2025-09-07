@@ -1,21 +1,16 @@
 import axios, { AxiosResponse } from 'axios';
 import type { NormalizedItem } from './types';
 
-// Base URL for the YouTube Data API
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3';
-
-// Check for Age-Restricted Videos:
-// contentDetails.contentRating.ytRating
 
 /* ---------- API Shapes ---------- */
 
-// SEARCH item (id.videoId)
 interface YouTubeSearchResult {
-	id: { videoId: string };
-	snippet: {
-		title: string;
-		description: string;
-		thumbnails: {
+	id?: { videoId?: string };
+	snippet?: {
+		title?: string;
+		description?: string;
+		thumbnails?: {
 			high?: { url?: string };
 			default?: { url?: string };
 		};
@@ -23,85 +18,135 @@ interface YouTubeSearchResult {
 	};
 }
 
-// PLAYLIST item (snippet.resourceId.videoId)
 interface YouTubePlaylistItem {
-	snippet: {
-		title: string;
-		description: string;
-		thumbnails: {
+	snippet?: {
+		title?: string;
+		description?: string;
+		thumbnails?: {
 			high?: { url?: string };
 			default?: { url?: string };
 		};
-		resourceId: { videoId: string };
+		resourceId?: { videoId?: string };
 		publishedAt?: string;
 	};
 }
 
-// /videos resource (id is the string video id)
 interface YouTubeVideoResource {
-	id: string;
-	snippet: {
-		title: string;
-		description: string;
-		thumbnails: {
+	id?: string;
+	snippet?: {
+		title?: string;
+		description?: string;
+		thumbnails?: {
 			high?: { url?: string };
 			default?: { url?: string };
 		};
 		publishedAt?: string;
 	};
-	statistics?: { viewCount: string };
+	statistics?: { viewCount?: string };
 	contentDetails?: {
-		contentRating?: {
-			ytRating?: 'ytAgeRestricted'; // Check for age restriction
-		};
+		contentRating?: { ytRating?: 'ytAgeRestricted' };
 	};
 }
 
-// axios response helpers
-type PlaylistItemsResp = { items: YouTubePlaylistItem[]; nextPageToken?: string };
-type SearchResp = { items: YouTubeSearchResult[] };
-type VideosResp = { items: YouTubeVideoResource[] };
+type PlaylistItemsResp = { items?: YouTubePlaylistItem[]; nextPageToken?: string };
+type SearchResp = { items?: YouTubeSearchResult[] };
+type VideosResp = { items?: YouTubeVideoResource[] };
+
+/* ---------- Runtime Type Guards ---------- */
+
+function isObj(x: unknown): x is Record<string, unknown> {
+	return !!x && typeof x === 'object';
+}
+
+function isYouTubePlaylistItem(x: unknown): x is YouTubePlaylistItem {
+	if (!isObj(x)) return false;
+	// minimal check: snippet.resourceId.videoId is string
+	const sn = x.snippet;
+	return isObj(sn) && isObj(sn.resourceId) && typeof (sn.resourceId as any).videoId === 'string';
+}
+
+function isPlaylistItemsResp(x: unknown): x is PlaylistItemsResp {
+	if (!isObj(x)) return false;
+	if (x.items === undefined) return true; // allow empty/missing items
+	return Array.isArray(x.items) && x.items.every(isYouTubePlaylistItem);
+}
+
+function isYouTubeVideoResource(x: unknown): x is YouTubeVideoResource {
+	if (!isObj(x)) return false;
+	// minimal fields used later: id (string) and snippet (object)
+	return typeof x.id === 'string' && isObj(x.snippet);
+}
+
+function isVideosResp(x: unknown): x is VideosResp {
+	if (!isObj(x)) return false;
+	if (x.items === undefined) return true;
+	return Array.isArray(x.items) && x.items.every(isYouTubeVideoResource);
+}
+
+function isYouTubeSearchResult(x: unknown): x is YouTubeSearchResult {
+	if (!isObj(x)) return false;
+	const id = x.id;
+	return isObj(id) && typeof (id as any).videoId === 'string';
+}
+
+function isSearchResp(x: unknown): x is SearchResp {
+	if (!isObj(x)) return false;
+	if (x.items === undefined) return true;
+	return Array.isArray(x.items) && x.items.every(isYouTubeSearchResult);
+}
 
 /* ---------- Normalization ---------- */
 
 function pickThumb(
-	t: YouTubeVideoResource['snippet']['thumbnails'] | undefined,
+	t: YouTubeVideoResource['snippet'] extends infer S
+		? S extends { thumbnails?: infer T }
+			? T
+			: undefined
+		: undefined,
 ): string | undefined {
-	return t?.high?.url ?? t?.default?.url;
+	// tolerate partials
+	return (t as any)?.high?.url ?? (t as any)?.default?.url;
 }
 
 function normalizeItem(item: YouTubeVideoResource): NormalizedItem | null {
-	const image = pickThumb(item.snippet.thumbnails);
-	const titleLC = item.snippet.title?.toLowerCase() ?? '';
-	const descLC = item.snippet.description?.toLowerCase() ?? '';
+	const sn = item.snippet;
+	if (!sn) return null;
+
+	const image = pickThumb(sn.thumbnails);
+	const title = sn.title ?? '';
+	const desc = sn.description ?? '';
+	const titleLC = title.toLowerCase();
+	const descLC = desc.toLowerCase();
 
 	if (
 		!image ||
 		titleLC.startsWith('private video') ||
 		descLC.startsWith('this video is unavailable') ||
-		(titleLC.startsWith('deleted video') && !item.snippet.description)
+		(titleLC.startsWith('deleted video') && !desc)
 	) {
 		return null;
 	}
 
 	const videoId = item.id;
-	if (!videoId || !item.snippet.title) return null;
+	if (!videoId || !title) return null;
 
-	// Check if the video is age-restricted
 	if (item.contentDetails?.contentRating?.ytRating === 'ytAgeRestricted') {
-		return null; // Skip age-restricted videos
+		return null;
 	}
 
-	const publishedAt = item.snippet.publishedAt;
+	const publishedAt = sn.publishedAt;
+	const viewCountNum = Number(item.statistics?.viewCount ?? NaN);
+	const viewCount = Number.isFinite(viewCountNum) ? viewCountNum : undefined;
+
 	return {
 		id: `yt-${videoId}`,
-		title: item.snippet.title,
+		title,
 		url: `https://www.youtube.com/watch?v=${videoId}`,
 		source: 'YouTube',
-		description: item.snippet.description,
+		description: desc,
 		image,
 		publishedAt,
-		viewCount: item.statistics ? parseInt(item.statistics.viewCount, 10) : undefined,
+		viewCount,
 		secondsAgo: publishedAt
 			? Math.max(0, Math.floor((Date.now() - new Date(publishedAt).getTime()) / 1000))
 			: undefined,
@@ -111,7 +156,7 @@ function normalizeItem(item: YouTubeVideoResource): NormalizedItem | null {
 /* ---------- Helpers ---------- */
 
 function clamp(n: number | undefined, def = 15, lo = 1, hi = 50): number {
-	const x = typeof n === 'number' && !isNaN(n) ? Math.floor(n) : def;
+	const x = typeof n === 'number' && Number.isFinite(n) ? Math.floor(n) : def;
 	return Math.max(lo, Math.min(hi, x));
 }
 
@@ -132,21 +177,28 @@ async function pagePlaylistItems(
 	let skipped = 0;
 
 	while (picked.length < want) {
-		const { data }: AxiosResponse<PlaylistItemsResp> = await axiosInst.get<PlaylistItemsResp>(
+		const resp: AxiosResponse<PlaylistItemsResp> = await axiosInst.get<PlaylistItemsResp>(
 			`${YOUTUBE_API_BASE_URL}/playlistItems`,
 			{
 				params: {
 					part: 'snippet',
 					playlistId,
-					maxResults: 50, // fewer round-trips
+					maxResults: 50,
 					pageToken: token,
 					key: apiKey,
 				},
 				timeout: 5000,
+				validateStatus: (s) => s >= 200 && s < 500, // surface 4xx bodies
 			},
 		);
 
-		const items = data?.items ?? [];
+		const data = resp.data;
+		if (!isPlaylistItemsResp(data)) {
+			console.error('Unexpected playlistItems response shape', data);
+			break;
+		}
+
+		const items = data.items ?? [];
 		if (items.length === 0) break;
 
 		for (const it of items) {
@@ -164,7 +216,7 @@ async function pagePlaylistItems(
 			}
 		}
 
-		token = data?.nextPageToken;
+		token = data.nextPageToken;
 		if (!token) break;
 	}
 
@@ -179,9 +231,8 @@ export async function getYouTubeVideos(options: {
 	limit?: number;
 	page?: number;
 	excludeIds?: string[];
-	sticky?: boolean; // for categories: keep playlist order stable & page via tokens
+	sticky?: boolean;
 }): Promise<NormalizedItem[]> {
-	// normalize excludes to raw YouTube IDs
 	const excludePlain = new Set(
 		(options.excludeIds ?? []).map((id) => (id.startsWith('yt-') ? id.slice(3) : id)),
 	);
@@ -204,8 +255,6 @@ export async function getYouTubeVideos(options: {
 			.filter(Boolean);
 		if (playlistIds.length === 0) return [];
 
-		// Shuffle only when NOT sticky (All-feed variety);
-		// for sticky (categories), we keep incoming order stable.
 		if (!options.sticky) {
 			for (let i = playlistIds.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
@@ -213,15 +262,13 @@ export async function getYouTubeVideos(options: {
 			}
 		}
 
-		// Choose the playlist for this page
 		const playlistToFetch = playlistIds[page % playlistIds.length];
 
 		try {
 			let ids: string[] = [];
 
 			if (options.sticky && playlistIds.length === 1) {
-				// CATEGORY: real pagination within the single PID
-				const toSkip = page * limit; // skip previous pages worth
+				const toSkip = page * limit;
 				ids = await pagePlaylistItems(
 					axios,
 					apiKey,
@@ -231,9 +278,9 @@ export async function getYouTubeVideos(options: {
 					excludePlain,
 				);
 			} else {
-				// ALL or multi-PID: single page read for variety
-				const { data }: AxiosResponse<PlaylistItemsResp> =
-					await axios.get<PlaylistItemsResp>(`${YOUTUBE_API_BASE_URL}/playlistItems`, {
+				const resp: AxiosResponse<PlaylistItemsResp> = await axios.get<PlaylistItemsResp>(
+					`${YOUTUBE_API_BASE_URL}/playlistItems`,
+					{
 						params: {
 							part: 'snippet',
 							playlistId: playlistToFetch,
@@ -241,7 +288,15 @@ export async function getYouTubeVideos(options: {
 							key: apiKey,
 						},
 						timeout: 5000,
-					});
+						validateStatus: (s) => s >= 200 && s < 500,
+					},
+				);
+
+				const data = resp.data;
+				if (!isPlaylistItemsResp(data)) {
+					console.error('Unexpected playlistItems response shape', data);
+					return [];
+				}
 
 				ids = [
 					...new Set(
@@ -252,9 +307,9 @@ export async function getYouTubeVideos(options: {
 				].slice(0, limit);
 			}
 
-			if (!ids || ids.length === 0) return [];
+			if (!ids.length) return [];
 
-			const { data: vids }: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
+			const vidsResp: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
 					params: {
@@ -263,8 +318,15 @@ export async function getYouTubeVideos(options: {
 						key: apiKey,
 					},
 					timeout: 5000,
+					validateStatus: (s) => s >= 200 && s < 500,
 				},
 			);
+
+			const vids = vidsResp.data;
+			if (!isVideosResp(vids)) {
+				console.error('Unexpected videos response shape', vids);
+				return [];
+			}
 
 			return (vids.items ?? [])
 				.map(normalizeItem)
@@ -279,7 +341,7 @@ export async function getYouTubeVideos(options: {
 	/* ---- SEARCH PATH ---- */
 	if (query) {
 		try {
-			const { data }: AxiosResponse<SearchResp> = await axios.get<SearchResp>(
+			const resp: AxiosResponse<SearchResp> = await axios.get<SearchResp>(
 				`${YOUTUBE_API_BASE_URL}/search`,
 				{
 					params: {
@@ -290,8 +352,15 @@ export async function getYouTubeVideos(options: {
 						key: apiKey,
 					},
 					timeout: 5000,
+					validateStatus: (s) => s >= 200 && s < 500,
 				},
 			);
+
+			const data = resp.data;
+			if (!isSearchResp(data)) {
+				console.error('Unexpected search response shape', data);
+				return [];
+			}
 
 			const ids = [
 				...new Set(
@@ -301,9 +370,9 @@ export async function getYouTubeVideos(options: {
 				),
 			].slice(0, limit);
 
-			if (ids.length === 0) return [];
+			if (!ids.length) return [];
 
-			const { data: vids }: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
+			const vidsResp: AxiosResponse<VideosResp> = await axios.get<VideosResp>(
 				`${YOUTUBE_API_BASE_URL}/videos`,
 				{
 					params: {
@@ -312,8 +381,15 @@ export async function getYouTubeVideos(options: {
 						key: apiKey,
 					},
 					timeout: 5000,
+					validateStatus: (s) => s >= 200 && s < 500,
 				},
 			);
+
+			const vids = vidsResp.data;
+			if (!isVideosResp(vids)) {
+				console.error('Unexpected videos response shape', vids);
+				return [];
+			}
 
 			return (vids.items ?? [])
 				.map(normalizeItem)
@@ -325,7 +401,6 @@ export async function getYouTubeVideos(options: {
 		}
 	}
 
-	// nothing to do
 	console.error('Neither playlistId nor query was provided for YouTube fetch.');
 	return [];
 }
