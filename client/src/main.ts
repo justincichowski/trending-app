@@ -21,7 +21,6 @@ import { showLoaderAndRetryOnce, showPersistentError } from './utils/errorHandle
 // localStorage.clear();
 // stateManager.setState({ mobileView: 'center' });
 
-console.log(stateManager.getState().hiddenItems);
 /*
  * OPTIONAL LAZY-LOAD (commented out by default)
  *
@@ -497,7 +496,7 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 	if (isHiddenView && cardElement) {
 		// In hiddenItems view
 
-		console.log('existingHiddenItem', existingHiddenItem);
+		// console.log('existingHiddenItem', existingHiddenItem);
 
 		if (existingHiddenItem) {
 			// --- Unhiding --- handle itemCard removal and a toast and animation.
@@ -528,9 +527,7 @@ export function hideUnhideItem(idOrItem: string | NormalizedItem) {
 			stateManager.setState({ hiddenItems: [...hiddenItems, item!] });
 			notification?.show('Item hidden.');
 		}
-
 	} else {
-		
 		// If not in hiddenItems view handle toggle
 		// Non Hidden Items Window
 
@@ -730,8 +727,8 @@ stateManager.subscribe((newState, oldState) => {
 	}
 
 	// If only the theme we can do a partial update.
-	const doNotRender = !itemsChanged && themeChanged || favoritesChanged || hiddenItemsChanged;
-	if ( doNotRender ) {
+	const doNotRender = (!itemsChanged && themeChanged) || favoritesChanged || hiddenItemsChanged;
+	if (doNotRender) {
 		document.documentElement.className = `${newState.theme}-theme`;
 
 		return; // Stop here to prevent the full re-render
