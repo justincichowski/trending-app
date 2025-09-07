@@ -22,7 +22,7 @@ This will:
 ## Day-to-day development
 
 ```bash
-npm run dev
+npm run start
 ```
 
 Runs both `vercel dev` and the Vite dev server.
@@ -44,6 +44,6 @@ npm run preview
 
 ### Formatting is automatic
 
-- `npm run start` now runs **`npm run format`** after installing dependencies (root + client) and **before** launching dev/build.
+- `npm run start` runs **`npm run format`** after installing dependencies (root + client) and **before** launching dev/build.
 - `npm run build` also formats via the **`prebuild`** hook.
 - Prettier is configured for **tabs=4** (see `.prettierrc`, `.editorconfig`, and `.vscode/settings.json`).
