@@ -298,12 +298,14 @@ export async function categoryView(params: Record<string, string>) {
 
 	// console.log('params', params);
 	// console.log('query', query);
-	const { favorites, categories } = stateManager.getState();
+	const { favorites, hiddenItems, categories } = stateManager.getState();
 
 	// Find the new category first
 	let newCurrentCategory: Preset | null = categories.find((c) => c.id === id) || null;
 	if (id === 'favorites' && !newCurrentCategory) {
 		newCurrentCategory = { id: 'favorites', name: 'Favorites', source: 'local', params: {} };
+	} else if (id === 'hidden' && !newCurrentCategory) {
+		newCurrentCategory = { id: 'hidden', name: 'Hidden', source: 'local', params: {} };
 	} else if (id === '/' && !newCurrentCategory) {
 		newCurrentCategory = { id: '/', name: 'All', source: 'local', params: {} };
 	} else if (id === 'search' && query) {
@@ -327,6 +329,8 @@ export async function categoryView(params: Record<string, string>) {
 		let items: NormalizedItem[] = [];
 		if (id === 'favorites') {
 			items = [...favorites].reverse().slice(0, PAGE_SIZE);
+		} else if (id === 'hidden') {
+			items = [...hiddenItems].reverse().slice(0, PAGE_SIZE);
 		} else if (id === '/') {
 			items = await getAllItems(0, [], PAGE_SIZE); // Use the new dedicated endpoint
 		} else if (id === 'search' && query) {
@@ -373,6 +377,11 @@ export async function loadMoreItems() {
 			const reversedFavorites = [...favorites].reverse();
 			const startIndex = nextPage * PAGE_SIZE;
 			newItems = reversedFavorites.slice(startIndex, startIndex + PAGE_SIZE);
+		} else if (id === 'hidden') {
+			const { hiddenItems } = stateManager.getState();
+			const reversedHidden = [...hiddenItems].reverse();
+			const startIndex = nextPage * PAGE_SIZE;
+			newItems = reversedHidden.slice(startIndex, startIndex + PAGE_SIZE);
 		} else {
 			const excludedIds = items.map((item) => item.id);
 			if (id === '/') {
@@ -465,48 +474,61 @@ export function favoriteItem(item: NormalizedItem) {
  *
  * @param {string} id - The ID of the item to hide.
  */
-export function hideItem(id: string) {
-	const { hiddenItems } = stateManager.getState();
-	const cardElement = document.querySelector(`.item-card[data-id="${id}"]`);
-
-	if (!hiddenItems.includes(id) && cardElement) {
-		notification?.show('Item hidden.', {
-			onUndo: () => {
-				// If undone, we don't need to do anything to the state.
-				// The item was never removed from view.
-			},
-			onClose: (didUndo: boolean) => {
-				if (!didUndo) {
-					// Animate out, then update state
-					cardElement.classList.add('is-removing');
-					cardElement.addEventListener(
-						'transitionend',
-						() => {
-							stateManager.setState({ hiddenItems: [...hiddenItems, id] });
-						},
-						{ once: true },
-					);
-				}
-			},
-		});
-	}
-}
-
 /**
- * Renders the user's hidden items.
+ * Unhides an item (removes it from the hidden list).
  */
-function hiddenItemsView() {
-	// This is a placeholder for the hidden items view.
-	// In a real application, you would fetch the full item details.
-	const { hiddenItems } = stateManager.getState();
-	const items = hiddenItems.map((id) => ({
-		id,
-		title: `Hidden Item: ${id}`,
-		url: '#',
-		source: 'Hidden',
-	}));
-	stateManager.setState({ items, currentCategory: null });
+export function unhideItem(id: string) {
+  const { hiddenItems } = stateManager.getState(); // NormalizedItem[]
+  if (!hiddenItems?.length) return;
+
+  const newHidden = hiddenItems.filter(h => h.id !== id);
+  stateManager.setState({ hiddenItems: newHidden });
+  notification?.show?.('Item unhidden.');
 }
+
+export function hideItem(idOrItem: string | NormalizedItem) {
+  const id = typeof idOrItem === 'string' ? idOrItem : idOrItem.id;
+  const st = stateManager.getState();
+  const cardElement = document.querySelector(`.item-card[data-id="${id}"]`) as HTMLElement | null;
+
+  // Already hidden or no card element to animate
+  if (st.hiddenItems.some(h => h.id === id) || !cardElement) return;
+
+  // Resolve a full NormalizedItem to store
+  let item: NormalizedItem | undefined =
+    typeof idOrItem === 'string' ? undefined : idOrItem;
+
+  if (!item) {
+    item = st.items.find(i => i.id === id) || st.favorites.find(i => i.id === id);
+  }
+  if (!item) {
+    // Last-resort placeholder (won’t break rendering)
+    item = { id, title: `Hidden Item: ${id}`, url: '#', source: 'Hidden', description: '' };
+  }
+
+  notification?.show?.('Item hidden.', {
+    onUndo: () => {
+      // no-op: we never removed it from state yet
+    },
+    onClose: (didUndo: boolean) => {
+      if (!didUndo) {
+        cardElement.classList.add('is-removing');
+        cardElement.addEventListener(
+          'transitionend',
+          () => {
+            // fetch latest state at the moment we commit
+            const { hiddenItems: curHidden } = stateManager.getState();
+            stateManager.setState({ hiddenItems: [...curHidden, item!] });
+          },
+          { once: true },
+        );
+      }
+    },
+  });
+}
+
+
+
 
 // Set up the application routes
 // search priority
@@ -516,7 +538,6 @@ router.addRoute('/search', (params) => {
 });
 router.addRoute('/:id', categoryView);
 
-router.addRoute('/hidden', hiddenItemsView);
 
 /**
  * Adds a click event listener to the logo to refresh the current category.

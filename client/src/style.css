@@ -924,6 +924,11 @@ body {
 	opacity: 1;
 }
 
+.hide-button.is-unhide .icon-eye-slash,
+.hide-button[data-mode="unhide"] .icon-eye-slash {
+	opacity: 1;
+}
+
 /* Tooltips for Icon Buttons */
 
 /* --- Header Icon Buttons --- */

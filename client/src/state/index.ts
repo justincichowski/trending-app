@@ -43,7 +43,7 @@ export interface AppState {
 	/**
 	 * The user's hidden items.
 	 */
-	hiddenItems: string[];
+	hiddenItems: NormalizedItem[];
 
 	/**
 	 * The current theme (light or dark).

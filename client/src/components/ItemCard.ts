@@ -9,7 +9,7 @@
 
 import type { NormalizedItem } from '../types';
 import { stateManager } from '../state';
-import { favoriteItem, hideItem } from '../main';
+import { favoriteItem, hideItem, unhideItem } from '../main';
 import { formatNumber, timeAgo } from '../utils/format';
 import { Tooltip } from './Tooltip';
 
@@ -53,10 +53,6 @@ export function createItemCard(
 	imageContainer.appendChild(image);
 	card.appendChild(imageContainer);
 
-	const contentWrapper = document.createElement('div');
-	contentWrapper.className = 'item-content-wrapper'; // <- new parent
-	card.appendChild(contentWrapper);
-
 	const controls = document.createElement('div');
 	controls.className = 'item-controls';
 
@@ -88,62 +84,82 @@ export function createItemCard(
 	const actions = document.createElement('div');
 	actions.className = 'item-actions';
 
-	const isFavorited = stateManager
-		.getState()
-		.favorites.some((fav: NormalizedItem) => fav.id === item.id);
-	const favoriteButtonContainer = document.createElement('div');
-	favoriteButtonContainer.className = 'tooltip-container';
 
-	const favoriteButton = document.createElement('button');
-	favoriteButton.className = `icon-button favorite-button ${isFavorited ? 'is-favorited' : ''}`;
-	favoriteButton.innerHTML = `
-		<span class="icon-wrapper">
-			<svg class="icon-heart" viewBox="0 0 24 24">
-				<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-			</svg>
-		</span>
-	`;
-	favoriteButton.addEventListener('click', () => {
-		// Toggle the class immediately for instant visual feedback.
-		// The state-driven update in `renderItems` will ensure it's correct.
-		favoriteButton.classList.toggle('is-favorited');
-		favoriteItem(item);
-	});
+	if (stateManager.getState().currentCategory?.id !== 'hidden' ) {
 
-	// Add tooltip listeners only for non-gallery cards
-	if (!options?.isGallery) {
-		favoriteButton.addEventListener('mouseover', () => {
-			const isFavorited = favoriteButton.classList.contains('is-favorited');
-			tooltip.show(favoriteButton, isFavorited ? 'Unfavorite' : 'Favorite');
+		const isFavorited = stateManager
+			.getState()
+			.favorites.some((fav: NormalizedItem) => fav.id === item.id);
+		const favoriteButtonContainer = document.createElement('div');
+		favoriteButtonContainer.className = 'tooltip-container';
+
+		const favoriteButton = document.createElement('button');
+		favoriteButton.className = `icon-button favorite-button ${isFavorited ? 'is-favorited' : ''}`;
+		favoriteButton.innerHTML = `
+			<span class="icon-wrapper">
+				<svg class="icon-heart" viewBox="0 0 24 24">
+					<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+				</svg>
+			</span>
+		`;
+		favoriteButton.addEventListener('click', () => {
+			// Toggle the class immediately for instant visual feedback.
+			// The state-driven update in `renderItems` will ensure it's correct.
+			favoriteButton.classList.toggle('is-favorited');
+			favoriteItem(item);
 		});
-		favoriteButton.addEventListener('mouseout', () => tooltip.hide());
+
+		// Add tooltip listeners only for non-gallery cards
+		if (!options?.isGallery) {
+			favoriteButton.addEventListener('mouseover', () => {
+				const isFavorited = favoriteButton.classList.contains('is-favorited');
+				tooltip.show(favoriteButton, isFavorited ? 'Unfavorite' : 'Favorite');
+			});
+			favoriteButton.addEventListener('mouseout', () => tooltip.hide());
+		}
+
+		actions.appendChild(favoriteButton);
+
 	}
 
-	actions.appendChild(favoriteButton);
-
-	// Only show the hide button if not in the favorites category
-	// Only show the hide button if not in the favorites category AND not in the gallery
+	// Only show the hide/unhide button if not in the favorites category AND not in the gallery
 	if (stateManager.getState().currentCategory?.id !== 'favorites' && !options?.isGallery) {
+		const isHiddenView = stateManager.getState().currentCategory?.id === 'hidden';
+
 		const hideButton = document.createElement('button');
-		hideButton.className = 'icon-button hide-button';
+		hideButton.className = `icon-button hide-button${isHiddenView ? ' is-unhide' : ''}`;
+		hideButton.setAttribute('aria-label', isHiddenView ? 'Unhide' : 'Hide');
+		hideButton.setAttribute('data-mode', isHiddenView ? 'unhide' : 'hide');
+
 		hideButton.innerHTML = `
-			<svg class="icon-eye" viewBox="0 0 24 24">
-				<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 5.5 12 5.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5zm0-7C10.62 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5z"/>
-				<line class="icon-eye-slash" x1="1" y1="1" x2="23" y2="23" />
+			<svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 5.5 12 5.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5zm0-7C10.62 7.5 9.5 8.62 9.5 10s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5S13.38 7.5 12 7.5z"></path>
+				<line class="icon-eye-slash" x1="1" y1="1" x2="23" y2="23"></line>
 			</svg>
 		`;
+
 		hideButton.addEventListener('click', () => {
-			hideItem(item.id);
+			if (isHiddenView) {
+				// On /hidden the button UNHIDES
+				unhideItem(item.id);
+			} else {
+				// Everywhere else, it HIDES
+				hideItem(item.id);
+			}
 			card.remove();
 		});
-		hideButton.addEventListener('mouseover', () => tooltip.show(hideButton, 'Hide'));
+
+		hideButton.addEventListener('mouseover', () =>
+			tooltip.show(hideButton, isHiddenView ? 'Unhide' : 'Hide'),
+		);
 		hideButton.addEventListener('mouseout', () => tooltip.hide());
+
 		actions.appendChild(hideButton);
 	}
 
-	controls.appendChild(actions);
 
-	contentWrapper.appendChild(controls);
+	controls.appendChild(actions);
+	card.appendChild(controls);
 
 	const title = document.createElement('div');
 	title.className = 'item-title';
@@ -158,15 +174,14 @@ export function createItemCard(
 	source.className = 'item-source';
 	source.textContent = item.source;
 
-	contentWrapper.appendChild(title);
-	contentWrapper.appendChild(source);
+	card.appendChild(title);
+	card.appendChild(source);
 
 	if (item.description) {
 		const description = document.createElement('p');
 		description.className = 'item-description';
 		const fullText = item.description;
-
-		contentWrapper.appendChild(description);
+		card.appendChild(description);
 
 		const linkify = (text: string) => {
 			const urlRegex =
