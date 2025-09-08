@@ -541,7 +541,6 @@ html {
 	 * This is the main column for the item cards.
 	 * It has a max-width to prevent it from becoming too wide on large screens.
 	 */
-	max-width: 550px;
 	width: 100%; /* Ensure it takes up available space up to its max-width */
 	/* height: elsewhere */
 	overflow-y: auto;
@@ -677,6 +676,14 @@ body {
 	}
 }
 
+.main-content {
+	max-width: 550px;
+}
+.trending-panel, .top-trends-panel {
+	/* + 8px left / right border -- + 2rem (==16px) left / right padding */
+	max-width: calc(550px + 16px + 14px);
+}
+
 .trending-panel {
 	/* width: elsewhere */
 	flex-shrink: 0;
@@ -791,15 +798,21 @@ body {
 		padding-bottom: 0;
 	}
 
-	.item-card {
-		margin-bottom: 1rem;
-		border-radius: 8px;
-	}
 	.app-header,
 	#category-nav {
 		margin-top: 8px;
 		margin-left: 8px;
 		margin-right: 8px;
+	}
+}
+
+
+/* Desktop only on screens wider than 550px */
+@media (min-width: 551px) {
+	
+	.item-card {
+		margin-bottom: 1rem;
+		border-radius: 8px;
 	}
 }
 
