@@ -1,161 +1,238 @@
 # Git Push/Pull Notes — Trending App
 
-## Important warning
+**Do not reset GitHub to `initialize`. Only push new commits. Reset/orphan history rewrites can erase visible GitHub history.**
 
-Do not use orphan-branch initialize resets for this GitHub repo.
+## 1. Build and verify before committing
 
-Do not run this as a normal workflow:
+Run this first before pushing changes to GitHub:
 
-```bash
-git checkout --orphan fresh-main
-git add .
-git commit -m "initialize"
-git branch -D main
-git branch -m main
-git push origin main --force-with-lease
-```
+[ bash ]
+cd ~/docker/trending_app && \
+npm run format:check && \
+npm run typecheck && \
+npm run build && \
+npm audit
 
-That rewrites GitHub history and removes old commits from the visible branch history.
+Expected audit result:
+found 0 vulnerabilities
 
-Use normal pull/add/commit/push instead.
+If any command fails, fix that problem before committing.
 
-## Normal workflow
+## 2. Review what changed
 
-```bash
-cd ~/docker/trending_app
+Check the repo status:
 
+[ bash ]
+cd ~/docker/trending_app && \
 git status
-git pull origin main
-git add .
-git commit -m "message"
+
+Show a clean summary of changed files:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git --no-pager diff --stat
+
+Review the actual changes:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git --no-pager diff
+
+For only the setup notes:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git --no-pager diff -- SETUP_UBUNTU_24.md GIT_PUSH_PULL_NOTES.md
+
+## 3. Commit and push notes
+
+For the setup/push-pull notes update:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git add SETUP_UBUNTU_24.md GIT_PUSH_PULL_NOTES.md && \
+git commit -m "Add Ubuntu setup and Git workflow notes" && \
 git push origin main
-```
 
-## Review before commit
+## 4. Verify after push
 
-```bash
-git status
+[ bash ]
+cd ~/docker/trending_app && \
+git status && \
+git --no-pager log --oneline -5 && \
+git remote -v
+
+Expected final status:
+
+On branch main
+Your branch is up to date with 'origin/main'.
+nothing to commit, working tree clean
+
+Expected remote should point to:
+
+https://github.com/justincichowski/trending-app.git
+
+## 5. Normal daily workflow
+
+Use this when editing regular project files:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git status && \
+git pull origin main
+
+Then make edits.
+
+After edits:
+
+[ bash ]
+cd ~/docker/trending_app && \
+npm run format:check && \
+npm run typecheck && \
+npm run build && \
+npm audit
+
+Then commit and push:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git add . && \
+git commit -m "Describe the change" && \
+git push origin main
+
+Verify:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git status && \
+git --no-pager log --oneline -5
+
+## 6. Pull before starting work
+
+Before starting a new change, pull the latest GitHub version:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git status && \
+git pull origin main
+
+If `git status` shows local changes, review them before pulling:
+
+[ bash ]
 git --no-pager diff --stat
 git --no-pager diff
-```
 
-For a specific file:
+## 7. Useful no-pager commands
 
-```bash
-git --no-pager diff -- package.json
-```
+Use `--no-pager` so Git prints the result and exits instead of opening an interactive pager.
 
-## Review history
+Recent commits:
 
-```bash
+[ bash ]
 git --no-pager log --oneline -10
-```
 
-## Safe push
+Changed file summary:
 
-Use normal push:
+[ bash ]
+git --no-pager diff --stat
 
-```bash
-git push origin main
-```
+Actual changes:
 
-## When Git says remote is stale
+[ bash ]
+git --no-pager diff
 
-First fetch:
+Changes for one file:
 
-```bash
-git fetch origin
-```
+[ bash ]
+git --no-pager diff -- package.json
 
-Then inspect:
+Last commit summary:
 
-```bash
-git status
-git --no-pager log --oneline --decorate --graph --all -20
-```
+[ bash ]
+git --no-pager show --stat HEAD
 
-Prefer resolving normally with pull/rebase or merge.
+## 8. Secrets and ignored files
 
-## Force pushes
+Never commit real secrets.
 
-Avoid force pushes for normal work.
+Check ignored files:
 
-If a recovery requires rewriting remote history, use:
-
-```bash
-git push origin main --force-with-lease
-```
-
-Do not use plain `--force` unless intentionally destroying remote history.
-
-## Check ignored secrets
-
-```bash
+[ bash ]
+cd ~/docker/trending_app && \
 git status --ignored
-```
 
-Ignored files should include:
+These should stay ignored:
 
-```text
 .env
 .env.local
 .vercel/
 node_modules/
 client/node_modules/
 client/dist/
-```
 
-Real secrets must stay out of GitHub.
+Root `.env` is for local server/API secrets only.
 
-## Recover old commits with reflog
+Do not commit:
 
-If history is accidentally rewritten locally, inspect reflog:
+YOUTUBE_API_KEY
+COOKIE_SECRET
+KV_REST_API_URL
+KV_REST_API_TOKEN
 
-```bash
+## 9. If Git says remote changed
+
+Fetch latest remote state:
+
+[ bash ]
+cd ~/docker/trending_app && \
+git fetch origin
+
+Inspect local and remote history:
+
+[ bash ]
+git --no-pager log --oneline --decorate --graph --all -20
+
+Then use normal pull/merge/rebase as needed.
+
+Do not jump to reset or force-push.
+
+## 10. Force push warning
+
+Avoid force pushes for normal work.
+
+If a true recovery requires rewriting remote history, use:
+
+[ bash ]
+git push origin main --force-with-lease
+
+Do not use plain `--force`.
+
+Only use `--force-with-lease` when you intentionally need to rewrite GitHub history and you already verified the exact branch state.
+
+## 11. Destructive command to avoid
+
+Do not use this workflow for GitHub setup:
+
+[ bash ]
+git checkout --orphan fresh-main
+git add .
+git commit -m "initialize"
+git branch -D main
+git branch -m main
+git push origin main --force-with-lease
+
+That is a destructive history reset workflow. It is not a normal setup step.
+
+## 12. Recovery hint
+
+If history ever gets changed accidentally, inspect reflog:
+
+[ bash ]
 git --no-pager reflog --date=local -20
-```
 
 Inspect an old commit:
 
-```bash
+[ bash ]
 git --no-pager show --stat <commit_hash>
-```
 
-Restore only when you know exactly what commit should become the branch head.
-
-## Current safe commit/push sequence for notes
-
-After adding or editing notes:
-
-```bash
-cd ~/docker/trending_app
-
-git status
-git --no-pager diff --stat
-git --no-pager diff -- SETUP_UBUNTU_24.md GIT_PUSH_PULL_NOTES.md
-
-npm run format:check
-npm run typecheck
-npm run build
-npm audit
-
-git add SETUP_UBUNTU_24.md GIT_PUSH_PULL_NOTES.md
-git commit -m "Add Ubuntu setup and Git workflow notes"
-git push origin main
-```
-
-Verify:
-
-```bash
-git status
-git --no-pager log --oneline -5
-git remote -v
-```
-
-Expected final status:
-
-```text
-On branch main
-Your branch is up to date with 'origin/main'.
-nothing to commit, working tree clean
-```
+Only restore a commit when you know exactly which commit should become the branch head.
