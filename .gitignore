@@ -32,3 +32,4 @@ api/**/*.js.map
 !prettier.config.js
 !prettier.config.cjs
 .vercel
+.env*
