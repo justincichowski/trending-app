@@ -679,7 +679,8 @@ body {
 .main-content {
 	max-width: 550px;
 }
-.trending-panel, .top-trends-panel {
+.trending-panel,
+.top-trends-panel {
 	/* + 8px left / right border -- + 2rem (==16px) left / right padding */
 	max-width: calc(550px + 16px + 14px);
 }
@@ -806,10 +807,8 @@ body {
 	}
 }
 
-
 /* Desktop only on screens wider than 550px */
 @media (min-width: 551px) {
-	
 	.item-card {
 		margin-bottom: 1rem;
 		border-radius: 8px;

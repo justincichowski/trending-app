@@ -7,7 +7,7 @@
 		"start": "npm install && cd client && npm install && cd .. && npm run format && npm run dev && npm run build",
 		"dev": "concurrently \"npm run dev:client\" \"npm run dev:vercel\"",
 		"dev:client": "npm --prefix client run dev",
-		"dev:vercel": "rimraf .vercel/output .vercel/builders && npx vercel dev --debug --cwd C:\\docker\\trending_app --local-config C:\\docker\\trending_app\\vercel_client.json",
+		"dev:vercel": "rimraf .vercel/output .vercel/builders && npx vercel dev --debug --cwd . --local-config vercel_client.json",
 		"build": "tsc --project api/tsconfig.json && npm --prefix client run build",
 		"preview": "npm --prefix client run preview",
 		"client:install": "npm --prefix client install",
@@ -28,7 +28,7 @@
 		"@types/node": "^20.11.30",
 		"@typescript-eslint/eslint-plugin": "^8.41.0",
 		"@typescript-eslint/parser": "^8.41.0",
-		"@vercel/node": "^5.3.17",
+		"@vercel/node": "^5.8.4",
 		"concurrently": "^9.1.2",
 		"eslint": "^9.34.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -44,5 +44,12 @@
 		"dotenv": "^16.4.5",
 		"google-auth-library": "^10.3.0",
 		"rss-parser": "^3.13.0"
+	},
+	"overrides": {
+		"ajv": "^8.18.0",
+		"minimatch": "^10.2.3",
+		"smol-toml": "^1.6.1",
+		"undici": "^6.23.1",
+		"path-to-regexp": "^6.3.0"
 	}
 }
