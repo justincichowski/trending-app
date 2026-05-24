@@ -1,3 +1,7 @@
+# Local setup notes
+SETUP_UBUNTU_24.md
+GIT_PUSH_PULL_NOTES.md
+
 node_modules
 .env
 .env.*
