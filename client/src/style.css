@@ -401,7 +401,7 @@ html {
 #category-nav .swiper-button-next.swiper-button-disabled {
 	display: none;
 }
-
+/* 
 .swiper-button-prev::after {
 	content: 'prev';
 	transform: translateX(-3px);
@@ -410,6 +410,14 @@ html {
 .swiper-button-next::after {
 	content: 'next';
 	transform: translateX(3px);
+} */
+
+.swiper-button-prev .swiper-navigation-icon {
+	transform: rotate(180deg);
+}
+
+.swiper-button-next .swiper-navigation-icon {
+	transform: none;
 }
 
 .logo {
